@@ -16,12 +16,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Benzersiz ID oluştur
         const listID = generateRandomID();
-        
-        // Veriyi localStorage'a kaydet
-        localStorage.setItem(listID, JSON.stringify({ title, content }));
 
-        // QR kod oluşturulması
-        const qrText = `${window.location.origin}?id=${listID}`;
+        // Veriyi URL parametresi olarak kaydet
+        const listData = { title, content };
+        const encodedData = encodeURIComponent(JSON.stringify(listData));
+
+        // QR kodu oluşturulması
+        const qrText = `${window.location.origin}?id=${listID}&data=${encodedData}`;
         qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrText)}`;
 
         alert("QR kod oluşturuldu! QR'yi tarayarak listeye ulaşabilirsiniz.");
@@ -35,20 +36,17 @@ document.addEventListener("DOMContentLoaded", function () {
     // Sayfa yüklenince URL parametresinden id'yi alalım ve veriyi bulalım
     const urlParams = new URLSearchParams(window.location.search); // URL parametrelerini al
     const listID = urlParams.get("id"); // "id" parametresini al
+    const listData = urlParams.get("data"); // "data" parametresini al
 
-    if (listID) {
-        // Eğer URL'de id varsa, LocalStorage'dan veriyi çekelim
-        const savedData = localStorage.getItem(listID);
-        if (savedData) {
-            const parsedData = JSON.parse(savedData);
-            // Başlık ve içerik bilgilerini sayfada göster
-            document.body.innerHTML = `
-                <h1>${parsedData.title}</h1>
-                <p>${parsedData.content.replace(/\n/g, "<br>")}</p>
-            `;
-        } else {
-            // Liste bulunamazsa uyarı göster
-            document.body.innerHTML = `<h1>Liste bulunamadı!</h1>`;
-        }
+    if (listID && listData) {
+        // Eğer URL'de id ve data varsa, veriyi çekelim ve görüntüleyelim
+        const parsedData = JSON.parse(decodeURIComponent(listData));
+        document.body.innerHTML = `
+            <h1>${parsedData.title}</h1>
+            <p>${parsedData.content.replace(/\n/g, "<br>")}</p>
+        `;
+    } else {
+        // Liste bulunamazsa uyarı göster
+        document.body.innerHTML = `<h1>Liste bulunamadı!</h1>`;
     }
 });
