@@ -9,9 +9,12 @@
 <body>
     <div class="container">
         <h1>QR List Oluşturucu</h1>
+
+        <!-- Liste İsmi Girişi -->
         <label for="listName">Liste İsmi:</label>
         <input type="text" id="listName" placeholder="Liste için bir isim girin">
 
+        <!-- Liste Öğeleri -->
         <label for="listItem">Liste Öğeleri:</label>
         <div class="input-group">
             <input type="text" id="listItem" placeholder="Listeye öğe ekleyin">
@@ -20,13 +23,17 @@
 
         <ul id="itemList"></ul>
 
+        <!-- Eylem Düğmeleri -->
         <button id="generateQR" onclick="generateQR()">QR Kodu Oluştur</button>
         <button id="reset" onclick="resetForm()">Sıfırla</button>
 
+        <!-- QR Kodu Görüntüleme -->
         <div id="qrContainer"></div>
 
+        <!-- Footer -->
         <footer>2003230030 // Bünyamin Ekmekcioğlu</footer>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
