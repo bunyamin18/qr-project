@@ -14,7 +14,10 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        const listID = generateRandomID(); // ID üretme fonksiyonu
+        // Benzersiz ID oluştur
+        const listID = generateRandomID();
+        
+        // Veriyi localStorage'a kaydet
         localStorage.setItem(listID, JSON.stringify({ title, content }));
 
         // QR kod oluşturulması
