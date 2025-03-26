@@ -24,8 +24,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const qrText = `${window.location.origin}?id=${listID}`;
         qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrText)}`;
+        
+        alert("QR kod oluşturuldu! QR'yi tarayarak listeye ulaşabilirsiniz.");
     });
 
+    // ** Sayfa açıldığında URL'den ID'yi al ve listeyi göster **
     const urlParams = new URLSearchParams(window.location.search);
     const listID = urlParams.get("id");
 
@@ -33,11 +36,12 @@ document.addEventListener("DOMContentLoaded", function () {
         const savedData = localStorage.getItem(listID);
         if (savedData) {
             const parsedData = JSON.parse(savedData);
-            displayTitle.textContent = parsedData.title;
-            displayContent.textContent = parsedData.content;
+            document.body.innerHTML = `
+                <h1>${parsedData.title}</h1>
+                <p>${parsedData.content.replace(/\n/g, "<br>")}</p>
+            `;
         } else {
-            displayTitle.textContent = "Hata!";
-            displayContent.textContent = "Bu liste bulunamadı.";
+            document.body.innerHTML = `<h1>Liste bulunamadı!</h1>`;
         }
     }
 });
