@@ -4,49 +4,51 @@ document.addEventListener("DOMContentLoaded", function () {
     const saveButton = document.getElementById("save");
     const qrImage = document.getElementById("qr-code");
 
-    // Kaydet butonuna tıklama işlemi
-    saveButton.addEventListener("click", function () {
-        const title = titleInput.value.trim();
-        const content = contentInput.value.trim();
+    // Sayfa URL'sindeki parametreleri al
+    const urlParams = new URLSearchParams(window.location.search);
+    const listData = urlParams.get("data");
 
-        if (title === "" || content === "") {
-            alert("Lütfen bir başlık ve içerik girin!");
-            return;
-        }
-
-        // Benzersiz ID oluştur
-        const listID = generateRandomID();
-
-        // Veriyi URL parametresi olarak kaydet
-        const listData = { title, content };
-        const encodedData = encodeURIComponent(JSON.stringify(listData));
-
-        // QR kodu oluşturulması
-        const qrText = `${window.location.origin}?id=${listID}&data=${encodedData}`;
-        qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrText)}`;
-
-        alert("QR kod oluşturuldu! QR'yi tarayarak listeye ulaşabilirsiniz.");
-    });
-
-    // ID oluşturma fonksiyonu
-    function generateRandomID() {
-        return Math.random().toString(36).substr(2, 9); // Benzersiz bir ID üretir
-    }
-
-    // Sayfa yüklenince URL parametresinden id'yi alalım ve veriyi bulalım
-    const urlParams = new URLSearchParams(window.location.search); // URL parametrelerini al
-    const listID = urlParams.get("id"); // "id" parametresini al
-    const listData = urlParams.get("data"); // "data" parametresini al
-
-    if (listID && listData) {
-        // Eğer URL'de id ve data varsa, veriyi çekelim ve görüntüleyelim
+    if (listData) {
+        // QR kodu ile açılmış, listeyi göster
         const parsedData = JSON.parse(decodeURIComponent(listData));
         document.body.innerHTML = `
             <h1>${parsedData.title}</h1>
             <p>${parsedData.content.replace(/\n/g, "<br>")}</p>
         `;
     } else {
-        // Liste bulunamazsa uyarı göster
-        document.body.innerHTML = `<h1>Liste bulunamadı!</h1>`;
+        // Normal açılışta liste oluşturma ekranı göster
+        document.body.innerHTML = `
+            <h1>Yeni Liste Oluştur</h1>
+            <label for="title">Başlık:</label>
+            <input type="text" id="title" placeholder="Başlık girin"><br><br>
+
+            <label for="content">İçerik:</label>
+            <textarea id="content" placeholder="Liste içeriği yazın"></textarea><br><br>
+
+            <button id="save">Listeyi Kaydet</button>
+
+            <h2>QR Kod:</h2>
+            <img id="qr-code" src="" alt="QR kodu gösterilecek">
+
+            <script>
+                document.getElementById("save").addEventListener("click", function () {
+                    const title = document.getElementById("title").value.trim();
+                    const content = document.getElementById("content").value.trim();
+
+                    if (title === "" || content === "") {
+                        alert("Lütfen bir başlık ve içerik girin!");
+                        return;
+                    }
+
+                    const encodedData = encodeURIComponent(JSON.stringify({ title, content }));
+                    const qrText = window.location.origin + "?data=" + encodedData;
+
+                    document.getElementById("qr-code").src = 
+                        "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + encodeURIComponent(qrText);
+
+                    alert("QR kod oluşturuldu! QR'yi tarayarak listeye ulaşabilirsiniz.");
+                });
+            </script>
+        `;
     }
 });
