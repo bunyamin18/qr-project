@@ -3,81 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Kodlu Liste</title>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        h1 {
-            text-align: center;
-        }
-        input, textarea, button {
-            width: 100%;
-            margin: 10px 0;
-            padding: 10px;
-        }
-        textarea {
-            height: 200px;
-            resize: none;
-        }
-        .qr-code {
-            margin-top: 20px;
-            text-align: center;
-        }
-    </style>
+    <title>Liste Oluştur</title>
 </head>
 <body>
-    <div class="container">
-        <h1>Yeni Liste Oluştur</h1>
-        <!-- Liste Başlığı -->
-        <input type="text" id="listTitle" placeholder="Liste ismini yazın" required>
-        
-        <!-- Liste İçeriği -->
-        <textarea id="listContent" placeholder="Listeyi buraya yazın" required></textarea>
-        
-        <!-- Kaydet Butonu -->
-        <button onclick="generateQRCode()">Kaydet ve QR Kod Oluştur</button>
+    <h2>Yeni Liste Oluştur</h2>
+    <input type="text" id="title" placeholder="Başlık">
+    <textarea id="content" placeholder="İçeriğinizi yazın"></textarea>
+    <button id="save">Kaydet ve QR Kodu Oluştur</button>
+    <br>
+    <img id="qr-code" src="" alt="QR Kodu">
 
-        <!-- QR Kod Alanı -->
-        <div class="qr-code" id="qrCode"></div>
-    </div>
+    <h2>Kaydedilmiş Liste</h2>
+    <h3 id="display-title"></h3>
+    <p id="display-content"></p>
 
-    <script>
-        function generateQRCode() {
-            const title = document.getElementById("listTitle").value;
-            const content = document.getElementById("listContent").value;
-
-            if (!title || !content) {
-                alert("Liste ismini ve içeriğini doldurun.");
-                return;
-            }
-
-            // Liste verisini birleştirerek bir URL oluşturuyoruz
-            const listData = {
-                title: title,
-                content: content
-            };
-
-            const listDataString = JSON.stringify(listData);
-            
-            // QR kodu oluşturuyoruz
-            QRCode.toDataURL(listDataString, { errorCorrectionLevel: 'H' }, function (err, url) {
-                if (err) {
-                    console.error(err);
-                    return;
-                }
-
-                // QR kodu ekrana basıyoruz
-                document.getElementById("qrCode").innerHTML = `<img src="${url}" alt="QR Code" />`;
-            });
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
