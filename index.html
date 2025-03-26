@@ -1,24 +1,22 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Kodlu Liste</title>
+    <title>QR Liste Oluşturucu</title>
 </head>
 <body>
+    <h1>QR Liste Oluşturucu</h1>
+    
+    <input type="text" id="listName" placeholder="Liste İsmi">
+    <input type="text" id="listItem" placeholder="Liste Öğesi">
+    <button onclick="addItem()">Ekle</button>
+    
+    <ul id="itemList"></ul>
+    
+    <button onclick="generateQR()">QR Kodu Oluştur</button>
+    
+    <div id="qrCode"></div>
 
-    <h1>Yeni Liste Oluştur</h1>
-    <label for="title">Başlık:</label>
-    <input type="text" id="title" placeholder="Başlık girin"><br><br>
-
-    <label for="content">İçerik:</label>
-    <textarea id="content" placeholder="Liste içeriği yazın"></textarea><br><br>
-
-    <button id="save">Listeyi Kaydet</button>
-
-    <h2>QR Kod:</h2>
-    <img id="qr-code" src="" alt="QR kodu gösterilecek">
-
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
