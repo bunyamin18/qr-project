@@ -3,13 +3,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const contentInput = document.getElementById("content");
     const saveButton = document.getElementById("save");
     const qrImage = document.getElementById("qr-code");
-    const displayTitle = document.getElementById("display-title");
-    const displayContent = document.getElementById("display-content");
-
-    // ID'yi oluşturmak için rastgele bir fonksiyon
-    function generateRandomID() {
-        return Math.random().toString(36).substr(2, 9);
-    }
 
     // Kaydet butonuna tıklama işlemi
     saveButton.addEventListener("click", function () {
@@ -31,12 +24,17 @@ document.addEventListener("DOMContentLoaded", function () {
         alert("QR kod oluşturuldu! QR'yi tarayarak listeye ulaşabilirsiniz.");
     });
 
-    // ** QR Kod Taratıldığında URL Parametrelerinden Listeyi Çekme **
+    // ID oluşturma fonksiyonu
+    function generateRandomID() {
+        return Math.random().toString(36).substr(2, 9);
+    }
+
+    // Sayfa yüklenince URL parametresinden id'yi alalım ve veriyi bulalım
     const urlParams = new URLSearchParams(window.location.search);
     const listID = urlParams.get("id");
 
     if (listID) {
-        // URL'den gelen ID ile veriyi LocalStorage'dan çekme
+        // Eğer URL'de id varsa, LocalStorage'dan veriyi çekelim
         const savedData = localStorage.getItem(listID);
         if (savedData) {
             const parsedData = JSON.parse(savedData);
@@ -45,7 +43,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <p>${parsedData.content.replace(/\n/g, "<br>")}</p>
             `;
         } else {
-            // Liste bulunamazsa
+            // Liste bulunamazsa uyarı göster
             document.body.innerHTML = `<h1>Liste bulunamadı!</h1>`;
         }
     }
