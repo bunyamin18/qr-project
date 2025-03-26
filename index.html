@@ -1,22 +1,32 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
-    <title>QR Liste Oluşturucu</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR List Oluşturucu</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>QR Liste Oluşturucu</h1>
-    
-    <input type="text" id="listName" placeholder="Liste İsmi">
-    <input type="text" id="listItem" placeholder="Liste Öğesi">
-    <button onclick="addItem()">Ekle</button>
-    
-    <ul id="itemList"></ul>
-    
-    <button onclick="generateQR()">QR Kodu Oluştur</button>
-    
-    <div id="qrCode"></div>
+    <div class="container">
+        <h1>QR List Oluşturucu</h1>
+        <label for="listName">Liste İsmi:</label>
+        <input type="text" id="listName" placeholder="Liste için bir isim girin">
 
-    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+        <label for="listItem">Liste Öğeleri:</label>
+        <div class="input-group">
+            <input type="text" id="listItem" placeholder="Listeye öğe ekleyin">
+            <button onclick="addItem()">Ekle</button>
+        </div>
+
+        <ul id="itemList"></ul>
+
+        <button id="generateQR" onclick="generateQR()">QR Kodu Oluştur</button>
+        <button id="reset" onclick="resetForm()">Sıfırla</button>
+
+        <div id="qrContainer"></div>
+
+        <footer>2003230030 // Bünyamin Ekmekcioğlu</footer>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
