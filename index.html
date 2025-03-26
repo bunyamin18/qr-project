@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste Oluştur</title>
+    <title>QR Kodlu Liste</title>
 </head>
 <body>
-    <h2>Yeni Liste Oluştur</h2>
-    <input type="text" id="title" placeholder="Başlık">
-    <textarea id="content" placeholder="İçeriğinizi yazın"></textarea>
-    <button id="save">Kaydet ve QR Kodu Oluştur</button>
-    <br>
-    <img id="qr-code" src="" alt="QR Kodu">
 
-    <h2>Kaydedilmiş Liste</h2>
-    <h3 id="display-title"></h3>
-    <p id="display-content"></p>
+    <h1>Yeni Liste Oluştur</h1>
+    <label for="title">Başlık:</label>
+    <input type="text" id="title" placeholder="Başlık girin"><br><br>
+
+    <label for="content">İçerik:</label>
+    <textarea id="content" placeholder="Liste içeriği yazın"></textarea><br><br>
+
+    <button id="save">Listeyi Kaydet</button>
+
+    <h2>QR Kod:</h2>
+    <img id="qr-code" src="" alt="QR kodu gösterilecek">
 
     <script src="script.js"></script>
 </body>
