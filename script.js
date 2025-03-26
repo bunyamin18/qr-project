@@ -3,29 +3,28 @@ document.addEventListener("DOMContentLoaded", function () {
     const listData = urlParams.get("data");
 
     if (listData) {
-        // QR kod ile açıldıysa, listeyi göster
+        // QR Kod ile açıldıysa, listeyi göster
         const parsedData = JSON.parse(decodeURIComponent(listData));
         document.body.innerHTML = `
-            <h1>${parsedData.title}</h1>
-            <p>${parsedData.content.replace(/\n/g, "<br>")}</p>
+            <div class="list-container">
+                <h1>${parsedData.title}</h1>
+                <p>${parsedData.content.replace(/\n/g, "<br>")}</p>
+            </div>
         `;
     } else {
         // Liste oluşturma ekranını göster
         document.body.innerHTML = `
-            <h1>Yeni Liste Oluştur</h1>
-            <label for="title">Başlık:</label>
-            <input type="text" id="title" placeholder="Başlık girin"><br><br>
-
-            <label for="content">İçerik:</label>
-            <textarea id="content" placeholder="Liste içeriği yazın"></textarea><br><br>
-
-            <button id="save">Listeyi Kaydet</button>
-
-            <h2>QR Kod:</h2>
-            <img id="qr-code" src="" alt="QR kodu burada gözükecek">
+            <div class="container">
+                <h1>Yeni Liste Oluştur</h1>
+                <input type="text" id="title" placeholder="Başlık girin"><br><br>
+                <textarea id="content" placeholder="Liste içeriği yazın"></textarea><br><br>
+                <button id="save">Listeyi Kaydet</button>
+                <h2>QR Kod:</h2>
+                <img id="qr-code" src="" alt="QR kodu burada gözükecek">
+            </div>
         `;
 
-        // Event listener'ı ekleyelim
+        // Buton olaylarını tekrar bağla
         document.getElementById("save").addEventListener("click", function () {
             const title = document.getElementById("title").value.trim();
             const content = document.getElementById("content").value.trim();
