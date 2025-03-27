@@ -8,8 +8,13 @@
 </head>
 <body>
     <div class="container">
-        <h1 id="listTitle"></h1>
-        <table id="listTable">
+        <h1>Listeyi Görüntüle</h1>
+        
+        <!-- Liste Başlığı -->
+        <h2 id="viewListTitle"></h2>
+        
+        <!-- Listeyi Görüntüleme -->
+        <table id="viewListTable">
             <thead>
                 <tr>
                     <th>Öğe Adı</th>
@@ -17,36 +22,13 @@
                     <th>Resim</th>
                 </tr>
             </thead>
-            <tbody id="listItems"></tbody>
+            <tbody id="viewListBody"></tbody>
         </table>
+        
+        <!-- Düzenle Butonu -->
         <button id="editListBtn">Düzenle</button>
     </div>
 
-    <script src="script.js"></script>
-    <script>
-        // URL parametrelerinden liste verilerini al
-        const urlParams = new URLSearchParams(window.location.search);
-        const listDataEncoded = urlParams.get('data');
-        const listData = JSON.parse(decodeURIComponent(listDataEncoded));
-
-        // Liste başlığını ve öğeleri sayfada göster
-        document.getElementById('listTitle').textContent = listData.name;
-
-        const listItemsContainer = document.getElementById('listItems');
-        listData.items.forEach(item => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${item.name}</td>
-                <td>${item.quantity}</td>
-                <td>${item.image ? `<img src="${item.image}" alt="Image" width="50" height="50">` : ''}</td>
-            `;
-            listItemsContainer.appendChild(row);
-        });
-
-        // Düzenleme butonuna tıklanırsa, düzenleme sayfasına yönlendir
-        document.getElementById('editListBtn').addEventListener('click', function() {
-            window.location.href = 'index.html';  // Düzenleme sayfasına yönlendir
-        });
-    </script>
+    <script src="list.js"></script>
 </body>
 </html>
