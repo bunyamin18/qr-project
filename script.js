@@ -1,30 +1,47 @@
-window.onload = function() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const qrData = urlParams.get('data');
+document.getElementById('addItem').addEventListener('click', function() {
+    const newRow = document.createElement('tr');
+    newRow.innerHTML = `
+        <td><input type="text" class="itemName" placeholder="Öğe Adı"></td>
+        <td><input type="text" class="itemAmount" placeholder="Miktar"></td>
+        <td><input type="file" class="itemImage" accept="image/*"></td>
+    `;
+    document.getElementById('itemList').appendChild(newRow);
+});
 
-    if (qrData) {
-        const listData = JSON.parse(atob(qrData));
-        document.getElementById('listTitle').innerText = listData.listName;
+document.getElementById('saveList').addEventListener('click', function() {
+    const listName = document.getElementById('listName').value;
+    const items = [];
+    
+    document.querySelectorAll('#itemList tr').forEach(row => {
+        const itemName = row.querySelector('.itemName').value;
+        const itemAmount = row.querySelector('.itemAmount').value;
+        const itemImage = row.querySelector('.itemImage').files[0];
 
-        const viewList = document.getElementById('viewList');
-        listData.items.forEach(item => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${item.itemName}</td>
-                <td>${item.itemAmount}</td>
-                <td><img src="${item.itemImage}" alt="${item.itemName}" style="width: 50px;"></td>
-            `;
-            viewList.appendChild(row);
-        });
+        if (itemName && itemAmount) {
+            const reader = new FileReader();
+            reader.onloadend = function() {
+                items.push({ itemName, itemAmount, itemImage: reader.result });
+                if (items.length === document.querySelectorAll('#itemList tr').length) {
+                    saveAndGenerateQR(listName, items);
+                }
+            };
+            if (itemImage) {
+                reader.readAsDataURL(itemImage);
+            } else {
+                items.push({ itemName, itemAmount, itemImage: '' });
+                if (items.length === document.querySelectorAll('#itemList tr').length) {
+                    saveAndGenerateQR(listName, items);
+                }
+            }
+        }
+    });
+});
 
-        // Düzenleme butonunu göster
-        document.getElementById('editButton').style.display = 'block';
+function saveAndGenerateQR(listName, items) {
+    const listData = JSON.stringify({ listName, items });
+    const encodedData = btoa(listData);
+    const qrCodeURL = `list.html?data=${encodedData}`;
 
-        // Düzenleme butonuna tıklandığında yönlendir
-        document.getElementById('editButton').addEventListener('click', function() {
-            window.location.href = 'index.html'; // Düzenleme sayfasına yönlendir
-        });
-    } else {
-        alert("Geçersiz QR Kodu!");
-    }
-};
+    document.getElementById('qrCode').innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrCodeURL)}&size=200x200" alt="QR Code">`;
+    document.getElementById('qrCodeContainer').style.display = 'block';
+}
