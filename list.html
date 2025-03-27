@@ -60,6 +60,17 @@
         .btn-container button:hover {
             background-color: #45a049;
         }
+        #qrCode {
+            margin-top: 20px;
+            display: none;
+            text-align: center;
+        }
+        #qrCode img {
+            width: 200px;
+            height: 200px;
+            border: 5px solid #4CAF50;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body>
@@ -73,6 +84,12 @@
     <button id="saveList">Kaydet</button>
 </div>
 
+<div id="qrCode">
+    <h3>QR Kodu</h3>
+    <img id="qrImage" src="" alt="QR Kodu">
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script>
     const urlParams = new URLSearchParams(window.location.search);
     const listData = JSON.parse(decodeURIComponent(urlParams.get('data')));
@@ -124,6 +141,9 @@
         // Veriyi güncelle
         listData.items = updatedItems;
 
+        // Listeyi kaydetmek için localStorage kullanıyoruz
+        localStorage.setItem('listData', JSON.stringify(listData));
+
         // Kaydedilen listeyi veritabanına veya başka bir yere kaydedebilirsiniz.
         alert("Liste kaydedildi!");
 
@@ -136,12 +156,19 @@
             img.style.display = "inline"; // Resimleri tekrar göster
         });
 
-        // QR Kodunun değişmemesi için URL'yi kaydet
+        // QR Kodunu oluştur
         const updatedListData = encodeURIComponent(JSON.stringify(listData));
-
-        // QR kodu oluşturma URL'si
         const qrCodeUrl = `https://yourwebsite.com/list.html?data=${updatedListData}`;
-        console.log(qrCodeUrl);
+
+        // QR kodunu oluştur
+        QRCode.toDataURL(qrCodeUrl, function(err, url) {
+            if (err) {
+                console.error(err);
+            } else {
+                document.getElementById('qrCode').style.display = 'block';
+                document.getElementById('qrImage').src = url;
+            }
+        });
 
         // QR kodunu aynı bırakmak için sadece listeyi güncelleme
         alert("Listeyi kaydettiniz ve QR kodu aynı kaldı.");
