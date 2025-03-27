@@ -34,17 +34,20 @@
         .img-container {
             max-width: 100px;
         }
-        button {
-            display: block;
-            margin: 20px auto;
+        .btn-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .btn-container button {
             padding: 10px 20px;
             background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            margin: 10px;
         }
-        button:hover {
+        .btn-container button:hover {
             background-color: #45a049;
         }
     </style>
@@ -54,8 +57,10 @@
 
     <div id="itemList"></div>
 
-    <button id="editList">Düzenle</button>
-    <button id="saveList">Kaydet</button>
+    <div class="btn-container">
+        <button id="editList">Düzenle</button>
+        <button id="saveList">Kaydet</button>
+    </div>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
@@ -72,7 +77,7 @@
             row.innerHTML = `
                 <td>${item.itemName}</td>
                 <td>${item.quantity}</td>
-                <td class="img-container">${item.imgSrc ? `<img src="${item.imgSrc}" width="50" />` : ""}</td>
+                <td class="img-container">${item.itemImage ? `<img src="${item.itemImage}" width="50" />` : ""}</td>
             `;
             itemListContainer.appendChild(row);
         });

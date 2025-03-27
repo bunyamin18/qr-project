@@ -51,12 +51,34 @@
         .img-container {
             max-width: 100px;
         }
+        input[type="text"], input[type="file"] {
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .btn-container {
+            text-align: center;
+        }
+        .btn-container button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        .btn-container button:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
     <h1>Listeyi Kaydet ve QR Kodunu Oluştur</h1>
     <div id="itemList">
-        <table>
+        <label for="listTitle">Liste Başlığı:</label>
+        <input type="text" id="listTitle" placeholder="Liste başlığını girin...">
+        <table id="itemTable">
             <thead>
                 <tr>
                     <th>Öğe Adı</th>
@@ -66,13 +88,16 @@
             </thead>
             <tbody>
                 <tr>
-                    <td><input type="text" id="itemName" placeholder="Öğe Adı"></td>
-                    <td><input type="text" id="itemQuantity" placeholder="Miktar"></td>
-                    <td><input type="file" id="itemImage"></td>
+                    <td><input type="text" placeholder="Öğe Adı"></td>
+                    <td><input type="text" placeholder="Miktar"></td>
+                    <td><input type="file" placeholder="Resim"></td>
                 </tr>
             </tbody>
         </table>
-        <button id="addItem">Öğe Ekle</button>
+        <button id="addItem">+ Öğe Ekle</button>
+    </div>
+    <div class="btn-container">
+        <button id="saveAndGenerateQR">Kaydet ve QR Kod Oluştur</button>
     </div>
 
     <div id="qrCodeDisplay"></div>
@@ -81,39 +106,44 @@
         let items = [];
 
         document.getElementById("addItem").addEventListener("click", function() {
-            const name = document.getElementById("itemName").value;
-            const quantity = document.getElementById("itemQuantity").value;
-            const imageFile = document.getElementById("itemImage").files[0];
-
-            if (name && quantity) {
-                const item = {
-                    itemName: name,
-                    quantity: quantity,
-                    imgSrc: imageFile ? URL.createObjectURL(imageFile) : ""
-                };
-                items.push(item);
-
-                // Reset inputs
-                document.getElementById("itemName").value = "";
-                document.getElementById("itemQuantity").value = "";
-                document.getElementById("itemImage").value = "";
-
-                alert('Öğe eklendi!');
-            } else {
-                alert('Öğe adı ve miktarı doldurun!');
-            }
+            const table = document.getElementById("itemTable").getElementsByTagName('tbody')[0];
+            const row = table.insertRow();
+            row.innerHTML = `
+                <td><input type="text" placeholder="Öğe Adı"></td>
+                <td><input type="text" placeholder="Miktar"></td>
+                <td><input type="file" placeholder="Resim"></td>
+            `;
         });
 
-        // QR Kodu Oluştur
-        function generateQRCode() {
-            const listTitle = "Liste Başlığı";  // Liste başlığı (değiştirilebilir)
+        document.getElementById("saveAndGenerateQR").addEventListener("click", function() {
+            const listTitle = document.getElementById("listTitle").value;
+            if (!listTitle) {
+                alert("Liste başlığını girin!");
+                return;
+            }
+
+            const rows = document.getElementById("itemTable").getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+            items = [];
+            for (let i = 0; i < rows.length; i++) {
+                const itemName = rows[i].cells[0].children[0].value;
+                const itemQuantity = rows[i].cells[1].children[0].value;
+                const itemImage = rows[i].cells[2].children[0].files[0] ? URL.createObjectURL(rows[i].cells[2].children[0].files[0]) : "";
+                if (itemName && itemQuantity) {
+                    items.push({ itemName, itemQuantity, itemImage });
+                }
+            }
+
+            if (items.length === 0) {
+                alert("Lütfen en az bir öğe girin!");
+                return;
+            }
+
+            // QR kodu için URL
             const qrCodeUrl = `${window.location.origin}/list.html?title=${encodeURIComponent(listTitle)}&items=${encodeURIComponent(JSON.stringify(items))}`;
-
-            document.getElementById("qrCodeDisplay").innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrCodeUrl)}&size=150x150" alt="QR Code">`;
-        }
-
-        // Kaydet ve QR Kod oluştur
-        generateQRCode();
+            document.getElementById("qrCodeDisplay").innerHTML = `
+                <img src="https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrCodeUrl)}&size=150x150" alt="QR Code">
+            `;
+        });
     </script>
 </body>
 </html>
