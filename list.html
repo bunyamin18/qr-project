@@ -7,17 +7,26 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
             padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
         }
         h1 {
             text-align: center;
+            margin-top: 30px;
+            font-size: 24px;
+            color: #333;
         }
         #itemList {
             margin-top: 30px;
-            width: 100%;
+            width: 90%;
             max-width: 800px;
-            margin: 0 auto;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         table {
             width: 100%;
@@ -25,11 +34,11 @@
         }
         th, td {
             padding: 10px;
-            border: 1px solid #ccc;
+            border: 1px solid #ddd;
             text-align: left;
         }
         th {
-            background-color: #f2f2f2;
+            background-color: #f9f9f9;
         }
         .img-container {
             max-width: 100px;
@@ -39,12 +48,13 @@
             margin-top: 20px;
         }
         .btn-container button {
-            padding: 10px 20px;
+            padding: 12px 30px;
             background-color: #4CAF50;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 16px;
             margin: 10px;
         }
         .btn-container button:hover {
@@ -76,7 +86,7 @@
             const row = document.createElement("tr");
             row.innerHTML = `
                 <td>${item.itemName}</td>
-                <td>${item.quantity}</td>
+                <td>${item.itemQuantity}</td>
                 <td class="img-container">${item.itemImage ? `<img src="${item.itemImage}" width="50" />` : ""}</td>
             `;
             itemListContainer.appendChild(row);
@@ -89,8 +99,3 @@
 
         document.getElementById("saveList").addEventListener("click", function() {
             alert("Değişiklikler kaydedildi!");
-            // Kaydetme işlemi (QR kodu değişmeyecek)
-        });
-    </script>
-</body>
-</html>
