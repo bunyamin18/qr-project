@@ -3,27 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste Oluşturucu</title>
+    <title>QR Kodlu Liste</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>QR Kod ile Liste Oluştur</h1>
-        <table id="listeTablosu">
+        <h1>QR Kodlu Liste Oluştur</h1>
+        <input type="text" id="listName" placeholder="Liste Adı">
+        <table id="itemTable">
             <thead>
                 <tr>
-                    <th>Öğe Adı</th>
+                    <th>Öğe</th>
                     <th>Miktar</th>
                     <th>Resim</th>
-                    <th>İşlem</th>
+                    <th>Sil</th>
                 </tr>
             </thead>
-            <tbody id="listeBody"></tbody>
+            <tbody></tbody>
         </table>
-        <button onclick="listeyeEkle()">Ekle</button>
-        <button onclick="listeyiKaydet()">Kaydet ve QR Kod Oluştur</button>
+        <button onclick="addItem()">Öğe Ekle</button>
+        <button onclick="saveList()">Kaydet</button>
         <div id="qrcode"></div>
+        <h2>Kaydedilen Listeler</h2>
+        <div id="savedLists"></div>
     </div>
     <script src="script.js"></script>
 </body>

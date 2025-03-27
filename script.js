@@ -1,66 +1,131 @@
-document.addEventListener("DOMContentLoaded", () => {
-    yuklenmisListeyiGoster();
-});
+let lists = JSON.parse(localStorage.getItem("lists")) || {};
 
-function listeyeEkle() {
-    let table = document.getElementById("listeBody");
+function addItem() {
+    let table = document.getElementById("itemTable").getElementsByTagName("tbody")[0];
     let row = table.insertRow();
-
+    
     let cell1 = row.insertCell(0);
     let cell2 = row.insertCell(1);
     let cell3 = row.insertCell(2);
     let cell4 = row.insertCell(3);
-
-    cell1.innerHTML = `<input type="text" placeholder="Öğe adı">`;
+    
+    cell1.innerHTML = `<input type="text" placeholder="Öğe Adı">`;
     cell2.innerHTML = `<input type="number" placeholder="Miktar">`;
-    cell3.innerHTML = `<input type="file" accept="image/*">`;
-    cell4.innerHTML = `<button onclick="satiriSil(this)">Sil</button>`;
+    cell3.innerHTML = `<input type="file" accept="image/*" onchange="previewImage(this)">`;
+    cell4.innerHTML = `<button onclick="deleteRow(this)">Sil</button>`;
 }
 
-function satiriSil(button) {
-    let row = button.parentNode.parentNode;
-    row.parentNode.removeChild(row);
+function previewImage(input) {
+    let file = input.files[0];
+    if (file) {
+        let reader = new FileReader();
+        reader.onload = function(e) {
+            let img = document.createElement("img");
+            img.src = e.target.result;
+            img.width = 50;
+            img.height = 50;
+            input.parentElement.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+    }
 }
 
-function listeyiKaydet() {
-    let tableRows = document.querySelectorAll("#listeBody tr");
-    let liste = [];
+function deleteRow(button) {
+    let row = button.parentElement.parentElement;
+    row.remove();
+}
 
-    tableRows.forEach(row => {
-        let item = row.cells[0].querySelector("input").value;
-        let amount = row.cells[1].querySelector("input").value;
-        liste.push({ item, amount });
+function saveList() {
+    let listName = document.getElementById("listName").value;
+    if (!listName) {
+        alert("Lütfen bir liste adı girin!");
+        return;
+    }
+
+    let rows = document.querySelectorAll("#itemTable tbody tr");
+    let items = [];
+
+    rows.forEach(row => {
+        let itemName = row.cells[0].querySelector("input").value;
+        let quantity = row.cells[1].querySelector("input").value;
+        let imgTag = row.cells[2].querySelector("img");
+        let imgSrc = imgTag ? imgTag.src : "";
+
+        if (itemName && quantity) {
+            items.push({ itemName, quantity, imgSrc });
+        }
     });
 
-    let jsonListe = JSON.stringify(liste);
-    localStorage.setItem("kayitliListe", jsonListe);
+    if (items.length === 0) {
+        alert("Lütfen en az bir öğe ekleyin!");
+        return;
+    }
 
-    let qrcodeDiv = document.getElementById("qrcode");
-    qrcodeDiv.innerHTML = "";
-    new QRCode(qrcodeDiv, window.location.href + "?data=" + encodeURIComponent(jsonListe));
+    if (!lists[listName]) {
+        lists[listName] = { items, qrCode: generateQRCode(listName) };
+    } else {
+        lists[listName].items = items; // Düzenleme modunda güncelleme
+    }
 
-    alert("Liste kaydedildi ve QR kod oluşturuldu!");
+    localStorage.setItem("lists", JSON.stringify(lists));
+    loadSavedLists();
 }
 
-function yuklenmisListeyiGoster() {
-    let params = new URLSearchParams(window.location.search);
-    let data = params.get("data");
+function generateQRCode(listName) {
+    let url = `${window.location.origin}?list=${encodeURIComponent(listName)}`;
+    return url;
+}
 
-    if (data) {
-        let liste = JSON.parse(decodeURIComponent(data));
-        let table = document.getElementById("listeBody");
+function loadSavedLists() {
+    let container = document.getElementById("savedLists");
+    container.innerHTML = "";
 
-        liste.forEach(entry => {
-            let row = table.insertRow();
-            let cell1 = row.insertCell(0);
-            let cell2 = row.insertCell(1);
-            let cell3 = row.insertCell(2);
-            let cell4 = row.insertCell(3);
+    for (let listName in lists) {
+        let div = document.createElement("div");
+        div.innerHTML = `
+            <h3>${listName}</h3>
+            <a href="${lists[listName].qrCode}" target="_blank">
+                <div id="qr-${listName}"></div>
+            </a>
+            <button onclick="editList('${listName}')">Düzenle</button>
+        `;
+        container.appendChild(div);
 
-            cell1.innerHTML = `<input type="text" value="${entry.item}">`;
-            cell2.innerHTML = `<input type="number" value="${entry.amount}">`;
-            cell3.innerHTML = `<input type="file" accept="image/*">`;
-            cell4.innerHTML = `<button onclick="satiriSil(this)">Sil</button>`;
+        let qr = new QRCode(document.getElementById(`qr-${listName}`), {
+            text: lists[listName].qrCode,
+            width: 100,
+            height: 100
         });
     }
 }
+
+function editList(listName) {
+    document.getElementById("listName").value = listName;
+    document.querySelector("#itemTable tbody").innerHTML = "";
+
+    lists[listName].items.forEach(item => {
+        let table = document.getElementById("itemTable").getElementsByTagName("tbody")[0];
+        let row = table.insertRow();
+        
+        let cell1 = row.insertCell(0);
+        let cell2 = row.insertCell(1);
+        let cell3 = row.insertCell(2);
+        let cell4 = row.insertCell(3);
+        
+        cell1.innerHTML = `<input type="text" value="${item.itemName}">`;
+        cell2.innerHTML = `<input type="number" value="${item.quantity}">`;
+        cell3.innerHTML = item.imgSrc ? `<img src="${item.imgSrc}" width="50" height="50">` : "";
+        cell4.innerHTML = `<button onclick="deleteRow(this)">Sil</button>`;
+    });
+}
+
+window.onload = function() {
+    let urlParams = new URLSearchParams(window.location.search);
+    let listName = urlParams.get("list");
+    
+    if (listName && lists[listName]) {
+        editList(listName);
+    }
+
+    loadSavedLists();
+};
