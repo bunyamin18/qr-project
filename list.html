@@ -134,6 +134,13 @@
         images.forEach(img => {
             img.style.display = "inline"; // Resimleri tekrar göster
         });
+
+        // QR Kodunu değiştirmemek için mevcut URL'yi kullanarak yeni veriyi kaydedebiliriz.
+        const updatedListData = encodeURIComponent(JSON.stringify(listData));
+
+        // QR kodu oluşturma URL'si
+        const qrCodeUrl = `https://yourwebsite.com/list.html?data=${updatedListData}`;
+        console.log(qrCodeUrl);
     });
 </script>
 
