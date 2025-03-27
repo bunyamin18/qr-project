@@ -3,143 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listeyi Oluştur</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 0;
-        }
-        h1 {
-            text-align: center;
-            margin-top: 40px;
-            font-size: 28px;
-            color: #333;
-        }
-        #itemList {
-            width: 90%;
-            max-width: 800px;
-            margin: 30px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        .item-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .item-row input {
-            width: 30%;
-            padding: 8px;
-            margin: 5px 0;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-        .item-row img {
-            max-width: 100px;
-            max-height: 100px;
-        }
-        .btn-container {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .btn-container button {
-            padding: 12px 30px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 10px;
-        }
-        .btn-container button:hover {
-            background-color: #45a049;
-        }
-    </style>
+    <title>Liste Oluştur</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div class="container">
+        <h1>Liste Oluştur</h1>
+        <form id="listForm">
+            <label for="listName">Liste Başlığı:</label>
+            <input type="text" id="listName" name="listName" placeholder="Liste başlığını girin" required>
+            
+            <h3>Listeyi Düzenleyin</h3>
+            <table id="listTable">
+                <thead>
+                    <tr>
+                        <th>Öğe Adı</th>
+                        <th>Miktar</th>
+                        <th>Resim</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <button type="button" id="addItemBtn">+ Öğe Ekle</button>
+            <br><br>
+            <button type="submit" id="saveListBtn">Kaydet ve QR Kodu Oluştur</button>
+        </form>
+        <div id="qrCodeSection">
+            <h3>QR Kodu:</h3>
+            <div id="qrCode"></div>
+        </div>
+    </div>
 
-<h1>Listeyi Oluştur</h1>
-
-<!-- Liste başlığı input -->
-<label for="listTitle">Liste Başlığı:</label>
-<input type="text" id="listTitleInput" placeholder="Liste başlığını buraya yazın" />
-
-<div id="itemList"></div>
-
-<div class="btn-container">
-    <button id="addItem">Öğe Ekle</button>
-    <button id="saveList">Listeyi Kaydet ve QR Kodu Oluştur</button>
-</div>
-
-<div id="qrCode" style="display:none;">
-    <h3>QR Kodu</h3>
-    <img id="qrImage" src="" alt="QR Kodu">
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-<script>
-    const itemListContainer = document.getElementById("itemList");
-    let items = []; // Liste öğelerini tutacak array
-
-    // Öğe ekleme butonu
-    document.getElementById("addItem").addEventListener("click", function() {
-        const itemRow = document.createElement("div");
-        itemRow.classList.add("item-row");
-
-        itemRow.innerHTML = `
-            <input type="text" placeholder="Öğe Adı" />
-            <input type="text" placeholder="Miktar" />
-            <input type="text" placeholder="Resim URL'si" />
-            <input type="file" accept="image/*" class="imageUpload" />
-        `;
-        itemListContainer.appendChild(itemRow);
-    });
-
-    // Listeyi kaydetme ve QR kodu oluşturma
-    document.getElementById("saveList").addEventListener("click", function() {
-        const inputs = itemListContainer.querySelectorAll('input');
-        const updatedItems = [];
-
-        // Öğeleri al
-        for (let i = 0; i < inputs.length; i += 4) {
-            const itemName = inputs[i].value;
-            const itemQuantity = inputs[i + 1].value;
-            const itemImage = inputs[i + 2].value;
-
-            updatedItems.push({ itemName, itemQuantity, itemImage });
-        }
-
-        const listData = {
-            title: document.getElementById("listTitleInput").value || "Yeni Liste", // Başlık burada alınacak
-            items: updatedItems
-        };
-
-        // QR kodu için veriyi encode et
-        const listDataEncoded = encodeURIComponent(JSON.stringify(listData));
-        const qrCodeUrl = `https://yourwebsite.com/list.html?data=${listDataEncoded}`;  // Burada `yourwebsite.com` kısmını kendi domain adresinizle değiştirmelisiniz
-
-        // QR kodunu oluştur
-        QRCode.toDataURL(qrCodeUrl, function(err, url) {
-            if (err) {
-                console.error(err);
-            } else {
-                document.getElementById('qrCode').style.display = 'block';
-                document.getElementById('qrImage').src = url;
-            }
-        });
-
-        // QR kodunu göster ve listeyi kaydet
-        alert("Liste kaydedildi ve QR kod oluşturuldu!");
-
-        // Burada listeyi bir veritabanına veya başka bir yere kaydedebilirsiniz.
-    });
-</script>
-
+    <script src="script.js"></script>
 </body>
 </html>

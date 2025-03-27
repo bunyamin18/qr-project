@@ -1,36 +1,53 @@
-// QR kodunu oluşturacak ve listeyi yönetecek JavaScript kodu
-let items = [];
-
-document.getElementById("addItem").addEventListener("click", function() {
-    const name = document.getElementById("itemName").value;
-    const quantity = document.getElementById("itemQuantity").value;
-    const imageFile = document.getElementById("itemImage").files[0];
-
-    if (name && quantity) {
-        const item = {
-            itemName: name,
-            quantity: quantity,
-            imgSrc: imageFile ? URL.createObjectURL(imageFile) : ""
-        };
-        items.push(item);
-
-        // Reset inputs
-        document.getElementById("itemName").value = "";
-        document.getElementById("itemQuantity").value = "";
-        document.getElementById("itemImage").value = "";
-
-        alert('Öğe eklendi!');
-    } else {
-        alert('Öğe adı ve miktarı doldurun!');
-    }
+// Liste oluşturma ve QR kodu oluşturma işlemleri
+document.getElementById('addItemBtn').addEventListener('click', function() {
+    const tableBody = document.querySelector('#listTable tbody');
+    const row = document.createElement('tr');
+    
+    row.innerHTML = `
+        <td><input type="text" placeholder="Öğe adı" required></td>
+        <td><input type="text" placeholder="Miktar" required></td>
+        <td><input type="file" accept="image/*"></td>
+    `;
+    
+    tableBody.appendChild(row);
 });
 
-function generateQRCode() {
-    const listTitle = "Liste Başlığı";  // Liste başlığı (değiştirilebilir)
-    const qrCodeUrl = `${window.location.origin}/list.html?title=${encodeURIComponent(listTitle)}&items=${encodeURIComponent(JSON.stringify(items))}`;
+document.getElementById('listForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    const listName = document.getElementById('listName').value;
+    const rows = document.querySelectorAll('#listTable tbody tr');
+    
+    const listData = {
+        name: listName,
+        items: []
+    };
+    
+    rows.forEach(row => {
+        const itemName = row.querySelector('td input[type="text"]:nth-child(1)').value;
+        const itemQuantity = row.querySelector('td input[type="text"]:nth-child(2)').value;
+        const itemImage = row.querySelector('td input[type="file"]').files[0];
+        
+        if (itemName && itemQuantity) {
+            listData.items.push({
+                name: itemName,
+                quantity: itemQuantity,
+                image: itemImage ? URL.createObjectURL(itemImage) : null
+            });
+        }
+    });
+    
+    // Verileri localStorage'a kaydediyoruz
+    const listDataEncoded = encodeURIComponent(JSON.stringify(listData));
+    const qrCodeUrl = `https://okulprojesibunyamin.netlify.app/list.html?data=${listDataEncoded}`;
+    
+    // QR kodu oluşturuyoruz
+    const qrCode = new QRCode(document.getElementById('qrCode'), {
+        text: qrCodeUrl,
+        width: 128,
+        height: 128
+    });
 
-    document.getElementById("qrCodeDisplay").innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrCodeUrl)}&size=150x150" alt="QR Code">`;
-}
-
-// Kaydet ve QR Kod oluştur
-generateQRCode();
+    localStorage.setItem('listData', JSON.stringify(listData));  // Listeyi kaydet
+    alert('Liste kaydedildi ve QR kodu oluşturuldu!');
+});

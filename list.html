@@ -3,128 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listeyi Görüntüle ve Düzenle</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 0;
-        }
-        h1 {
-            text-align: center;
-            margin-top: 40px;
-            font-size: 28px;
-            color: #333;
-        }
-        #itemList {
-            width: 90%;
-            max-width: 800px;
-            margin: 30px auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        .item-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .item-row input {
-            width: 30%;
-            padding: 8px;
-            margin: 5px 0;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-        .item-row img {
-            max-width: 100px;
-            max-height: 100px;
-        }
-        .btn-container {
-            text-align: center;
-            margin-top: 20px;
-        }
-        .btn-container button {
-            padding: 12px 30px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 10px;
-        }
-        .btn-container button:hover {
-            background-color: #45a049;
-        }
-    </style>
+    <title>Liste Görüntüle</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <div class="container">
+        <h1 id="listTitle"></h1>
+        <table id="listTable">
+            <thead>
+                <tr>
+                    <th>Öğe Adı</th>
+                    <th>Miktar</th>
+                    <th>Resim</th>
+                </tr>
+            </thead>
+            <tbody id="listItems"></tbody>
+        </table>
+        <button id="editListBtn">Düzenle</button>
+    </div>
 
-<h1 id="listTitle">Listeyi Görüntüle ve Düzenle</h1>
-
-<div id="itemList"></div>
-
-<div class="btn-container">
-    <button id="editList">Düzenle</button>
-    <button id="saveList">Kaydet</button>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-<script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const listData = JSON.parse(decodeURIComponent(urlParams.get('data')));
-
-    // Liste başlığını güncelle
-    document.getElementById("listTitle").innerText = listData.title;
-
-    // Liste öğelerini ekle
-    const itemListContainer = document.getElementById("itemList");
-    listData.items.forEach((item, index) => {
-        const itemRow = document.createElement("div");
-        itemRow.classList.add("item-row");
-
-        itemRow.innerHTML = `
-            <input type="text" value="${item.itemName}" ${index > 0 ? "disabled" : ""} />
-            <input type="text" value="${item.itemQuantity}" />
-            <input type="text" value="${item.itemImage}" />
-        `;
-        itemListContainer.appendChild(itemRow);
-    });
-
-    // Kaydet butonuna basıldığında veriyi güncelle
-    document.getElementById("saveList").addEventListener("click", function() {
-        const updatedItems = [];
-        const inputs = itemListContainer.querySelectorAll('input');
-
-        for (let i = 0; i < inputs.length; i += 3) {
-            const itemName = inputs[i].value;
-            const itemQuantity = inputs[i + 1].value;
-            const itemImage = inputs[i + 2].value;
-            updatedItems.push({ itemName, itemQuantity, itemImage });
-        }
-
-        const updatedListData = {
-            title: document.getElementById("listTitle").innerText,
-            items: updatedItems
-        };
-
-        // Yeni QR kodu oluştur
-        const updatedListDataEncoded = encodeURIComponent(JSON.stringify(updatedListData));
-        const updatedQrCodeUrl = `https://yourwebsite.com/list.html?data=${updatedListDataEncoded}`;
-        QRCode.toDataURL(updatedQrCodeUrl, function(err, url) {
-            if (err) {
-                console.error(err);
-            } else {
-                alert("Liste güncellendi ve yeni QR kodu oluşturuldu!");
-                // Burada yeni QR kodunu gösterme işlemi yapılabilir
-            }
-        });
-    });
-</script>
-
+    <script src="script.js"></script>
 </body>
 </html>
