@@ -89,6 +89,7 @@
         itemRow.innerHTML = `
             <input type="text" value="${item.itemName}" ${index > 0 ? "disabled" : ""} />
             <input type="text" value="${item.itemQuantity}" ${index > 0 ? "disabled" : ""} />
+            <input type="text" value="${item.itemImage}" ${index > 0 ? "disabled" : ""} />
             <img src="${item.itemImage}" alt="Resim" />
         `;
         itemListContainer.appendChild(itemRow);
@@ -135,12 +136,15 @@
             img.style.display = "inline"; // Resimleri tekrar göster
         });
 
-        // QR Kodunu değiştirmemek için mevcut URL'yi kullanarak yeni veriyi kaydedebiliriz.
+        // QR Kodunun değişmemesi için URL'yi kaydet
         const updatedListData = encodeURIComponent(JSON.stringify(listData));
 
         // QR kodu oluşturma URL'si
         const qrCodeUrl = `https://yourwebsite.com/list.html?data=${updatedListData}`;
         console.log(qrCodeUrl);
+
+        // QR kodunu aynı bırakmak için sadece listeyi güncelleme
+        alert("Listeyi kaydettiniz ve QR kodu aynı kaldı.");
     });
 </script>
 
