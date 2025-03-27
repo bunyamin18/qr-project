@@ -23,5 +23,30 @@
     </div>
 
     <script src="script.js"></script>
+    <script>
+        // URL parametrelerinden liste verilerini al
+        const urlParams = new URLSearchParams(window.location.search);
+        const listDataEncoded = urlParams.get('data');
+        const listData = JSON.parse(decodeURIComponent(listDataEncoded));
+
+        // Liste başlığını ve öğeleri sayfada göster
+        document.getElementById('listTitle').textContent = listData.name;
+
+        const listItemsContainer = document.getElementById('listItems');
+        listData.items.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.name}</td>
+                <td>${item.quantity}</td>
+                <td>${item.image ? `<img src="${item.image}" alt="Image" width="50" height="50">` : ''}</td>
+            `;
+            listItemsContainer.appendChild(row);
+        });
+
+        // Düzenleme butonuna tıklanırsa, düzenleme sayfasına yönlendir
+        document.getElementById('editListBtn').addEventListener('click', function() {
+            window.location.href = 'index.html';  // Düzenleme sayfasına yönlendir
+        });
+    </script>
 </body>
 </html>

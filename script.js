@@ -1,4 +1,3 @@
-// Liste oluşturma ve QR kodu oluşturma işlemleri
 document.getElementById('addItemBtn').addEventListener('click', function() {
     const tableBody = document.querySelector('#listTable tbody');
     const row = document.createElement('tr');
@@ -42,12 +41,18 @@ document.getElementById('listForm').addEventListener('submit', function(event) {
     const qrCodeUrl = `https://okulprojesibunyamin.netlify.app/list.html?data=${listDataEncoded}`;
     
     // QR kodu oluşturuyoruz
-    const qrCode = new QRCode(document.getElementById('qrCode'), {
-        text: qrCodeUrl,
-        width: 128,
-        height: 128
-    });
+    QRCode.toDataURL(qrCodeUrl, function (err, url) {
+        if (err) {
+            console.error(err);
+            return;
+        }
 
-    localStorage.setItem('listData', JSON.stringify(listData));  // Listeyi kaydet
-    alert('Liste kaydedildi ve QR kodu oluşturuldu!');
+        // QR kodunu sayfada gösteriyoruz
+        const qrCodeContainer = document.getElementById('qrCode');
+        qrCodeContainer.innerHTML = `<img src="${url}" alt="QR Code">`;
+
+        // Veriyi localStorage'a kaydediyoruz
+        localStorage.setItem('listData', JSON.stringify(listData));  // Listeyi kaydet
+        alert('Liste kaydedildi ve QR kodu oluşturuldu!');
+    });
 });
