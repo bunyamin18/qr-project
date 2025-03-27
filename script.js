@@ -1,30 +1,26 @@
-function generateQRCode(listName) {
-    // QR kodu için URL'yi liste ismiyle oluşturuyoruz.
-    let url = `${window.location.origin}?list=${encodeURIComponent(listName)}`;
-    return url;
-}
-
 window.onload = function() {
+    // URL parametrelerinden liste ismini alıyoruz
     let urlParams = new URLSearchParams(window.location.search);
     let listName = urlParams.get("list");
 
-    // URL'deki listeyi alıp, sayfada gösteriyoruz.
+    // Eğer URL'de list parametresi varsa ve bu liste kayıtlıysa, listeyi gösteriyoruz
     if (listName && lists[listName]) {
-        displayList(listName);
+        displayList(listName); // İlgili listeyi göster
     }
 
+    // Sayfada daha önce kaydedilen listeleri yükle
     loadSavedLists();
 };
 
 function displayList(listName) {
     let container = document.getElementById("savedLists");
-    container.innerHTML = "";
+    container.innerHTML = "";  // Listeyi sıfırlıyoruz
 
-    // Listeyi sayfada görüntülemek için içeriği oluşturuyoruz
+    // Listeyi sayfada görüntülemek için içerik oluşturuyoruz
     let div = document.createElement("div");
     div.innerHTML = `<h3>${listName}</h3>`;
-    
-    // Liste öğelerini görüntülüyoruz.
+
+    // Liste öğelerini görüntülüyoruz
     lists[listName].items.forEach(item => {
         div.innerHTML += `
             <p><strong>${item.itemName}</strong> - ${item.quantity} 
