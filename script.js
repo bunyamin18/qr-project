@@ -1,66 +1,47 @@
-function addRow() {
-    let table = document.getElementById("listBody");
-    let row = table.insertRow();
-    row.innerHTML = `
-        <td><input type="text" placeholder="Öğe Adı" required></td>
-        <td><input type="number" placeholder="Miktar" required></td>
-        <td><input type="file"></td>
-        <td><button class="delete-btn" onclick="deleteRow(this)">🗑️</button></td>
-    `;
-}
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
-function deleteRow(btn) {
-    let row = btn.parentNode.parentNode;
-    row.parentNode.removeChild(row);
+body {
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #ece9e6, #ffffff);
+    margin: 0;
+    padding: 20px;
 }
-
-function saveList() {
-    let title = document.getElementById("listTitle").value;
-    if (!title.trim()) {
-        alert("Lütfen bir liste adı girin!");
-        return;
-    }
-    let rows = document.querySelectorAll("#listBody tr");
-    if (rows.length === 0) {
-        alert("Lütfen en az bir öğe ekleyin!");
-        return;
-    }
-    
-    let listData = { title: title, items: [] };
-    rows.forEach(row => {
-        let inputs = row.getElementsByTagName("input");
-        listData.items.push({
-            name: inputs[0].value,
-            quantity: inputs[1].value
-        });
-    });
-    
-    let listString = JSON.stringify(listData);
-    let encodedData = encodeURIComponent(listString);
-    let siteURL = window.location.href.split("?")[0] + "?data=" + encodedData;
-    
-    let qrCodeContainer = document.getElementById("qrcode");
-    qrCodeContainer.innerHTML = "";
-    new QRCode(qrCodeContainer, siteURL);
+.container {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 90%;
+    max-width: 600px;
 }
-
-function loadListFromURL() {
-    let params = new URLSearchParams(window.location.search);
-    let data = params.get("data");
-    if (data) {
-        let listData = JSON.parse(decodeURIComponent(data));
-        document.getElementById("listTitle").value = listData.title;
-        let table = document.getElementById("listBody");
-        listData.items.forEach(item => {
-            let row = table.insertRow();
-            row.innerHTML = `
-                <td><input type="text" value="${item.name}" required></td>
-                <td><input type="number" value="${item.quantity}" required></td>
-                <td><input type="file"></td>
-                <td><button class="delete-btn" onclick="deleteRow(this)">🗑️</button></td>
-            `;
-        });
-    }
+input, button, textarea {
+    margin: 10px 0;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    width: 100%;
+    font-size: 16px;
 }
-
-document.addEventListener("DOMContentLoaded", loadListFromURL);
+textarea {
+    height: 100px;
+    resize: none;
+}
+button {
+    background: #6a11cb;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+button:hover {
+    background: #2575fc;
+}
+#qrcode {
+    margin-top: 15px;
+}
