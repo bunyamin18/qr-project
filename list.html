@@ -26,20 +26,22 @@
             border-radius: 8px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
         }
-        th, td {
-            padding: 15px;
-            border: 1px solid #ddd;
-            text-align: left;
+        .item-row input {
+            width: 30%;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border: 1px solid #ccc;
         }
-        th {
-            background-color: #f7f7f7;
-        }
-        .img-container {
+        .item-row img {
             max-width: 100px;
+            max-height: 100px;
         }
         .btn-container {
             text-align: center;
@@ -75,31 +77,42 @@
     const urlParams = new URLSearchParams(window.location.search);
     const listData = JSON.parse(decodeURIComponent(urlParams.get('data')));
 
+    // Liste başlığını güncelle
     document.getElementById("listTitle").innerText = listData.title;
 
+    // Liste öğelerini ekle
     const itemListContainer = document.getElementById("itemList");
     listData.items.forEach((item, index) => {
         const itemRow = document.createElement("div");
+        itemRow.classList.add("item-row");
+
         itemRow.innerHTML = `
-            <p><strong>Öğe: </strong><input type="text" value="${item.itemName}" ${index > 0 ? "disabled" : ""}></p>
-            <p><strong>Miktar: </strong><input type="text" value="${item.itemQuantity}" ${index > 0 ? "disabled" : ""}></p>
-            <p><strong>Resim: </strong><img src="${item.itemImage}" alt="Resim" class="img-container"></p>
+            <input type="text" value="${item.itemName}" ${index > 0 ? "disabled" : ""} />
+            <input type="text" value="${item.itemQuantity}" ${index > 0 ? "disabled" : ""} />
+            <img src="${item.itemImage}" alt="Resim" />
         `;
         itemListContainer.appendChild(itemRow);
     });
 
+    // Düzenleme butonuna basınca, tüm inputlar düzenlenebilir olacak
     document.getElementById("editList").addEventListener("click", function() {
-        // Düzenleme moduna geç
         const inputs = itemListContainer.querySelectorAll('input');
+        const images = itemListContainer.querySelectorAll('img');
+        
         inputs.forEach(input => {
-            input.disabled = false;
+            input.disabled = false; // Düzenleme yapabilmesi için inputları aktif et
+        });
+        images.forEach(img => {
+            img.style.display = "none"; // Resimleri gizle
         });
     });
 
+    // Kaydet butonuna basıldığında yapılan değişiklikleri kaydet
     document.getElementById("saveList").addEventListener("click", function() {
         const inputs = itemListContainer.querySelectorAll('input');
         const updatedItems = [];
-        for (let i = 0; i < inputs.length; i += 3) {
+
+        for (let i = 0; i < inputs.length; i += 3) { // Her öğe için 3 input (Öğe Adı, Miktar, Resim)
             const itemName = inputs[i].value;
             const itemQuantity = inputs[i + 1].value;
             const itemImage = inputs[i + 2].value;
@@ -115,7 +128,11 @@
 
         // Düzenlemeleri bitir
         inputs.forEach(input => {
-            input.disabled = true;
+            input.disabled = true; // Düzenleme bitince inputları devre dışı bırak
+        });
+        const images = itemListContainer.querySelectorAll('img');
+        images.forEach(img => {
+            img.style.display = "inline"; // Resimleri tekrar göster
         });
     });
 </script>
