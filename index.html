@@ -10,18 +10,7 @@
     <div class="container">
         <h2>📋 Liste Oluştur</h2>
         <input type="text" id="listTitle" placeholder="Liste Adı">
-        <button onclick="addRow()">➕ Yeni Öğe Ekle</button>
-        <table>
-            <thead>
-                <tr>
-                    <th>İsim</th>
-                    <th>Miktar</th>
-                    <th>Resim</th>
-                    <th>Sil</th>
-                </tr>
-            </thead>
-            <tbody id="listBody"></tbody>
-        </table>
+        <textarea id="listContent" placeholder="Liste içeriğini yazın..."></textarea>
         <button onclick="saveList()">✅ Kaydet ve QR Kod Oluştur</button>
         <div id="qrcode"></div>
     </div>

@@ -6,11 +6,11 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100vh;
+    min-height: 100vh;
     background: linear-gradient(135deg, #ece9e6, #ffffff);
     margin: 0;
+    padding: 20px;
 }
-
 .container {
     background: white;
     padding: 20px;
@@ -18,10 +18,9 @@ body {
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     text-align: center;
     width: 90%;
-    max-width: 500px;
+    max-width: 600px;
 }
-
-input, button {
+input, button, textarea {
     margin: 10px 0;
     padding: 12px;
     border: none;
@@ -29,7 +28,10 @@ input, button {
     width: 100%;
     font-size: 16px;
 }
-
+textarea {
+    height: 100px;
+    resize: none;
+}
 button {
     background: #6a11cb;
     color: white;
@@ -37,23 +39,9 @@ button {
     cursor: pointer;
     transition: 0.3s;
 }
-
 button:hover {
     background: #2575fc;
 }
-
-table {
-    width: 100%;
-    margin-top: 10px;
-    border-collapse: collapse;
-}
-
-th, td {
-    padding: 12px;
-    border: 1px solid #ddd;
-    text-align: center;
-}
-
 #qrcode {
     margin-top: 15px;
 }
