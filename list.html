@@ -3,18 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste Görüntüle</title>
+    <title>Listeyi Görüntüle</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Listeyi Görüntüle</h1>
-        
-        <!-- Liste Başlığı -->
-        <h2 id="viewListTitle"></h2>
-        
-        <!-- Listeyi Görüntüleme -->
-        <table id="viewListTable">
+        <h1 id="listTitle"></h1>
+
+        <table id="viewTable">
             <thead>
                 <tr>
                     <th>Öğe Adı</th>
@@ -22,11 +18,10 @@
                     <th>Resim</th>
                 </tr>
             </thead>
-            <tbody id="viewListBody"></tbody>
+            <tbody id="viewList"></tbody>
         </table>
-        
-        <!-- Düzenle Butonu -->
-        <button id="editListBtn">Düzenle</button>
+
+        <button id="editButton" style="display:none;">Düzenle</button>
     </div>
 
     <script src="list.js"></script>

@@ -5,54 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste Oluştur</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Liste Oluştur</h1>
+        <h1>Liste Başlığı</h1>
+        <input type="text" id="listName" placeholder="Liste Başlığını Girin">
         
-        <!-- Liste Başlığı -->
-        <form id="listForm">
-            <label for="listName">Liste Başlığı:</label>
-            <input type="text" id="listName" name="listName" placeholder="Liste başlığını girin" required>
-            
-            <!-- Listeyi Oluştur -->
-            <h3>Listeyi Düzenleyin</h3>
-            <table id="listTable">
-                <thead>
-                    <tr>
-                        <th>Öğe Adı</th>
-                        <th>Miktar</th>
-                        <th>Resim</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-            <button type="button" id="addItemBtn">+ Öğe Ekle</button>
-            <br><br>
-            <button type="submit" id="saveListBtn">Kaydet ve QR Kodu Oluştur</button>
-        </form>
-        
-        <!-- QR Kodu Bölümü -->
-        <div id="qrCodeSection" style="display: none;">
-            <h3>QR Kodu:</h3>
-            <div id="qrCode"></div>
-        </div>
+        <table id="itemTable">
+            <thead>
+                <tr>
+                    <th>Öğe Adı</th>
+                    <th>Miktar</th>
+                    <th>Resim</th>
+                </tr>
+            </thead>
+            <tbody id="itemList"></tbody>
+        </table>
 
-        <!-- Listeyi Görüntüle -->
-        <div id="viewListSection" style="display: none;">
-            <h2 id="viewListTitle"></h2>
-            <table id="viewListTable">
-                <thead>
-                    <tr>
-                        <th>Öğe Adı</th>
-                        <th>Miktar</th>
-                        <th>Resim</th>
-                    </tr>
-                </thead>
-                <tbody id="viewListBody"></tbody>
-            </table>
-            <button id="editListBtn">Düzenle</button>
+        <button id="addItem">Öğe Ekle</button>
+        
+        <button id="saveList">Kaydet ve QR Kodu Oluştur</button>
+
+        <div id="qrCodeContainer" style="display: none;">
+            <p>QR Kodu:</p>
+            <div id="qrCode"></div>
         </div>
     </div>
 

@@ -1,21 +1,12 @@
-// QR Kodundan gelen veriyi al
-function getListFromQRCode() {
-    // URL'den 'data' parametresini al
+window.onload = function() {
     const urlParams = new URLSearchParams(window.location.search);
     const qrData = urlParams.get('data');
 
     if (qrData) {
-        // QR kodundan gelen veriyi çözümle (Base64 çözümlemesi)
-        const listData = JSON.parse(atob(qrData)); // Base64 decode ve JSON parse
+        const listData = JSON.parse(atob(qrData));
+        document.getElementById('listTitle').innerText = listData.listName;
 
-        // Liste Başlığı
-        document.getElementById('viewListTitle').innerText = listData.listName;
-
-        // Listeyi Görüntüle
-        const viewTableBody = document.getElementById('viewListBody');
-        viewTableBody.innerHTML = ''; // Önceden eklenen satırları temizle
-
-        // Liste öğelerini tabloya ekle
+        const viewList = document.getElementById('viewList');
         listData.items.forEach(item => {
             const row = document.createElement('tr');
             row.innerHTML = `
@@ -23,21 +14,17 @@ function getListFromQRCode() {
                 <td>${item.itemAmount}</td>
                 <td><img src="${item.itemImage}" alt="${item.itemName}" style="width: 50px;"></td>
             `;
-            viewTableBody.appendChild(row);
+            viewList.appendChild(row);
         });
 
-        // Düzenle butonunu göster
-        document.getElementById('editListBtn').style.display = 'inline-block';
+        // Düzenleme butonunu göster
+        document.getElementById('editButton').style.display = 'block';
+
+        // Düzenleme butonuna tıklandığında yönlendir
+        document.getElementById('editButton').addEventListener('click', function() {
+            window.location.href = 'index.html'; // Düzenleme sayfasına yönlendir
+        });
     } else {
         alert("Geçersiz QR Kodu!");
     }
-}
-
-// Düzenle Butonuna Tıklama
-document.getElementById('editListBtn').addEventListener('click', function() {
-    // Düzenleme sayfasına yönlendir
-    window.location.href = 'index.html'; // Ya da uygun düzenleme sayfası
-});
-
-// Sayfa yüklendiğinde listeyi al
-window.onload = getListFromQRCode;
+};
