@@ -3,32 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Kodlu Liste</title>
+    <title>QR Kodlu Liste Uygulaması</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs/qrcode.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>QR Kodlu Liste Oluştur</h1>
-        <input type="text" id="listName" placeholder="Liste Adı">
-        <table id="itemTable">
-            <thead>
-                <tr>
-                    <th>Öğe</th>
-                    <th>Miktar</th>
-                    <th>Resim</th>
-                    <th>Sil</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-        <button onclick="addItem()">Öğe Ekle</button>
-        <button onclick="saveList()">Kaydet</button>
-        <div id="qrcode"></div>
+        <h1>Liste Oluşturma</h1>
+        <form id="listForm">
+            <label for="listName">Liste Adı:</label>
+            <input type="text" id="listName" required>
+            <button type="submit">Listeyi Kaydet</button>
+        </form>
+
+        <h2>Listeye Öğe Ekle</h2>
+        <div id="addItem">
+            <label for="itemName">Öğe Adı:</label>
+            <input type="text" id="itemName" required>
+
+            <label for="itemQuantity">Miktar:</label>
+            <input type="text" id="itemQuantity" placeholder="Örneğin: 5, 10, 100" required>
+
+            <label for="itemImage">Resim Seç:</label>
+            <input type="file" id="itemImage" accept="image/*">
+
+            <button id="addItemBtn">Öğe Ekle</button>
+        </div>
+
         <h2>Kaydedilen Listeler</h2>
         <div id="savedLists"></div>
+
+        <div id="qrCode">
+            <h3>Listeyi QR Kodu Olarak Göster</h3>
+            <div id="qrCodeDisplay"></div>
+        </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
