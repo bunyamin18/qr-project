@@ -1,85 +1,97 @@
-let lists = {};
-
-window.onload = function() {
-    let urlParams = new URLSearchParams(window.location.search);
-    let listName = urlParams.get("list");
-
-    if (listName && lists[listName]) {
-        displayList(listName);
-    }
-
-    loadSavedLists();
-};
-
-document.getElementById("listForm").addEventListener("submit", function(event) {
-    event.preventDefault();
-    
-    let listName = document.getElementById("listName").value;
-    if (!listName) return;
-
-    lists[listName] = { items: [] };
-    localStorage.setItem("lists", JSON.stringify(lists));
-
-    generateQRCode(listName);
-
-    loadSavedLists();
-});
+let listTitle = ""; // Liste başlığı
+let items = []; // Öğeleri depolamak için bir dizi
+let currentList = {}; // Şu an düzenlenmekte olan liste
 
 document.getElementById("addItemBtn").addEventListener("click", function() {
-    let listName = document.getElementById("listName").value;
-    if (!listName) return alert("Lütfen liste adı giriniz.");
-
     let itemName = document.getElementById("itemName").value;
     let itemQuantity = document.getElementById("itemQuantity").value;
     let itemImage = document.getElementById("itemImage").files[0];
 
     if (!itemName || !itemQuantity) return alert("Öğe adı ve miktarı gereklidir.");
 
-    if (!lists[listName]) lists[listName] = { items: [] };
-
-    let item = {
+    // Yeni öğe objesini oluştur
+    let newItem = {
         itemName: itemName,
         quantity: itemQuantity,
         imgSrc: itemImage ? URL.createObjectURL(itemImage) : ""
     };
 
-    lists[listName].items.push(item);
-    localStorage.setItem("lists", JSON.stringify(lists));
+    // Öğeyi ekle
+    items.push(newItem);
 
-    displayList(listName);
+    // Öğeleri görüntüle
+    displayItems();
+
+    // Formu sıfırla
+    document.getElementById("itemName").value = "";
+    document.getElementById("itemQuantity").value = "";
+    document.getElementById("itemImage").value = "";
 });
 
-function generateQRCode(listName) {
-    let url = `${window.location.origin}?list=${encodeURIComponent(listName)}`;
+document.getElementById("saveListBtn").addEventListener("click", function() {
+    listTitle = document.getElementById("listTitle").value;
+    if (!listTitle) return alert("Liste başlığı girilmelidir.");
+
+    generateQRCode();
+    alert("Liste kaydedildi!");
+});
+
+function displayItems() {
+    let container = document.getElementById("itemListDisplay");
+    container.innerHTML = ""; // Önceki öğeleri temizle
+
+    items.forEach((item, index) => {
+        let row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${item.itemName}</td>
+            <td>${item.quantity}</td>
+            <td>${item.imgSrc ? `<img src="${item.imgSrc}" width="50" height="50">` : ""}</td>
+            <td><button onclick="editItem(${index})">Düzenle</button> <button onclick="deleteItem(${index})">Sil</button></td>
+        `;
+        container.appendChild(row);
+    });
+}
+
+function generateQRCode() {
+    let url = `${window.location.origin}?title=${encodeURIComponent(listTitle)}&items=${encodeURIComponent(JSON.stringify(items))}`;
     let qrCodeDisplay = document.getElementById("qrCodeDisplay");
     qrCodeDisplay.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(url)}&size=150x150" alt="QR Code">`;
 }
 
-function displayList(listName) {
-    let container = document.getElementById("savedLists");
-    container.innerHTML = ""; 
-
-    let div = document.createElement("div");
-    div.innerHTML = `<h3>${listName}</h3>`;
-
-    lists[listName].items.forEach(item => {
-        div.innerHTML += `
-            <p><strong>${item.itemName}</strong> - ${item.quantity} 
-            ${item.imgSrc ? `<img src="${item.imgSrc}" width="50" height="50">` : ""}</p>
-        `;
-    });
-
-    container.appendChild(div);
+function deleteItem(index) {
+    items.splice(index, 1);
+    displayItems();
 }
 
-function loadSavedLists() {
-    let savedLists = JSON.parse(localStorage.getItem("lists"));
-    if (savedLists) lists = savedLists;
+function editItem(index) {
+    document.getElementById("editSection").style.display = "block";
+    currentList = items[index];
 
-    let container = document.getElementById("savedLists");
-    container.innerHTML = "";
+    let editItemsContainer = document.getElementById("editItems");
+    editItemsContainer.innerHTML = `
+        <label for="editItemName">Öğe Adı:</label>
+        <input type="text" id="editItemName" value="${currentList.itemName}">
+        
+        <label for="editItemQuantity">Miktar:</label>
+        <input type="text" id="editItemQuantity" value="${currentList.quantity}">
+        
+        <label for="editItemImage">Resim Seç:</label>
+        <input type="file" id="editItemImage" accept="image/*">
+        
+        <button onclick="saveEdit(${index})">Kaydet</button>
+    `;
+}
 
-    for (let listName in lists) {
-        displayList(listName);
-    }
+function saveEdit(index) {
+    let editedName = document.getElementById("editItemName").value;
+    let editedQuantity = document.getElementById("editItemQuantity").value;
+    let editedImage = document.getElementById("editItemImage").files[0];
+
+    items[index].itemName = editedName;
+    items[index].quantity = editedQuantity;
+    if (editedImage) items[index].imgSrc = URL.createObjectURL(editedImage);
+
+    displayItems();
+    document.getElementById("editSection").style.display = "none";
+    alert("Düzenlemeler kaydedildi.");
 }

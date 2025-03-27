@@ -20,7 +20,7 @@ form, #addItem {
     margin-bottom: 20px;
 }
 
-input {
+input, select {
     padding: 8px;
     margin: 5px 0;
     width: 100%;
@@ -39,18 +39,36 @@ button:hover {
     background-color: #45a049;
 }
 
-#savedLists {
+#qrCodeDisplay img {
     margin-top: 20px;
 }
 
-#savedLists div {
-    margin-bottom: 20px;
-    padding: 10px;
-    border: 1px solid #ddd;
-    background-color: #fafafa;
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
 }
 
-img {
-    width: 50px;
-    height: 50px;
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center;
+}
+
+th {
+    background-color: #f2f2f2;
+}
+
+#editItems {
+    margin-top: 20px;
+}
+
+#editItems div {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    background-color: #fafafa;
 }
