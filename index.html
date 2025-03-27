@@ -139,7 +139,13 @@
             return;
         }
 
-        const qrCodeUrl = `${window.location.origin}/list.html?title=${encodeURIComponent(listTitle)}&items=${encodeURIComponent(JSON.stringify(items))}`;
+        const listData = {
+            title: listTitle,
+            items: items
+        };
+
+        // Veriyi URL'ye encode edip QR kodu oluştur
+        const qrCodeUrl = `${window.location.origin}/list.html?data=${encodeURIComponent(JSON.stringify(listData))}`;
         document.getElementById("qrCodeDisplay").innerHTML = `
             <img src="https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrCodeUrl)}&size=150x150" alt="QR Code">
         `;

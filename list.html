@@ -73,32 +73,52 @@
 
 <script>
     const urlParams = new URLSearchParams(window.location.search);
-    const title = urlParams.get("title");
-    const items = JSON.parse(decodeURIComponent(urlParams.get("items")));
+    const listData = JSON.parse(decodeURIComponent(urlParams.get("data")));
 
     // Liste başlığını ve öğeleri göster
-    document.getElementById("listTitle").textContent = title;
+    document.getElementById("listTitle").textContent = listData.title;
 
     const itemListContainer = document.getElementById("itemList");
 
-    items.forEach(item => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${item.itemName}</td>
-            <td>${item.itemQuantity}</td>
-            <td class="img-container">${item.itemImage ? `<img src="${item.itemImage}" width="50" />` : ""}</td>
+    listData.items.forEach((item, index) => {
+        const itemRow = document.createElement("div");
+        itemRow.innerHTML = `
+            <p><strong>Öğe: </strong><input type="text" value="${item.itemName}" ${index > 0 ? "disabled" : ""}></p>
+            <p><strong>Miktar: </strong><input type="text" value="${item.itemQuantity}" ${index > 0 ? "disabled" : ""}></p>
+            <p><strong>Resim: </strong><img src="${item.itemImage}" alt="Resim" class="img-container"></p>
         `;
-        itemListContainer.appendChild(row);
+        itemListContainer.appendChild(itemRow);
     });
 
     document.getElementById("editList").addEventListener("click", function() {
-        alert("Listeyi düzenleme ekranına yönlendirileceksiniz.");
-        // Düzenleme ekranına yönlendirme işlemi
+        // Düzenleme moduna geç
+        const inputs = itemListContainer.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.disabled = false;
+        });
     });
 
     document.getElementById("saveList").addEventListener("click", function() {
-        alert("Değişiklikler kaydedildi!");
-        // Kaydetme işlemi
+        const inputs = itemListContainer.querySelectorAll('input');
+        const updatedItems = [];
+        for (let i = 0; i < inputs.length; i += 3) {
+            const itemName = inputs[i].value;
+            const itemQuantity = inputs[i + 1].value;
+            const itemImage = inputs[i + 2].value;
+
+            updatedItems.push({ itemName, itemQuantity, itemImage });
+        }
+
+        // Veriyi güncelle
+        listData.items = updatedItems;
+
+        // Kaydedilen listeyi veritabanına veya başka bir yere kaydedebilirsiniz.
+        alert("Liste kaydedildi!");
+
+        // Düzenlemeleri bitir
+        inputs.forEach(input => {
+            input.disabled = true;
+        });
     });
 </script>
 
