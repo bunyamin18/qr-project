@@ -3,46 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste Görüntüle</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Listeyi Görüntüle ve Düzenle</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+        }
+        #itemList {
+            margin-top: 30px;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+        .img-container {
+            max-width: 100px;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1 id="listTitle"></h1>
-        <table id="itemTable">
-            <thead>
-                <tr>
-                    <th>Öğe Adı</th>
-                    <th>Miktar</th>
-                    <th>Resim</th>
-                </tr>
-            </thead>
-            <tbody id="itemListDisplay"></tbody>
-        </table>
-        <button onclick="window.location.href='index.html'">Düzenle</button>
-    </div>
+    <h1 id="listTitle">Listeyi Görüntüle ve Düzenle</h1>
 
-    <script src="script.js"></script>
+    <div id="itemList"></div>
+
+    <button id="editList">Düzenle</button>
+    <button id="saveList">Kaydet</button>
+
     <script>
-        // Listeyi URL parametrelerinden çekme
-        const params = new URLSearchParams(window.location.search);
-        const title = params.get("title");
-        const itemsParam = params.get("items");
-        const itemsList = JSON.parse(decodeURIComponent(itemsParam));
+        const urlParams = new URLSearchParams(window.location.search);
+        const title = urlParams.get("title");
+        const items = JSON.parse(decodeURIComponent(urlParams.get("items")));
 
-        document.getElementById("listTitle").innerText = title;
+        // Liste başlığını ve öğeleri göster
+        document.getElementById("listTitle").textContent = title;
 
-        let itemListDisplay = document.getElementById("itemListDisplay");
+        const itemListContainer = document.getElementById("itemList");
 
-        // Öğeleri tabloya ekleme
-        itemsList.forEach(item => {
-            let row = document.createElement("tr");
+        items.forEach(item => {
+            const row = document.createElement("tr");
             row.innerHTML = `
                 <td>${item.itemName}</td>
                 <td>${item.quantity}</td>
-                <td>${item.imgSrc ? `<img src="${item.imgSrc}" width="50" height="50">` : ""}</td>
+                <td class="img-container">${item.imgSrc ? `<img src="${item.imgSrc}" width="50" />` : ""}</td>
             `;
-            itemListDisplay.appendChild(row);
+            itemListContainer.appendChild(row);
+        });
+
+        document.getElementById("editList").addEventListener("click", function() {
+            alert("Listeyi düzenleme ekranına yönlendirileceksiniz.");
+            // Düzenleme ekranına yönlendirme işlemi
+        });
+
+        document.getElementById("saveList").addEventListener("click", function() {
+            alert("Değişiklikler kaydedildi!");
+            // Kaydetme işlemi (QR kodu değişmeyecek)
         });
     </script>
 </body>

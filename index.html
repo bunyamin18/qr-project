@@ -3,56 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Kodlu Liste Uygulaması</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Listeyi Kaydet</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+        }
+        #qrCodeDisplay {
+            text-align: center;
+            margin-top: 20px;
+        }
+        #itemList {
+            margin-top: 30px;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ccc;
+            text-align: left;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Liste Oluşturma</h1>
-
-        <!-- Liste Başlığı ve Öğe Giriş Alanları -->
-        <div>
-            <label for="listTitle">Liste Başlığı:</label>
-            <input type="text" id="listTitle" placeholder="Liste başlığını girin" required>
-
-            <label for="itemName">Öğe Adı:</label>
-            <input type="text" id="itemName" placeholder="Öğe adı" required>
-
-            <label for="itemQuantity">Miktar:</label>
-            <input type="text" id="itemQuantity" placeholder="Örneğin: 5, 10, 100" required>
-
-            <label for="itemImage">Resim Seç:</label>
-            <input type="file" id="itemImage" accept="image/*">
-
-            <button id="addItemBtn">Öğe Ekle</button>
-        </div>
-
-        <!-- Öğeler Tablosu -->
-        <h2>Öğeler</h2>
-        <table id="itemTable">
+    <h1>Listeyi Kaydet ve QR Kodunu Oluştur</h1>
+    <div id="itemList">
+        <table>
             <thead>
                 <tr>
                     <th>Öğe Adı</th>
                     <th>Miktar</th>
                     <th>Resim</th>
-                    <th>İşlemler</th>
                 </tr>
             </thead>
-            <tbody id="itemListDisplay"></tbody>
+            <tbody>
+                <tr>
+                    <td><input type="text" id="itemName" placeholder="Öğe Adı"></td>
+                    <td><input type="text" id="itemQuantity" placeholder="Miktar"></td>
+                    <td><input type="file" id="itemImage"></td>
+                </tr>
+            </tbody>
         </table>
-
-        <!-- QR Kod ve Kaydet Butonları -->
-        <button id="saveListBtn">Listeyi Kaydet</button>
-        <div id="qrCodeDisplay"></div>
-
-        <!-- Düzenleme Bölümü -->
-        <div id="editSection" style="display: none;">
-            <h3>Listeyi Düzenle</h3>
-            <div id="editItems"></div>
-            <button id="saveEditsBtn">Düzenlemeleri Kaydet</button>
-        </div>
+        <button id="addItem">Öğe Ekle</button>
     </div>
 
-    <script src="script.js"></script>
+    <div id="qrCodeDisplay"></div>
+
+    <script>
+        let items = [];
+
+        document.getElementById("addItem").addEventListener("click", function() {
+            const name = document.getElementById("itemName").value;
+            const quantity = document.getElementById("itemQuantity").value;
+            const imageFile = document.getElementById("itemImage").files[0];
+
+            if (name && quantity) {
+                const item = {
+                    itemName: name,
+                    quantity: quantity,
+                    imgSrc: imageFile ? URL.createObjectURL(imageFile) : ""
+                };
+                items.push(item);
+
+                // Reset inputs
+                document.getElementById("itemName").value = "";
+                document.getElementById("itemQuantity").value = "";
+                document.getElementById("itemImage").value = "";
+
+                alert('Öğe eklendi!');
+            } else {
+                alert('Öğe adı ve miktarı doldurun!');
+            }
+        });
+
+        // QR Kodu Oluştur
+        function generateQRCode() {
+            const listTitle = "Liste Başlığı";  // Liste başlığı (değiştirilebilir)
+            const qrCodeUrl = `${window.location.origin}/list.html?title=${encodeURIComponent(listTitle)}&items=${encodeURIComponent(JSON.stringify(items))}`;
+
+            document.getElementById("qrCodeDisplay").innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrCodeUrl)}&size=150x150" alt="QR Code">`;
+        }
+
+        // Kaydet ve QR Kod oluştur
+        generateQRCode();
+    </script>
 </body>
 </html>
