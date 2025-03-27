@@ -1,48 +1,34 @@
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f4;
+function addRow() {
+    let table = document.getElementById("listBody");
+    let row = table.insertRow();
+    row.innerHTML = `
+        <td><input type="text" placeholder="Öğe Adı"></td>
+        <td><input type="number" placeholder="Miktar"></td>
+        <td><input type="file"></td>
+        <td><button onclick="deleteRow(this)">Sil</button></td>
+    `;
 }
 
-.container {
-    width: 80%;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+function deleteRow(btn) {
+    let row = btn.parentNode.parentNode;
+    row.parentNode.removeChild(row);
 }
 
-h1 {
-    text-align: center;
-}
+function saveList() {
+    let title = document.getElementById("listTitle").value;
+    let rows = document.querySelectorAll("#listBody tr");
+    let listData = { title: title, items: [] };
 
-table {
-    width: 100%;
-    margin-top: 20px;
-    border-collapse: collapse;
-}
-
-table, th, td {
-    border: 1px solid #ddd;
-}
-
-th, td {
-    padding: 8px;
-    text-align: left;
-}
-
-button {
-    margin-top: 20px;
-    padding: 10px 20px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-}
-
-button:hover {
-    background-color: #45a049;
+    rows.forEach(row => {
+        let inputs = row.getElementsByTagName("input");
+        listData.items.push({
+            name: inputs[0].value,
+            quantity: inputs[1].value
+        });
+    });
+    
+    let listString = JSON.stringify(listData);
+    let qrCodeContainer = document.getElementById("qrcode");
+    qrCodeContainer.innerHTML = "";
+    new QRCode(qrCodeContainer, listString);
 }
