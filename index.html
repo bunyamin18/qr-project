@@ -5,84 +5,146 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Listeyi Kaydet ve QR Kod Oluştur</title>
     <style>
-        /* Style kodları burada kalacak */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 28px;
+            color: #333;
+        }
+        #itemList {
+            width: 90%;
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 15px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f7f7f7;
+        }
+        input[type="text"], input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .btn-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .btn-container button {
+            padding: 12px 30px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            transition: background-color 0.3s ease;
+        }
+        .btn-container button:hover {
+            background-color: #45a049;
+        }
+        #qrCodeDisplay {
+            text-align: center;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
-    <h1>Listeyi Kaydet ve QR Kodunu Oluştur</h1>
-    <div id="itemList">
-        <label for="listTitle">Liste Başlığı:</label>
-        <input type="text" id="listTitle" placeholder="Liste başlığını girin...">
-        
-        <table id="itemTable">
-            <thead>
-                <tr>
-                    <th>Öğe Adı</th>
-                    <th>Miktar</th>
-                    <th>Resim</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><input type="text" placeholder="Öğe Adı"></td>
-                    <td><input type="text" placeholder="Miktar"></td>
-                    <td><input type="file" placeholder="Resim"></td>
-                </tr>
-            </tbody>
-        </table>
-        <button id="addItem">+ Öğe Ekle</button>
-    </div>
 
-    <div class="btn-container">
-        <button id="saveAndGenerateQR">Kaydet ve QR Kod Oluştur</button>
-    </div>
+<h1>Listeyi Kaydet ve QR Kod Oluştur</h1>
 
-    <div id="qrCodeDisplay"></div>
-
-    <script>
-        let items = [];
-
-        // Öğe ekleme
-        document.getElementById("addItem").addEventListener("click", function() {
-            const table = document.getElementById("itemTable").getElementsByTagName('tbody')[0];
-            const row = table.insertRow();
-            row.innerHTML = `
+<div id="itemList">
+    <label for="listTitle">Liste Başlığı:</label>
+    <input type="text" id="listTitle" placeholder="Liste başlığını girin..." required>
+    
+    <table id="itemTable">
+        <thead>
+            <tr>
+                <th>Öğe Adı</th>
+                <th>Miktar</th>
+                <th>Resim</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
                 <td><input type="text" placeholder="Öğe Adı"></td>
                 <td><input type="text" placeholder="Miktar"></td>
                 <td><input type="file" placeholder="Resim"></td>
-            `;
-        });
+            </tr>
+        </tbody>
+    </table>
 
-        // Kaydet ve QR kodu oluşturma
-        document.getElementById("saveAndGenerateQR").addEventListener("click", function() {
-            const listTitle = document.getElementById("listTitle").value;
-            if (!listTitle) {
-                alert("Liste başlığını girin!");
-                return;
+    <button id="addItem">+ Öğe Ekle</button>
+</div>
+
+<div class="btn-container">
+    <button id="saveAndGenerateQR">Kaydet ve QR Kod Oluştur</button>
+</div>
+
+<div id="qrCodeDisplay"></div>
+
+<script>
+    let items = [];
+
+    document.getElementById("addItem").addEventListener("click", function() {
+        const table = document.getElementById("itemTable").getElementsByTagName('tbody')[0];
+        const row = table.insertRow();
+        row.innerHTML = `
+            <td><input type="text" placeholder="Öğe Adı"></td>
+            <td><input type="text" placeholder="Miktar"></td>
+            <td><input type="file" placeholder="Resim"></td>
+        `;
+    });
+
+    document.getElementById("saveAndGenerateQR").addEventListener("click", function() {
+        const listTitle = document.getElementById("listTitle").value;
+        if (!listTitle) {
+            alert("Liste başlığını girin!");
+            return;
+        }
+
+        const rows = document.getElementById("itemTable").getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+        items = [];
+        for (let i = 0; i < rows.length; i++) {
+            const itemName = rows[i].cells[0].children[0].value;
+            const itemQuantity = rows[i].cells[1].children[0].value;
+            const itemImage = rows[i].cells[2].children[0].files[0] ? URL.createObjectURL(rows[i].cells[2].children[0].files[0]) : "";
+            if (itemName && itemQuantity) {
+                items.push({ itemName, itemQuantity, itemImage });
             }
+        }
 
-            const rows = document.getElementById("itemTable").getElementsByTagName('tbody')[0].getElementsByTagName('tr');
-            items = [];
-            for (let i = 0; i < rows.length; i++) {
-                const itemName = rows[i].cells[0].children[0].value;
-                const itemQuantity = rows[i].cells[1].children[0].value;
-                const itemImage = rows[i].cells[2].children[0].files[0] ? URL.createObjectURL(rows[i].cells[2].children[0].files[0]) : "";
-                if (itemName && itemQuantity) {
-                    items.push({ itemName, itemQuantity, itemImage });
-                }
-            }
+        if (items.length === 0) {
+            alert("Lütfen en az bir öğe girin!");
+            return;
+        }
 
-            if (items.length === 0) {
-                alert("Lütfen en az bir öğe girin!");
-                return;
-            }
+        const qrCodeUrl = `${window.location.origin}/list.html?title=${encodeURIComponent(listTitle)}&items=${encodeURIComponent(JSON.stringify(items))}`;
+        document.getElementById("qrCodeDisplay").innerHTML = `
+            <img src="https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrCodeUrl)}&size=150x150" alt="QR Code">
+        `;
+    });
+</script>
 
-            // QR kodu için URL oluşturma
-            const qrCodeUrl = `${window.location.origin}/list.html?title=${encodeURIComponent(listTitle)}&items=${encodeURIComponent(JSON.stringify(items))}`;
-            document.getElementById("qrCodeDisplay").innerHTML = `
-                <img src="https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrCodeUrl)}&size=150x150" alt="QR Code">
-            `;
-        });
-    </script>
 </body>
 </html>

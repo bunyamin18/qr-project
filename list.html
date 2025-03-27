@@ -6,39 +6,37 @@
     <title>Listeyi Görüntüle ve Düzenle</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
-            color: #333;
         }
         h1 {
             text-align: center;
-            margin-top: 30px;
-            font-size: 24px;
+            margin-top: 40px;
+            font-size: 28px;
             color: #333;
         }
         #itemList {
-            margin-top: 30px;
             width: 90%;
             max-width: 800px;
-            margin: 20px auto;
-            background-color: #fff;
+            margin: 30px auto;
             padding: 20px;
+            background-color: #fff;
             border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
         table {
             width: 100%;
             border-collapse: collapse;
         }
         th, td {
-            padding: 10px;
+            padding: 15px;
             border: 1px solid #ddd;
             text-align: left;
         }
         th {
-            background-color: #f9f9f9;
+            background-color: #f7f7f7;
         }
         .img-container {
             max-width: 100px;
@@ -63,44 +61,46 @@
     </style>
 </head>
 <body>
-    <h1 id="listTitle">Listeyi Görüntüle ve Düzenle</h1>
 
-    <div id="itemList"></div>
+<h1 id="listTitle">Listeyi Görüntüle ve Düzenle</h1>
 
-    <div class="btn-container">
-        <button id="editList">Düzenle</button>
-        <button id="saveList">Kaydet</button>
-    </div>
+<div id="itemList"></div>
 
-    <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const title = urlParams.get("title");
-        const items = JSON.parse(decodeURIComponent(urlParams.get("items")));
+<div class="btn-container">
+    <button id="editList">Düzenle</button>
+    <button id="saveList">Kaydet</button>
+</div>
 
-        // Liste başlığını ve öğeleri göster
-        document.getElementById("listTitle").textContent = title;
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const title = urlParams.get("title");
+    const items = JSON.parse(decodeURIComponent(urlParams.get("items")));
 
-        const itemListContainer = document.getElementById("itemList");
+    // Liste başlığını ve öğeleri göster
+    document.getElementById("listTitle").textContent = title;
 
-        items.forEach(item => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td>${item.itemName}</td>
-                <td>${item.itemQuantity}</td>
-                <td class="img-container">${item.itemImage ? `<img src="${item.itemImage}" width="50" />` : ""}</td>
-            `;
-            itemListContainer.appendChild(row);
-        });
+    const itemListContainer = document.getElementById("itemList");
 
-        document.getElementById("editList").addEventListener("click", function() {
-            alert("Listeyi düzenleme ekranına yönlendirileceksiniz.");
-            // Düzenleme ekranına yönlendirme işlemi
-        });
+    items.forEach(item => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${item.itemName}</td>
+            <td>${item.itemQuantity}</td>
+            <td class="img-container">${item.itemImage ? `<img src="${item.itemImage}" width="50" />` : ""}</td>
+        `;
+        itemListContainer.appendChild(row);
+    });
 
-        document.getElementById("saveList").addEventListener("click", function() {
-            alert("Değişiklikler kaydedildi!");
-            // Kaydetme işlemi
-        });
-    </script>
+    document.getElementById("editList").addEventListener("click", function() {
+        alert("Listeyi düzenleme ekranına yönlendirileceksiniz.");
+        // Düzenleme ekranına yönlendirme işlemi
+    });
+
+    document.getElementById("saveList").addEventListener("click", function() {
+        alert("Değişiklikler kaydedildi!");
+        // Kaydetme işlemi
+    });
+</script>
+
 </body>
 </html>
