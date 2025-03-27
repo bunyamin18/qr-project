@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listeyi Görüntüle ve Düzenle</title>
+    <title>Listeyi Oluştur</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
             background-color: #f4f4f9;
             margin: 0;
             padding: 0;
@@ -60,77 +60,50 @@
         .btn-container button:hover {
             background-color: #45a049;
         }
-        #qrCode {
-            margin-top: 20px;
-            display: none;
-            text-align: center;
-        }
-        #qrCode img {
-            width: 200px;
-            height: 200px;
-            border: 5px solid #4CAF50; /* Çerçeve rengi */
-            border-radius: 10px; /* Yuvarlatılmış köşeler */
-        }
     </style>
 </head>
 <body>
 
-<h1 id="listTitle">Listeyi Görüntüle ve Düzenle</h1>
+<h1>Listeyi Oluştur</h1>
 
 <div id="itemList"></div>
 
 <div class="btn-container">
-    <button id="editList">Düzenle</button>
-    <button id="saveList">Kaydet</button>
+    <button id="addItem">Öğe Ekle</button>
+    <button id="saveList">Listeyi Kaydet ve QR Kodu Oluştur</button>
 </div>
 
-<div id="qrCode">
+<div id="qrCode" style="display:none;">
     <h3>QR Kodu</h3>
     <img id="qrImage" src="" alt="QR Kodu">
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const listData = JSON.parse(decodeURIComponent(urlParams.get('data')));
-
-    // Liste başlığını güncelle
-    document.getElementById("listTitle").innerText = listData.title;
-
-    // Liste öğelerini ekle
     const itemListContainer = document.getElementById("itemList");
-    listData.items.forEach((item, index) => {
+    let items = []; // Liste öğelerini tutacak array
+
+    // Öğe ekleme butonu
+    document.getElementById("addItem").addEventListener("click", function() {
         const itemRow = document.createElement("div");
         itemRow.classList.add("item-row");
 
         itemRow.innerHTML = `
-            <input type="text" value="${item.itemName}" ${index > 0 ? "disabled" : ""} />
-            <input type="text" value="${item.itemQuantity}" ${index > 0 ? "disabled" : ""} />
-            <input type="text" value="${item.itemImage}" ${index > 0 ? "disabled" : ""} />
-            <img src="${item.itemImage}" alt="Resim" />
+            <input type="text" placeholder="Öğe Adı" />
+            <input type="text" placeholder="Miktar" />
+            <input type="text" placeholder="Resim URL'si" />
+            <input type="file" accept="image/*" class="imageUpload" />
         `;
         itemListContainer.appendChild(itemRow);
     });
 
-    // Düzenleme butonuna basınca, tüm inputlar düzenlenebilir olacak
-    document.getElementById("editList").addEventListener("click", function() {
-        const inputs = itemListContainer.querySelectorAll('input');
-        const images = itemListContainer.querySelectorAll('img');
-        
-        inputs.forEach(input => {
-            input.disabled = false; // Düzenleme yapabilmesi için inputları aktif et
-        });
-        images.forEach(img => {
-            img.style.display = "none"; // Resimleri gizle
-        });
-    });
-
-    // Kaydet butonuna basıldığında yapılan değişiklikleri kaydet
+    // Listeyi kaydetme ve QR kodu oluşturma
     document.getElementById("saveList").addEventListener("click", function() {
         const inputs = itemListContainer.querySelectorAll('input');
         const updatedItems = [];
 
-        for (let i = 0; i < inputs.length; i += 3) { // Her öğe için 3 input (Öğe Adı, Miktar, Resim)
+        // Öğeleri al
+        for (let i = 0; i < inputs.length; i += 4) {
             const itemName = inputs[i].value;
             const itemQuantity = inputs[i + 1].value;
             const itemImage = inputs[i + 2].value;
@@ -138,27 +111,14 @@
             updatedItems.push({ itemName, itemQuantity, itemImage });
         }
 
-        // Veriyi güncelle
-        listData.items = updatedItems;
+        const listData = {
+            title: "Yeni Liste", // Başlık burada sabit olmalı veya kullanıcıdan alınmalı
+            items: updatedItems
+        };
 
-        // Listeyi kaydetmek için localStorage kullanıyoruz
-        localStorage.setItem('listData', JSON.stringify(listData));
-
-        // Kaydedilen listeyi veritabanına veya başka bir yere kaydedebilirsiniz.
-        alert("Liste kaydedildi!");
-
-        // Düzenlemeleri bitir
-        inputs.forEach(input => {
-            input.disabled = true; // Düzenleme bitince inputları devre dışı bırak
-        });
-        const images = itemListContainer.querySelectorAll('img');
-        images.forEach(img => {
-            img.style.display = "inline"; // Resimleri tekrar göster
-        });
-
-        // QR Kodunu oluştur
-        const updatedListData = encodeURIComponent(JSON.stringify(listData));
-        const qrCodeUrl = `https://yourwebsite.com/list.html?data=${updatedListData}`;
+        // QR kodu için veriyi encode et
+        const listDataEncoded = encodeURIComponent(JSON.stringify(listData));
+        const qrCodeUrl = `https://yourwebsite.com/list.html?data=${listDataEncoded}`;
 
         // QR kodunu oluştur
         QRCode.toDataURL(qrCodeUrl, function(err, url) {
@@ -170,8 +130,10 @@
             }
         });
 
-        // QR kodunu aynı bırakmak için sadece listeyi güncelleme
-        alert("Listeyi kaydettiniz ve QR kodu aynı kaldı.");
+        // QR kodunu göster ve listeyi kaydet
+        alert("Liste kaydedildi ve QR kod oluşturuldu!");
+
+        // Burada listeyi bir veritabanına veya başka bir yere kaydedebilirsiniz.
     });
 </script>
 

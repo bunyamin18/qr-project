@@ -60,17 +60,6 @@
         .btn-container button:hover {
             background-color: #45a049;
         }
-        #qrCode {
-            margin-top: 20px;
-            display: none;
-            text-align: center;
-        }
-        #qrCode img {
-            width: 200px;
-            height: 200px;
-            border: 5px solid #4CAF50;
-            border-radius: 10px;
-        }
     </style>
 </head>
 <body>
@@ -82,11 +71,6 @@
 <div class="btn-container">
     <button id="editList">Düzenle</button>
     <button id="saveList">Kaydet</button>
-</div>
-
-<div id="qrCode">
-    <h3>QR Kodu</h3>
-    <img id="qrImage" src="" alt="QR Kodu">
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
@@ -155,23 +139,6 @@
         images.forEach(img => {
             img.style.display = "inline"; // Resimleri tekrar göster
         });
-
-        // QR Kodunu oluştur
-        const updatedListData = encodeURIComponent(JSON.stringify(listData));
-        const qrCodeUrl = `https://yourwebsite.com/list.html?data=${updatedListData}`;
-
-        // QR kodunu oluştur
-        QRCode.toDataURL(qrCodeUrl, function(err, url) {
-            if (err) {
-                console.error(err);
-            } else {
-                document.getElementById('qrCode').style.display = 'block';
-                document.getElementById('qrImage').src = url;
-            }
-        });
-
-        // QR kodunu aynı bırakmak için sadece listeyi güncelleme
-        alert("Listeyi kaydettiniz ve QR kodu aynı kaldı.");
     });
 </script>
 
