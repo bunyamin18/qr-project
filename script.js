@@ -36,7 +36,31 @@ function saveList() {
     });
     
     let listString = JSON.stringify(listData);
+    let encodedData = encodeURIComponent(listString);
+    let siteURL = window.location.href.split("?")[0] + "?data=" + encodedData;
+    
     let qrCodeContainer = document.getElementById("qrcode");
     qrCodeContainer.innerHTML = "";
-    new QRCode(qrCodeContainer, listString);
+    new QRCode(qrCodeContainer, siteURL);
 }
+
+function loadListFromURL() {
+    let params = new URLSearchParams(window.location.search);
+    let data = params.get("data");
+    if (data) {
+        let listData = JSON.parse(decodeURIComponent(data));
+        document.getElementById("listTitle").value = listData.title;
+        let table = document.getElementById("listBody");
+        listData.items.forEach(item => {
+            let row = table.insertRow();
+            row.innerHTML = `
+                <td><input type="text" value="${item.name}" required></td>
+                <td><input type="number" value="${item.quantity}" required></td>
+                <td><input type="file"></td>
+                <td><button class="delete-btn" onclick="deleteRow(this)">🗑️</button></td>
+            `;
+        });
+    }
+}
+
+document.addEventListener("DOMContentLoaded", loadListFromURL);
