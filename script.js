@@ -1,6 +1,7 @@
 let listTitle = ""; // Liste başlığı
 let items = []; // Öğeleri depolamak için bir dizi
 let currentList = {}; // Şu an düzenlenmekte olan liste
+let qrCodeUrl = ""; // QR kodu URL'si
 
 document.getElementById("addItemBtn").addEventListener("click", function() {
     let itemName = document.getElementById("itemName").value;
@@ -53,9 +54,10 @@ function displayItems() {
 }
 
 function generateQRCode() {
-    let url = `${window.location.origin}?title=${encodeURIComponent(listTitle)}&items=${encodeURIComponent(JSON.stringify(items))}`;
+    // QR kodu için URL oluştur
+    qrCodeUrl = `${window.location.origin}/list.html?title=${encodeURIComponent(listTitle)}&items=${encodeURIComponent(JSON.stringify(items))}`;
     let qrCodeDisplay = document.getElementById("qrCodeDisplay");
-    qrCodeDisplay.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(url)}&size=150x150" alt="QR Code">`;
+    qrCodeDisplay.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrCodeUrl)}&size=150x150" alt="QR Code">`;
 }
 
 function deleteItem(index) {
@@ -94,4 +96,35 @@ function saveEdit(index) {
     displayItems();
     document.getElementById("editSection").style.display = "none";
     alert("Düzenlemeler kaydedildi.");
+}
+
+// QR kodu okuttuğunda listeyi açacak olan sayfa
+if (window.location.pathname.endsWith("list.html")) {
+    const params = new URLSearchParams(window.location.search);
+    const title = params.get("title");
+    const itemsParam = params.get("items");
+    const itemsList = JSON.parse(decodeURIComponent(itemsParam));
+
+    document.body.innerHTML = `
+        <h1>${title}</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Öğe Adı</th>
+                    <th>Miktar</th>
+                    <th>Resim</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${itemsList.map(item => `
+                    <tr>
+                        <td>${item.itemName}</td>
+                        <td>${item.quantity}</td>
+                        <td>${item.imgSrc ? `<img src="${item.imgSrc}" width="50" height="50">` : ""}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+        <button onclick="window.location.href='index.html'">Düzenle</button>
+    `;
 }
