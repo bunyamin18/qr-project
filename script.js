@@ -1,53 +1,66 @@
-document.addEventListener("DOMContentLoaded", function () {
-    const urlParams = new URLSearchParams(window.location.search);
-    const listData = urlParams.get("data");
+document.addEventListener("DOMContentLoaded", () => {
+    yuklenmisListeyiGoster();
+});
 
-    if (listData) {
-        // QR kod ile açıldıysa, listeyi göster
-        const parsedData = JSON.parse(decodeURIComponent(listData));
-        document.body.innerHTML = `
-            <div class="container">
-                <h1>${parsedData.title}</h1>
-                <p>${parsedData.content.replace(/\n/g, "<br>")}</p>
-            </div>
-        `;
-    } else {
-        // Liste oluşturma ekranını göster
-        document.body.innerHTML = `
-            <div class="container">
-                <h1>Yeni Liste Oluştur</h1>
-                <label for="title">Başlık:</label>
-                <input type="text" id="title" placeholder="Başlık girin">
+function listeyeEkle() {
+    let table = document.getElementById("listeBody");
+    let row = table.insertRow();
 
-                <label for="content">İçerik:</label>
-                <textarea id="content" placeholder="Liste içeriği yazın"></textarea>
+    let cell1 = row.insertCell(0);
+    let cell2 = row.insertCell(1);
+    let cell3 = row.insertCell(2);
+    let cell4 = row.insertCell(3);
 
-                <button id="save">Listeyi Kaydet</button>
+    cell1.innerHTML = `<input type="text" placeholder="Öğe adı">`;
+    cell2.innerHTML = `<input type="number" placeholder="Miktar">`;
+    cell3.innerHTML = `<input type="file" accept="image/*">`;
+    cell4.innerHTML = `<button onclick="satiriSil(this)">Sil</button>`;
+}
 
-                <h2>QR Kod:</h2>
-                <img id="qr-code" src="" alt="QR kodu burada gözükecek">
-            </div>
+function satiriSil(button) {
+    let row = button.parentNode.parentNode;
+    row.parentNode.removeChild(row);
+}
 
-            <footer>2003230030 // Bünyamin Ekmekcioğlu</footer>
-        `;
+function listeyiKaydet() {
+    let tableRows = document.querySelectorAll("#listeBody tr");
+    let liste = [];
 
-        // Buton Event Listener
-        document.getElementById("save").addEventListener("click", function () {
-            const title = document.getElementById("title").value.trim();
-            const content = document.getElementById("content").value.trim();
+    tableRows.forEach(row => {
+        let item = row.cells[0].querySelector("input").value;
+        let amount = row.cells[1].querySelector("input").value;
+        liste.push({ item, amount });
+    });
 
-            if (title === "" || content === "") {
-                alert("Lütfen bir başlık ve içerik girin!");
-                return;
-            }
+    let jsonListe = JSON.stringify(liste);
+    localStorage.setItem("kayitliListe", jsonListe);
 
-            const encodedData = encodeURIComponent(JSON.stringify({ title, content }));
-            const qrText = window.location.origin + "?data=" + encodedData;
+    let qrcodeDiv = document.getElementById("qrcode");
+    qrcodeDiv.innerHTML = "";
+    new QRCode(qrcodeDiv, window.location.href + "?data=" + encodeURIComponent(jsonListe));
 
-            document.getElementById("qr-code").src = 
-                "https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=" + encodeURIComponent(qrText);
+    alert("Liste kaydedildi ve QR kod oluşturuldu!");
+}
 
-            alert("QR kod oluşturuldu! QR'yi tarayarak listeye ulaşabilirsiniz.");
+function yuklenmisListeyiGoster() {
+    let params = new URLSearchParams(window.location.search);
+    let data = params.get("data");
+
+    if (data) {
+        let liste = JSON.parse(decodeURIComponent(data));
+        let table = document.getElementById("listeBody");
+
+        liste.forEach(entry => {
+            let row = table.insertRow();
+            let cell1 = row.insertCell(0);
+            let cell2 = row.insertCell(1);
+            let cell3 = row.insertCell(2);
+            let cell4 = row.insertCell(3);
+
+            cell1.innerHTML = `<input type="text" value="${entry.item}">`;
+            cell2.innerHTML = `<input type="number" value="${entry.amount}">`;
+            cell3.innerHTML = `<input type="file" accept="image/*">`;
+            cell4.innerHTML = `<button onclick="satiriSil(this)">Sil</button>`;
         });
     }
-});
+}

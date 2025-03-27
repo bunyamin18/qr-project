@@ -1,92 +1,48 @@
-/* Genel Stil */
 body {
-    font-family: 'Arial', sans-serif;
-    background: linear-gradient(to right, #a1c4fd, #c2e9fb);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    flex-direction: column;
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f4f4f4;
 }
 
-/* İçerik Konteyneri */
 .container {
     background: white;
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    width: 60%;
+    margin: 20px auto;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
     text-align: center;
-    width: 100%;
-    max-width: 400px;
-    position: relative;
 }
 
-/* Başlık */
-h1 {
-    font-size: 26px;
-    color: #333;
-    margin-bottom: 15px;
+th {
+    background-color: #4CAF50;
+    color: white;
 }
 
-/* Etiketler */
-label {
-    font-size: 16px;
-    font-weight: bold;
-    display: block;
-    margin-top: 10px;
-    text-align: left;
-}
-
-/* Giriş Alanları */
-input, textarea {
-    width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    border: 2px solid #ccc;
-    border-radius: 8px;
-    font-size: 16px;
-    box-sizing: border-box;
-}
-
-textarea {
-    height: 80px;
-    resize: none;
-}
-
-input:focus, textarea:focus {
-    border-color: #007bff;
-    outline: none;
-}
-
-/* Buton */
 button {
-    margin-top: 20px;
-    padding: 12px 20px;
-    background: #007bff;
+    padding: 10px 15px;
+    background: #4CAF50;
     color: white;
     border: none;
-    border-radius: 8px;
-    font-size: 16px;
     cursor: pointer;
-    transition: background 0.3s ease;
+    margin: 5px;
 }
 
 button:hover {
-    background: #0056b3;
+    background: #45a049;
 }
 
-/* QR Kodu */
-#qr-code {
-    margin-top: 15px;
-    max-width: 150px;
-}
-
-/* Footer - Sağ Alt Köşe */
-footer {
-    position: fixed;
-    bottom: 10px;
-    right: 15px;
-    font-size: 12px;
-    color: gray;
+#qrcode {
+    margin-top: 20px;
 }
