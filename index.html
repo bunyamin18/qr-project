@@ -144,10 +144,10 @@
             items: items
         };
 
-        // Veriyi URL'ye encode edip QR kodu oluştur
-        const qrCodeUrl = `${window.location.origin}/list.html?data=${encodeURIComponent(JSON.stringify(listData))}`;
+        // Listeyi URL'ye encode et
+        const listDataUrl = `${window.location.origin}/list.html?data=${encodeURIComponent(JSON.stringify(listData))}`;
         document.getElementById("qrCodeDisplay").innerHTML = `
-            <img src="https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(qrCodeUrl)}&size=150x150" alt="QR Code">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(listDataUrl)}&size=150x150" alt="QR Code">
         `;
     });
 </script>

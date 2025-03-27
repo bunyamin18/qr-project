@@ -73,13 +73,11 @@
 
 <script>
     const urlParams = new URLSearchParams(window.location.search);
-    const listData = JSON.parse(decodeURIComponent(urlParams.get("data")));
+    const listData = JSON.parse(decodeURIComponent(urlParams.get('data')));
 
-    // Liste başlığını ve öğeleri göster
-    document.getElementById("listTitle").textContent = listData.title;
+    document.getElementById("listTitle").innerText = listData.title;
 
     const itemListContainer = document.getElementById("itemList");
-
     listData.items.forEach((item, index) => {
         const itemRow = document.createElement("div");
         itemRow.innerHTML = `
@@ -122,5 +120,4 @@
     });
 </script>
 
-</body>
-</html>
+</
