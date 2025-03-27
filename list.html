@@ -89,55 +89,39 @@
 
         itemRow.innerHTML = `
             <input type="text" value="${item.itemName}" ${index > 0 ? "disabled" : ""} />
-            <input type="text" value="${item.itemQuantity}" ${index > 0 ? "disabled" : ""} />
-            <input type="text" value="${item.itemImage}" ${index > 0 ? "disabled" : ""} />
-            <img src="${item.itemImage}" alt="Resim" />
+            <input type="text" value="${item.itemQuantity}" />
+            <input type="text" value="${item.itemImage}" />
         `;
         itemListContainer.appendChild(itemRow);
     });
 
-    // Düzenleme butonuna basınca, tüm inputlar düzenlenebilir olacak
-    document.getElementById("editList").addEventListener("click", function() {
-        const inputs = itemListContainer.querySelectorAll('input');
-        const images = itemListContainer.querySelectorAll('img');
-        
-        inputs.forEach(input => {
-            input.disabled = false; // Düzenleme yapabilmesi için inputları aktif et
-        });
-        images.forEach(img => {
-            img.style.display = "none"; // Resimleri gizle
-        });
-    });
-
-    // Kaydet butonuna basıldığında yapılan değişiklikleri kaydet
+    // Kaydet butonuna basıldığında veriyi güncelle
     document.getElementById("saveList").addEventListener("click", function() {
-        const inputs = itemListContainer.querySelectorAll('input');
         const updatedItems = [];
+        const inputs = itemListContainer.querySelectorAll('input');
 
-        for (let i = 0; i < inputs.length; i += 3) { // Her öğe için 3 input (Öğe Adı, Miktar, Resim)
+        for (let i = 0; i < inputs.length; i += 3) {
             const itemName = inputs[i].value;
             const itemQuantity = inputs[i + 1].value;
             const itemImage = inputs[i + 2].value;
-
             updatedItems.push({ itemName, itemQuantity, itemImage });
         }
 
-        // Veriyi güncelle
-        listData.items = updatedItems;
+        const updatedListData = {
+            title: document.getElementById("listTitle").innerText,
+            items: updatedItems
+        };
 
-        // Listeyi kaydetmek için localStorage kullanıyoruz
-        localStorage.setItem('listData', JSON.stringify(listData));
-
-        // Kaydedilen listeyi veritabanına veya başka bir yere kaydedebilirsiniz.
-        alert("Liste kaydedildi!");
-
-        // Düzenlemeleri bitir
-        inputs.forEach(input => {
-            input.disabled = true; // Düzenleme bitince inputları devre dışı bırak
-        });
-        const images = itemListContainer.querySelectorAll('img');
-        images.forEach(img => {
-            img.style.display = "inline"; // Resimleri tekrar göster
+        // Yeni QR kodu oluştur
+        const updatedListDataEncoded = encodeURIComponent(JSON.stringify(updatedListData));
+        const updatedQrCodeUrl = `https://yourwebsite.com/list.html?data=${updatedListDataEncoded}`;
+        QRCode.toDataURL(updatedQrCodeUrl, function(err, url) {
+            if (err) {
+                console.error(err);
+            } else {
+                alert("Liste güncellendi ve yeni QR kodu oluşturuldu!");
+                // Burada yeni QR kodunu gösterme işlemi yapılabilir
+            }
         });
     });
 </script>

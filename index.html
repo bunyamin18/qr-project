@@ -66,6 +66,10 @@
 
 <h1>Listeyi Oluştur</h1>
 
+<!-- Liste başlığı input -->
+<label for="listTitle">Liste Başlığı:</label>
+<input type="text" id="listTitleInput" placeholder="Liste başlığını buraya yazın" />
+
 <div id="itemList"></div>
 
 <div class="btn-container">
@@ -112,13 +116,13 @@
         }
 
         const listData = {
-            title: "Yeni Liste", // Başlık burada sabit olmalı veya kullanıcıdan alınmalı
+            title: document.getElementById("listTitleInput").value || "Yeni Liste", // Başlık burada alınacak
             items: updatedItems
         };
 
         // QR kodu için veriyi encode et
         const listDataEncoded = encodeURIComponent(JSON.stringify(listData));
-        const qrCodeUrl = `https://yourwebsite.com/list.html?data=${listDataEncoded}`;
+        const qrCodeUrl = `https://yourwebsite.com/list.html?data=${listDataEncoded}`;  // Burada `yourwebsite.com` kısmını kendi domain adresinizle değiştirmelisiniz
 
         // QR kodunu oluştur
         QRCode.toDataURL(qrCodeUrl, function(err, url) {
