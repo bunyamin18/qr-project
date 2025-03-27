@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listeyi Kaydet</title>
+    <title>Listeyi Kaydet ve QR Kod Oluştur</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,10 +12,6 @@
         }
         h1 {
             text-align: center;
-        }
-        #qrCodeDisplay {
-            text-align: center;
-            margin-top: 20px;
         }
         #itemList {
             margin-top: 30px;
@@ -31,6 +27,29 @@
             padding: 10px;
             border: 1px solid #ccc;
             text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        #addItem {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #addItem:hover {
+            background-color: #45a049;
+        }
+        #qrCodeDisplay {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .img-container {
+            max-width: 100px;
         }
     </style>
 </head>
