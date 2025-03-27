@@ -3,35 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR List Oluşturucu</title>
-    <link rel="stylesheet" href="style.css">
+    <title>QR Kodlu Liste</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
     <div class="container">
-        <h1>QR List Oluşturucu</h1>
+        <h1>Yeni Liste Oluştur</h1>
+        <label for="title">Başlık:</label>
+        <input type="text" id="title" placeholder="Başlık girin">
 
-        <!-- Liste İsmi Girişi -->
-        <label for="listName">Liste İsmi:</label>
-        <input type="text" id="listName" placeholder="Liste için bir isim girin">
+        <label for="content">İçerik:</label>
+        <textarea id="content" placeholder="Liste içeriği yazın"></textarea>
 
-        <!-- Liste Öğeleri -->
-        <label for="listItem">Liste Öğeleri:</label>
-        <div class="input-group">
-            <input type="text" id="listItem" placeholder="Listeye öğe ekleyin">
-            <button onclick="addItem()">Ekle</button>
-        </div>
+        <button id="save">Listeyi Kaydet</button>
 
-        <ul id="itemList"></ul>
-
-        <!-- Eylem Düğmeleri -->
-        <button id="generateQR" onclick="generateQR()">QR Kodu Oluştur</button>
-        <button id="reset" onclick="resetForm()">Sıfırla</button>
-
-        <!-- QR Kodu Görüntüleme -->
-        <div id="qrContainer"></div>
+        <h2>QR Kod:</h2>
+        <img id="qr-code" src="" alt="QR kodu burada gözükecek">
     </div>
 
-    <!-- Footer Sağ Alt Yazı -->
     <footer>2003230030 // Bünyamin Ekmekcioğlu</footer>
 
     <script src="script.js"></script>

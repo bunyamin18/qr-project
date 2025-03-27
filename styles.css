@@ -1,16 +1,16 @@
-/* Genel Gövde */
+/* Genel Stil */
 body {
     font-family: 'Arial', sans-serif;
-    background: linear-gradient(to right, #84fab0, #8fd3f4);
+    background: linear-gradient(to right, #a1c4fd, #c2e9fb);
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
-    padding: 0;
+    flex-direction: column;
 }
 
-/* Konteyner */
+/* İçerik Konteyneri */
 .container {
     background: white;
     padding: 30px;
@@ -18,89 +18,75 @@ body {
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
     text-align: center;
     width: 100%;
-    max-width: 500px;
+    max-width: 400px;
     position: relative;
 }
 
 /* Başlık */
 h1 {
-    font-size: 28px;
-    color: #2b2b2b;
-    margin-bottom: 20px;
+    font-size: 26px;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+/* Etiketler */
+label {
+    font-size: 16px;
+    font-weight: bold;
+    display: block;
+    margin-top: 10px;
+    text-align: left;
 }
 
 /* Giriş Alanları */
-input {
+input, textarea {
     width: 100%;
     padding: 10px;
-    margin-bottom: 20px;
+    margin-top: 5px;
     border: 2px solid #ccc;
     border-radius: 8px;
     font-size: 16px;
+    box-sizing: border-box;
 }
 
-input:focus {
+textarea {
+    height: 80px;
+    resize: none;
+}
+
+input:focus, textarea:focus {
     border-color: #007bff;
     outline: none;
 }
 
-/* Liste Ekleme Butonu */
-.input-group {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
+/* Buton */
 button {
-    padding: 10px 20px;
+    margin-top: 20px;
+    padding: 12px 20px;
     background: #007bff;
     color: white;
     border: none;
     border-radius: 8px;
+    font-size: 16px;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: background 0.3s ease;
 }
 
 button:hover {
     background: #0056b3;
 }
 
-button:disabled {
-    background: #ccc;
-    cursor: not-allowed;
+/* QR Kodu */
+#qr-code {
+    margin-top: 15px;
+    max-width: 150px;
 }
 
-/* Liste Görünümü */
-ul {
-    list-style: none;
-    padding: 0;
-    margin-bottom: 20px;
-}
-
-li {
-    background: #f8f9fa;
-    padding: 10px;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    text-align: left;
-}
-
-li:before {
-    content: "→";
-    color: #007bff;
-    margin-right: 10px;
-}
-
-/* QR Kodu Bölümü */
-#qrContainer {
-    margin-top: 20px;
-}
-
+/* Footer - Sağ Alt Köşe */
 footer {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
+    position: fixed;
+    bottom: 10px;
+    right: 15px;
     font-size: 12px;
     color: gray;
-    text-align: right;
 }
