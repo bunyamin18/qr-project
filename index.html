@@ -11,7 +11,7 @@
 <body>
     <div class="container">
         <h1>Liste Oluşturucu</h1>
-        <input type="text" id="listTitle" placeholder="Liste Adı">
+        <input type="text" id="listTitle" placeholder="Liste Adı" />
         <table id="listTable">
             <thead>
                 <tr>
@@ -54,7 +54,7 @@
             width: 100%;
             margin-top: 20px;
             border-collapse: collapse;
-            table-layout: fixed;
+            table-layout: auto;
         }
 
         th, td {
@@ -102,18 +102,28 @@
         });
 
         document.getElementById('saveList').addEventListener('click', function() {
-            const title = document.getElementById('listTitle').value;
+            const title = document.getElementById('listTitle').value.trim();
+            if (!title) {
+                alert('Liste adı boş olamaz.');
+                return;
+            }
+
             const rows = document.querySelectorAll('#listTable tbody tr');
             let listData = { title: title, items: [] };
 
             rows.forEach(row => {
                 const inputs = row.querySelectorAll('input');
                 listData.items.push({
-                    name: inputs[0].value,
-                    quantity: inputs[1].value,
+                    name: inputs[0].value.trim(),
+                    quantity: inputs[1].value.trim(),
                     image: inputs[2].files[0] ? URL.createObjectURL(inputs[2].files[0]) : ""
                 });
             });
+
+            if (listData.items.length === 0) {
+                alert('En az bir öğe eklemelisiniz.');
+                return;
+            }
 
             const listId = Date.now();
             localStorage.setItem(`list-${listId}`, JSON.stringify(listData));
