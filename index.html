@@ -96,9 +96,14 @@
                 <td><input type="text" placeholder="Öğe Adı"></td>
                 <td><input type="text" placeholder="Miktar / Değer"></td>
                 <td><input type="file" accept="image/*"></td>
-                <td><button onclick="this.parentNode.parentNode.remove()">Sil</button></td>
+                <td><button class="removeRow">Sil</button></td>
             `;
             tbody.appendChild(row);
+
+            // Sil butonunun işlevselliği
+            row.querySelector('.removeRow').addEventListener('click', function() {
+                row.remove();
+            });
         });
 
         document.getElementById('saveList').addEventListener('click', function() {
@@ -152,9 +157,14 @@
                         <td>${item.name}</td>
                         <td>${item.quantity}</td>
                         <td><img src="${item.image}" width="50" height="50"></td>
-                        <td><button onclick="this.parentNode.parentNode.remove()">Sil</button></td>
+                        <td><button class="removeRow">Sil</button></td>
                     `;
                     tableBody.appendChild(row);
+
+                    // Sil butonunun işlevselliği
+                    row.querySelector('.removeRow').addEventListener('click', function() {
+                        row.remove();
+                    });
                 });
                 const editButton = document.createElement('button');
                 editButton.innerText = 'Düzenle';
