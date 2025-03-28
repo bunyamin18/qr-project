@@ -1,18 +1,34 @@
-function saveList() {
-    let title = document.getElementById("listTitle").value;
-    let content = document.getElementById("listContent").value;
+document.getElementById('addRow').addEventListener('click', function() {
+    const tbody = document.querySelector('#listTable tbody');
+    const row = document.createElement('tr');
+    row.innerHTML = `
+        <td><input type="text" placeholder="Öğe Adı"></td>
+        <td><input type="number" placeholder="Miktar"></td>
+        <td><input type="file" accept="image/*"></td>
+        <td><button onclick="this.parentNode.parentNode.remove()">Sil</button></td>
+    `;
+    tbody.appendChild(row);
+});
 
-    if (!title.trim() || !content.trim()) {
-        alert("Lütfen liste adı ve içeriğini girin!");
-        return;
-    }
+document.getElementById('saveList').addEventListener('click', function() {
+    const title = document.getElementById('listTitle').value;
+    const rows = document.querySelectorAll('#listTable tbody tr');
+    let listData = { title: title, items: [] };
 
-    let listData = { title: title, content: content };
-    let listString = JSON.stringify(listData);
-    let encodedData = encodeURIComponent(listString);
-    let pageURL = window.location.origin + "/liste.html?data=" + encodedData;
+    rows.forEach(row => {
+        const inputs = row.querySelectorAll('input');
+        listData.items.push({
+            name: inputs[0].value,
+            quantity: inputs[1].value
+        });
+    });
 
-    let qrCodeContainer = document.getElementById("qrcode");
-    qrCodeContainer.innerHTML = "";
-    new QRCode(qrCodeContainer, pageURL);
-}
+    const listId = Date.now();
+    localStorage.setItem(`list-${listId}`, JSON.stringify(listData));
+
+    const qrCodeContainer = document.getElementById('qrCodeContainer');
+    qrCodeContainer.innerHTML = '';
+
+    const qrCodeUrl = `${window.location.origin}/liste.html?id=${listId}`;
+    new QRCode(qrCodeContainer, qrCodeUrl);
+});

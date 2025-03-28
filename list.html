@@ -3,39 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste Görüntüle</title>
+    <title>Liste Görüntüleme</title>
     <link rel="stylesheet" href="style.css">
+    <script defer src="liste.js"></script>
 </head>
 <body>
     <div class="container">
-        <h2 id="listTitle"></h2>
-        <textarea id="listContent"></textarea>
-        <button onclick="saveEditedList()">💾 Değişiklikleri Kaydet</button>
+        <h1 id="listTitle"></h1>
+        <table id="listTable">
+            <thead>
+                <tr>
+                    <th>Öğe Adı</th>
+                    <th>Miktar / Değer</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <button id="editList">Düzenle</button>
+        <button id="saveChanges" style="display:none;">Değişiklikleri Kaydet</button>
     </div>
-
-    <script>
-        function loadList() {
-            let params = new URLSearchParams(window.location.search);
-            let data = params.get("data");
-            if (data) {
-                let listData = JSON.parse(decodeURIComponent(data));
-                document.getElementById("listTitle").innerText = listData.title;
-                document.getElementById("listContent").value = listData.content;
-            }
-        }
-
-        function saveEditedList() {
-            let newContent = document.getElementById("listContent").value;
-            let title = document.getElementById("listTitle").innerText;
-            let updatedList = { title: title, content: newContent };
-            let updatedString = encodeURIComponent(JSON.stringify(updatedList));
-            let newURL = window.location.origin + "/liste.html?data=" + updatedString;
-
-            history.replaceState(null, "", newURL);
-            alert("Değişiklikler kaydedildi! QR kod değişmedi.");
-        }
-
-        document.addEventListener("DOMContentLoaded", loadList);
-    </script>
 </body>
 </html>
