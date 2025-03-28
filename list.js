@@ -9,8 +9,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const list = JSON.parse(savedList);
             displayList(list);
         } else {
-            alert('Liste bulunamadı.');
+            const listDetailsBody = document.getElementById('listDetailsBody');
+            listDetailsBody.innerHTML = '<tr><td colspan="3">Liste bulunamadı. Lütfen doğru QR kodu kullandığınızdan emin olun.</td></tr>';
         }
+    } else {
+        const listDetailsBody = document.getElementById('listDetailsBody');
+        listDetailsBody.innerHTML = '<tr><td colspan="3">Geçerli bir liste kimliği bulunamadı.</td></tr>';
     }
 });
 
@@ -19,6 +23,7 @@ function displayList(list) {
     const listDetailsBody = document.getElementById('listDetailsBody');
     
     listTitleElement.textContent = list.title;
+    listDetailsBody.innerHTML = ''; // Önceki içeriği temizle
     
     list.items.forEach(item => {
         const row = listDetailsBody.insertRow();
