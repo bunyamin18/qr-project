@@ -3,177 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste Oluşturucu</title>
-    <link rel="stylesheet" href="style.css">
-    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script defer src="script.js"></script>
+    <title>Liste Yönetim Uygulaması</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>Liste Oluşturucu</h1>
-        <input type="text" id="listTitle" placeholder="Liste Adı" />
-        <table id="listTable">
-            <thead>
-                <tr>
-                    <th>Öğe Adı</th>
-                    <th>Miktar / Değer</th>
-                    <th>Resim</th>
-                    <th>Sil</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-        <button id="addRow">Satır Ekle</button>
-        <button id="saveList">Listeyi Kaydet</button>
-        <div id="qrCodeContainer" class="qr-code-container"></div>
+        <div class="list-creation-box">
+            <h2>Yeni Liste Oluştur</h2>
+            <input type="text" id="listTitle" placeholder="Liste Başlığı">
+            
+            <div class="list-items-container">
+                <table id="listItemsTable">
+                    <thead>
+                        <tr>
+                            <th>Nesne</th>
+                            <th>Miktar/Değer</th>
+                            <th>Resim</th>
+                            <th>İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listItemsBody">
+                        <tr>
+                            <td><input type="text" class="item-name"></td>
+                            <td><input type="text" class="item-value"></td>
+                            <td><input type="file" accept="image/*" class="item-image"></td>
+                            <td><button onclick="removeRow(this)">Sil</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button onclick="addNewRow()">Yeni Satır Ekle</button>
+            </div>
+            
+            <div class="action-buttons">
+                <button onclick="saveList()">Listeyi Kaydet</button>
+            </div>
+        </div>
     </div>
 
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: linear-gradient(135deg, #e0f7fa, #80deea);
-            font-family: Arial, sans-serif;
-            margin: 0;
-        }
+    <div id="qrCodeDisplay" class="qr-code-modal" style="display:none;">
+        <div class="qr-code-content">
+            <img id="generatedQRCode" src="" alt="QR Kod">
+            <p id="listShareLink"></p>
+            <button onclick="closeQRModal()">Kapat</button>
+        </div>
+    </div>
 
-        .container {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 80%;
-            max-width: 600px;
-            text-align: center;
-            overflow: hidden;
-        }
-
-        table {
-            width: 100%;
-            margin-top: 20px;
-            border-collapse: collapse;
-            table-layout: auto;
-        }
-
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-        }
-
-        button {
-            margin-top: 10px;
-            padding: 10px;
-            border: none;
-            background: #007bff;
-            color: white;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        button:hover {
-            background: #0056b3;
-        }
-
-        .qr-code-container {
-            margin-top: 20px;
-            padding: 20px;
-            border: 2px solid #007bff;
-            border-radius: 10px;
-            display: inline-block;
-            display: none;
-            margin-top: 20px;
-        }
-    </style>
-
-    <script>
-        document.getElementById('addRow').addEventListener('click', function() {
-            const tbody = document.querySelector('#listTable tbody');
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td><input type="text" placeholder="Öğe Adı"></td>
-                <td><input type="text" placeholder="Miktar / Değer"></td>
-                <td><input type="file" accept="image/*"></td>
-                <td><button class="removeRow">Sil</button></td>
-            `;
-            tbody.appendChild(row);
-
-            // Sil butonunun işlevselliği
-            row.querySelector('.removeRow').addEventListener('click', function() {
-                row.remove();
-            });
-        });
-
-        document.getElementById('saveList').addEventListener('click', function() {
-            const title = document.getElementById('listTitle').value.trim();
-            if (!title) {
-                alert('Liste adı boş olamaz.');
-                return;
-            }
-
-            const rows = document.querySelectorAll('#listTable tbody tr');
-            let listData = { title: title, items: [] };
-
-            rows.forEach(row => {
-                const inputs = row.querySelectorAll('input');
-                listData.items.push({
-                    name: inputs[0].value.trim(),
-                    quantity: inputs[1].value.trim(),
-                    image: inputs[2].files[0] ? URL.createObjectURL(inputs[2].files[0]) : ""
-                });
-            });
-
-            if (listData.items.length === 0) {
-                alert('En az bir öğe eklemelisiniz.');
-                return;
-            }
-
-            const listId = Date.now();
-            localStorage.setItem(`list-${listId}`, JSON.stringify(listData));
-
-            const qrCodeContainer = document.getElementById('qrCodeContainer');
-            qrCodeContainer.innerHTML = '';
-
-            const qrCodeUrl = `liste.html?id=${listId}`;
-            new QRCode(qrCodeContainer, qrCodeUrl);
-
-            qrCodeContainer.style.display = 'block';
-        });
-
-        // QR Kod okutulduğunda yönlendirme yapacak kod
-        const urlParams = new URLSearchParams(window.location.search);
-        const listId = urlParams.get('id');
-
-        if (listId) {
-            const listData = JSON.parse(localStorage.getItem(`list-${listId}`));
-            if (listData) {
-                document.querySelector('.container h1').innerText = listData.title;
-                const tableBody = document.querySelector('#listTable tbody');
-                listData.items.forEach(item => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${item.name}</td>
-                        <td>${item.quantity}</td>
-                        <td><img src="${item.image}" width="50" height="50"></td>
-                        <td><button class="removeRow">Sil</button></td>
-                    `;
-                    tableBody.appendChild(row);
-
-                    // Sil butonunun işlevselliği
-                    row.querySelector('.removeRow').addEventListener('click', function() {
-                        row.remove();
-                    });
-                });
-                const editButton = document.createElement('button');
-                editButton.innerText = 'Düzenle';
-                document.querySelector('.container').appendChild(editButton);
-                editButton.addEventListener('click', function() {
-                    alert('Düzenleme özelliği henüz eklenmedi.');
-                });
-            }
-        }
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

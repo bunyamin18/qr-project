@@ -3,24 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste Görüntüleme</title>
-    <link rel="stylesheet" href="style.css">
-    <script defer src="liste.js"></script>
+    <title>Liste Detayları</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1 id="listTitle"></h1>
-        <table id="listTable">
-            <thead>
-                <tr>
-                    <th>Öğe Adı</th>
-                    <th>Miktar / Değer</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-        <button id="editList">Düzenle</button>
-        <button id="saveChanges" style="display:none;">Değişiklikleri Kaydet</button>
+        <div class="list-details-box">
+            <h2 id="listTitle"></h2>
+            <table id="listDetailsTable">
+                <thead>
+                    <tr>
+                        <th>Nesne</th>
+                        <th>Miktar/Değer</th>
+                        <th>Resim</th>
+                    </tr>
+                </thead>
+                <tbody id="listDetailsBody"></tbody>
+            </table>
+            <div class="action-buttons">
+                <button onclick="editList()">Düzenle</button>
+            </div>
+        </div>
     </div>
+
+    <div id="editListModal" class="qr-code-modal" style="display:none;">
+        <div class="qr-code-content">
+            <h2>Listeyi Düzenle</h2>
+            <table id="editListTable">
+                <thead>
+                    <tr>
+                        <th>Nesne</th>
+                        <th>Miktar/Değer</th>
+                        <th>Resim</th>
+                        <th>İşlem</th>
+                    </tr>
+                </thead>
+                <tbody id="editListBody"></tbody>
+            </table>
+            <div class="action-buttons">
+                <button onclick="addNewEditRow()">Yeni Satır Ekle</button>
+                <button onclick="saveEditedList()">Değişiklikleri Kaydet</button>
+                <button onclick="cancelEdit()">İptal</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="list.js"></script>
 </body>
 </html>
