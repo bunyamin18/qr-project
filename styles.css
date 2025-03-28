@@ -78,3 +78,16 @@ body {
     text-align: center;
     margin-top: 20px;
 }
+
+.delete-row {
+    background-color: #dc3545;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    padding: 5px 10px;
+}
+
+.delete-row:hover {
+    background-color: #c82333;
+}

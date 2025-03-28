@@ -5,10 +5,16 @@ document.getElementById('add-row').addEventListener('click', function() {
     const cell1 = newRow.insertCell(0);
     const cell2 = newRow.insertCell(1);
     const cell3 = newRow.insertCell(2);
+    const cell4 = newRow.insertCell(3);
     
     cell1.innerHTML = '<input type="text" placeholder="Ne Olduğu">';
     cell2.innerHTML = '<input type="text" placeholder="Miktarı/Değeri">';
     cell3.innerHTML = '<input type="file" accept="image/*">';
+    cell4.innerHTML = '<button class="delete-row">Sil</button>';
+    
+    cell4.getElementsByClassName('delete-row')[0].addEventListener('click', function() {
+        table.removeChild(newRow);
+    });
 });
 
 document.getElementById('save-list').addEventListener('click', function() {
@@ -60,10 +66,16 @@ function loadListFromQRCode(qrCodeData) {
         const cell1 = newRow.insertCell(0);
         const cell2 = newRow.insertCell(1);
         const cell3 = newRow.insertCell(2);
+        const cell4 = newRow.insertCell(3);
         
         cell1.innerHTML = `<input type="text" value="${item.description}">`;
         cell2.innerHTML = `<input type="text" value="${item.value}">`;
         cell3.innerHTML = `<input type="file" accept="image/*">`;
+        cell4.innerHTML = '<button class="delete-row">Sil</button>';
+        
+        cell4.getElementsByClassName('delete-row')[0].addEventListener('click', function() {
+            table.removeChild(newRow);
+        });
         
         if (item.image) {
             const img = document.createElement('img');
