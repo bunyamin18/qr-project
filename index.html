@@ -25,7 +25,7 @@
         </table>
         <button id="addRow">Satır Ekle</button>
         <button id="saveList">Listeyi Kaydet</button>
-        <div id="qrCodeContainer"></div>
+        <div id="qrCodeContainer" class="qr-code-container"></div>
     </div>
 
     <style>
@@ -34,7 +34,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            background: linear-gradient(135deg, #e0f7fa, #80deea);
             font-family: Arial, sans-serif;
             margin: 0;
         }
@@ -74,6 +74,52 @@
         button:hover {
             background: #0056b3;
         }
+
+        .qr-code-container {
+            margin-top: 20px;
+            padding: 20px;
+            border: 2px solid #007bff;
+            border-radius: 10px;
+            display: inline-block;
+        }
     </style>
+
+    <script>
+        document.getElementById('addRow').addEventListener('click', function() {
+            const tbody = document.querySelector('#listTable tbody');
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><input type="text" placeholder="Öğe Adı"></td>
+                <td><input type="text" placeholder="Miktar / Değer"></td>
+                <td><input type="file" accept="image/*"></td>
+                <td><button onclick="this.parentNode.parentNode.remove()">Sil</button></td>
+            `;
+            tbody.appendChild(row);
+        });
+
+        document.getElementById('saveList').addEventListener('click', function() {
+            const title = document.getElementById('listTitle').value;
+            const rows = document.querySelectorAll('#listTable tbody tr');
+            let listData = { title: title, items: [] };
+
+            rows.forEach(row => {
+                const inputs = row.querySelectorAll('input');
+                listData.items.push({
+                    name: inputs[0].value,
+                    quantity: inputs[1].value,
+                    image: inputs[2].files[0] ? URL.createObjectURL(inputs[2].files[0]) : ""
+                });
+            });
+
+            const listId = Date.now();
+            localStorage.setItem(`list-${listId}`, JSON.stringify(listData));
+
+            const qrCodeContainer = document.getElementById('qrCodeContainer');
+            qrCodeContainer.innerHTML = '';
+
+            const qrCodeUrl = `liste.html?id=${listId}`;
+            new QRCode(qrCodeContainer, qrCodeUrl);
+        });
+    </script>
 </body>
 </html>
