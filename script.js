@@ -3,8 +3,7 @@ document.getElementById('addRow').addEventListener('click', function() {
     const row = document.createElement('tr');
     row.innerHTML = `
         <td><input type="text" placeholder="Öğe Adı"></td>
-        <td><input type="number" placeholder="Miktar"></td>
-        <td><input type="file" accept="image/*"></td>
+        <td><input type="text" placeholder="Miktar / Değer"></td>
         <td><button onclick="this.parentNode.parentNode.remove()">Sil</button></td>
     `;
     tbody.appendChild(row);
@@ -29,6 +28,6 @@ document.getElementById('saveList').addEventListener('click', function() {
     const qrCodeContainer = document.getElementById('qrCodeContainer');
     qrCodeContainer.innerHTML = '';
 
-    const qrCodeUrl = `${window.location.origin}/liste.html?id=${listId}`;
+    const qrCodeUrl = `liste.html?id=${listId}`;
     new QRCode(qrCodeContainer, qrCodeUrl);
 });
