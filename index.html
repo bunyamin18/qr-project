@@ -47,12 +47,14 @@
             width: 80%;
             max-width: 600px;
             text-align: center;
+            overflow: hidden;
         }
 
         table {
             width: 100%;
             margin-top: 20px;
             border-collapse: collapse;
+            table-layout: fixed;
         }
 
         th, td {
@@ -81,6 +83,8 @@
             border: 2px solid #007bff;
             border-radius: 10px;
             display: inline-block;
+            display: none;
+            margin-top: 20px;
         }
     </style>
 
@@ -119,7 +123,37 @@
 
             const qrCodeUrl = `liste.html?id=${listId}`;
             new QRCode(qrCodeContainer, qrCodeUrl);
+
+            qrCodeContainer.style.display = 'block';
         });
+
+        // QR Kod okutulduğunda yönlendirme yapacak kod
+        const urlParams = new URLSearchParams(window.location.search);
+        const listId = urlParams.get('id');
+
+        if (listId) {
+            const listData = JSON.parse(localStorage.getItem(`list-${listId}`));
+            if (listData) {
+                document.querySelector('.container h1').innerText = listData.title;
+                const tableBody = document.querySelector('#listTable tbody');
+                listData.items.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${item.name}</td>
+                        <td>${item.quantity}</td>
+                        <td><img src="${item.image}" width="50" height="50"></td>
+                        <td><button onclick="this.parentNode.parentNode.remove()">Sil</button></td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+                const editButton = document.createElement('button');
+                editButton.innerText = 'Düzenle';
+                document.querySelector('.container').appendChild(editButton);
+                editButton.addEventListener('click', function() {
+                    alert('Düzenleme özelliği henüz eklenmedi.');
+                });
+            }
+        }
     </script>
 </body>
 </html>
