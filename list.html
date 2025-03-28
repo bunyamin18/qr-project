@@ -1,53 +1,96 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste Detayları</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div class="container">
-        <div class="list-details-box">
-            <h2 id="listTitle"></h2>
-            <table id="listDetailsTable">
-                <thead>
-                    <tr>
-                        <th>Nesne</th>
-                        <th>Miktar/Değer</th>
-                        <th>Resim</th>
-                    </tr>
-                </thead>
-                <tbody id="listDetailsBody"></tbody>
-            </table>
-            <div class="action-buttons">
-                <button onclick="editList()">Düzenle</button>
-            </div>
-        </div>
-    </div>
+document.addEventListener('DOMContentLoaded', function() {
+    const addRowBtn = document.getElementById('addRowBtn');
+    const saveListBtn = document.getElementById('saveListBtn');
+    const listItemsBody = document.getElementById('listItemsBody');
 
-    <div id="editListModal" class="qr-code-modal" style="display:none;">
-        <div class="qr-code-content">
-            <h2>Listeyi Düzenle</h2>
-            <table id="editListTable">
-                <thead>
-                    <tr>
-                        <th>Nesne</th>
-                        <th>Miktar/Değer</th>
-                        <th>Resim</th>
-                        <th>İşlem</th>
-                    </tr>
-                </thead>
-                <tbody id="editListBody"></tbody>
-            </table>
-            <div class="action-buttons">
-                <button onclick="addNewEditRow()">Yeni Satır Ekle</button>
-                <button onclick="saveEditedList()">Değişiklikleri Kaydet</button>
-                <button onclick="cancelEdit()">İptal</button>
-            </div>
-        </div>
-    </div>
+    // Satır Silme Event Listener
+    listItemsBody.addEventListener('click', function(event) {
+        if (event.target.classList.contains('delete-row-btn')) {
+            // Eğer tek satır varsa silmeyi engelle
+            if (listItemsBody.rows.length > 1) {
+                event.target.closest('tr').remove();
+            } else {
+                alert('En az bir satır bulunmalıdır.');
+            }
+        }
+    });
 
-    <script src="list.js"></script>
-</body>
-</html>
+    // Yeni Satır Ekleme
+    addRowBtn.addEventListener('click', function() {
+        const newRow = listItemsBody.insertRow();
+        newRow.innerHTML = `
+            <td><input type="text" class="item-name"></td>
+            <td><input type="text" class="item-value"></td>
+            <td><input type="file" accept="image/*" class="item-image"></td>
+            <td><button type="button" class="delete-row-btn">Sil</button></td>
+        `;
+    });
+
+    // Listeyi Kaydetme
+    saveListBtn.addEventListener('click', function() {
+        const listTitle = document.getElementById('listTitle').value;
+        const rows = listItemsBody.getElementsByTagName('tr');
+        
+        const listItems = [];
+        
+        for (let row of rows) {
+            const itemName = row.querySelector('.item-name').value;
+            const itemValue = row.querySelector('.item-value').value;
+            const imageInput = row.querySelector('.item-image');
+            
+            if (itemName && itemValue) {
+                const listItem = {
+                    name: itemName,
+                    value: itemValue,
+                    image: null
+                };
+                
+                if (imageInput.files.length > 0) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        listItem.image = e.target.result;
+                    };
+                    reader.readAsDataURL(imageInput.files[0]);
+                }
+                
+                listItems.push(listItem);
+            }
+        }
+        
+        if (!listTitle || listItems.length === 0) {
+            alert('Lütfen liste başlığı ve en az bir liste elemanı girin.');
+            return;
+        }
+        
+        const list = {
+            id: Date.now().toString(),
+            title: listTitle,
+            items: listItems
+        };
+        
+        localStorage.setItem(list.id, JSON.stringify(list));
+        generateQRCode(list.id);
+    });
+
+    function generateQRCode(listId) {
+        const qrCodeDisplay = document.getElementById('qrCodeDisplay');
+        const generatedQRCode = document.getElementById('generatedQRCode');
+        const listShareLink = document.getElementById('listShareLink');
+        
+        // Değişiklik: Sabit bir link kullan
+        const shareLink = `list.html?id=${listId}`;
+        
+        const qr = qrcode(0, 'M');
+        qr.addData(shareLink);
+        qr.make();
+        generatedQRCode.src = qr.createDataURL(10);
+        
+        listShareLink.textContent = shareLink;
+        qrCodeDisplay.style.display = 'flex';
+    }
+
+    window.closeQRModal = function() {
+        const qrCodeDisplay = document.getElementById('qrCodeDisplay');
+        qrCodeDisplay.style.display = 'none';
+    };
+});
