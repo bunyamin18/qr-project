@@ -1,85 +1,82 @@
-let currentList = null;
-let currentListId = null;
+document.getElementById('add-row').addEventListener('click', function() {
+    const table = document.getElementById('list-table').getElementsByTagName('tbody')[0];
+    const newRow = table.insertRow();
+    
+    const cell1 = newRow.insertCell(0);
+    const cell2 = newRow.insertCell(1);
+    const cell3 = newRow.insertCell(2);
+    
+    cell1.innerHTML = '<input type="text" placeholder="Ne Olduğu">';
+    cell2.innerHTML = '<input type="text" placeholder="Miktarı/Değeri">';
+    cell3.innerHTML = '<input type="file" accept="image/*">';
+});
 
-function addNewRow() {
-    const tableBody = document.getElementById('listItemsBody');
-    const newRow = tableBody.insertRow();
-    
-    newRow.innerHTML = `
-        <td><input type="text" class="item-name"></td>
-        <td><input type="text" class="item-value"></td>
-        <td><input type="file" accept="image/*" class="item-image"></td>
-        <td><button onclick="removeRow(this)">Sil</button></td>
-    `;
-}
-
-function removeRow(button) {
-    button.closest('tr').remove();
-}
-
-function saveList() {
-    const listTitle = document.getElementById('listTitle').value;
-    const listItemsBody = document.getElementById('listItemsBody');
-    const rows = listItemsBody.getElementsByTagName('tr');
-    
-    const listItems = [];
-    
-    for (let row of rows) {
-        const itemName = row.querySelector('.item-name').value;
-        const itemValue = row.querySelector('.item-value').value;
-        const imageInput = row.querySelector('.item-image');
-        
-        if (itemName && itemValue) {
-            const listItem = {
-                name: itemName,
-                value: itemValue,
-                image: null
-            };
-            
-            if (imageInput.files.length > 0) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    listItem.image = e.target.result;
-                };
-                reader.readAsDataURL(imageInput.files[0]);
-            }
-            
-            listItems.push(listItem);
-        }
-    }
-    
-    if (!listTitle || listItems.length === 0) {
-        alert('Lütfen liste başlığı ve en az bir liste elemanı girin.');
-        return;
-    }
-    
-    const list = {
-        id: Date.now().toString(),
-        title: listTitle,
-        items: listItems
+document.getElementById('save-list').addEventListener('click', function() {
+    const title = document.getElementById('list-title').value;
+    const table = document.getElementById('list-table');
+    const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+    let listContent = {
+        title: title,
+        items: []
     };
     
-    localStorage.setItem(list.id, JSON.stringify(list));
-    generateQRCode(list.id);
+    for (let i = 0; i < rows.length; i++) {
+        const cells = rows[i].getElementsByTagName('td');
+        const item = {
+            description: cells[0].getElementsByTagName('input')[0].value,
+            value: cells[1].getElementsByTagName('input')[0].value,
+            image: cells[2].getElementsByTagName('input')[0].files[0] ? URL.createObjectURL(cells[2].getElementsByTagName('input')[0].files[0]) : null
+        };
+        listContent.items.push(item);
+    }
+    
+    // Listeyi kaydetme işlemi (localStorage veya sunucuya gönderme)
+    localStorage.setItem('savedList', JSON.stringify(listContent));
+    
+    // QR kodu oluşturma ve gösterme
+    const qrCodeContainer = document.getElementById('qr-code');
+    qrCodeContainer.innerHTML = ''; // Mevcut QR kodunu temizle
+    
+    const qrCode = new QRCode(qrCodeContainer, {
+        text: JSON.stringify(listContent),
+        width: 128,
+        height: 128
+    });
+    
+    alert('Liste kaydedildi ve QR kodu oluşturuldu!');
+});
+
+// Listeyi QR kodu tarayarak yükleme ve düzenleme
+function loadListFromQRCode(qrCodeData) {
+    const listContent = JSON.parse(qrCodeData);
+    document.getElementById('list-title').value = listContent.title;
+    
+    const table = document.getElementById('list-table').getElementsByTagName('tbody')[0];
+    table.innerHTML = ''; // Mevcut satırları temizle
+    
+    listContent.items.forEach(item => {
+        const newRow = table.insertRow();
+        
+        const cell1 = newRow.insertCell(0);
+        const cell2 = newRow.insertCell(1);
+        const cell3 = newRow.insertCell(2);
+        
+        cell1.innerHTML = `<input type="text" value="${item.description}">`;
+        cell2.innerHTML = `<input type="text" value="${item.value}">`;
+        cell3.innerHTML = `<input type="file" accept="image/*">`;
+        
+        if (item.image) {
+            const img = document.createElement('img');
+            img.src = item.image;
+            img.style.width = '50px';
+            cell3.appendChild(img);
+        }
+    });
 }
 
-function generateQRCode(listId) {
-    const qrCodeDisplay = document.getElementById('qrCodeDisplay');
-    const generatedQRCode = document.getElementById('generatedQRCode');
-    const listShareLink = document.getElementById('listShareLink');
-    
-    const shareLink = `${window.location.origin}/list.html?id=${listId}`;
-    
-    const qr = qrcode(0, 'M');
-    qr.addData(shareLink);
-    qr.make();
-    generatedQRCode.src = qr.createDataURL(10);
-    
-    listShareLink.textContent = shareLink;
-    qrCodeDisplay.style.display = 'flex';
-}
-
-function closeQRModal() {
-    const qrCodeDisplay = document.getElementById('qrCodeDisplay');
-    qrCodeDisplay.style.display = 'none';
-}
+document.getElementById('qr-code').addEventListener('click', function() {
+    const qrCodeData = prompt('QR kodu verisini girin:');
+    if (qrCodeData) {
+        loadListFromQRCode(qrCodeData);
+    }
+});
