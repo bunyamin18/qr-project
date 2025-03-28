@@ -45,8 +45,8 @@ document.getElementById('save-list').addEventListener('click', function() {
     
     const qrCode = new QRCode(qrCodeContainer, {
         text: JSON.stringify(listContent),
-        width: 128,
-        height: 128
+        width: 256, // QR kod genişliğini arttır
+        height: 256 // QR kod yüksekliğini arttır
     });
     
     alert('Liste kaydedildi ve QR kodu oluşturuldu!');
