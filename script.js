@@ -228,7 +228,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 
                 // QR kodu veri olarak listeye ekle
-                listData.qrCode = qr.createDataURL();
+                const qrElement = qr.getCanvas();
+                if (qrElement) {
+                    listData.qrCode = qrElement.toDataURL();
+                }
 
                 // Veriyi tekrar kaydet
                 localStorage.setItem(`list_${listId}`, JSON.stringify(listData));

@@ -2,12 +2,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // DOM elementlerini al
     const titleElement = document.getElementById('listTitle');
     const itemsList = document.getElementById('itemsList');
-    const qrCodeImg = document.getElementById('qrCode');
+    const qrContainer = document.getElementById('qrContainer');
     const qrError = document.getElementById('qrError');
     const editButton = document.querySelector('.edit-button');
 
     // Kontroller
-    if (!titleElement || !itemsList || !qrCodeImg || !qrError || !editButton) {
+    if (!titleElement || !itemsList || !qrContainer || !qrError || !editButton) {
         console.error('Gerekli DOM elementleri bulunamadı');
         alert('Sayfa yüklenirken bir hata oluştu');
         return;
@@ -127,11 +127,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // QR kodu göster
         if (data.qrCode) {
-            qrCodeImg.src = data.qrCode;
-            qrCodeImg.style.display = 'block';
+            const qrImg = document.createElement('img');
+            qrImg.src = data.qrCode;
+            qrImg.alt = 'QR Kod';
+            qrImg.style.maxWidth = '256px';
+            qrImg.style.maxHeight = '256px';
+            
+            qrContainer.innerHTML = '';
+            qrContainer.appendChild(qrImg);
             qrError.style.display = 'none';
         } else {
-            qrCodeImg.style.display = 'none';
+            qrContainer.innerHTML = '';
             qrError.style.display = 'block';
             qrError.textContent = 'QR kod oluşturulamadı';
         }
