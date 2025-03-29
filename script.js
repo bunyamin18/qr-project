@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (!form || !itemsContainer || !addRowButton || !saveButton || !titleInput) {
         console.error('Required DOM elements not found');
+        alert('Sayfa yüklenirken hata oluştu');
         return;
     }
 
@@ -37,7 +38,6 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('Error loading editing data:', error);
             alert('Düzenleme verisi yüklenirken hata oluştu');
-            window.location.href = 'index.html';
             return;
         }
     }
@@ -111,14 +111,14 @@ document.addEventListener('DOMContentLoaded', function() {
     async function handleFormSubmit(e) {
         e.preventDefault();
         
-        try {
-            // Disable save button
-            saveButton.disabled = true;
-            const buttonText = saveButton.querySelector('.button-text');
-            if (buttonText) {
-                buttonText.textContent = 'Kaydediliyor...';
-            }
+        // Disable save button
+        saveButton.disabled = true;
+        const buttonText = saveButton.querySelector('.button-text');
+        if (buttonText) {
+            buttonText.textContent = 'Kaydediliyor...';
+        }
 
+        try {
             // Validate title
             const title = titleInput.value.trim();
             if (!title) {
@@ -166,28 +166,41 @@ document.addEventListener('DOMContentLoaded', function() {
             const listUrl = `${baseUrl}/list.html?id=${listId}&data=${encodedData}`;
 
             if (!qrCode) {
-                const qr = qrcode(0, 'L');
-                qr.addData(listUrl);
-                qr.make();
-                qrCode = qr.createDataURL(10);
+                try {
+                    if (typeof qrcode !== 'function') {
+                        throw new Error('QR kod kütüphanesi yüklenemedi');
+                    }
+                    const qr = qrcode(0, 'L');
+                    qr.addData(listUrl);
+                    qr.make();
+                    qrCode = qr.createDataURL(10);
+                } catch (error) {
+                    console.error('Error generating QR code:', error);
+                    throw new Error('QR kod oluşturulurken hata oluştu');
+                }
             }
 
             // Add QR code to list data
             listData.qrCode = qrCode;
 
-            // Save data
-            localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
-            localStorage.setItem('currentList', JSON.stringify(listData));
+            try {
+                // Save data
+                localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
+                localStorage.setItem('currentList', JSON.stringify(listData));
 
-            if (isEditing) {
-                localStorage.removeItem('editingList');
+                if (isEditing) {
+                    localStorage.removeItem('editingList');
+                }
+
+                // Navigate to list view
+                window.location.href = listUrl;
+            } catch (error) {
+                console.error('Error saving to localStorage:', error);
+                throw new Error('Liste kaydedilirken hata oluştu');
             }
 
-            // Navigate to list view
-            window.location.href = listUrl;
-
         } catch (error) {
-            console.error('Error saving list:', error);
+            console.error('Form submission error:', error);
             alert(error.message || 'Beklenmeyen bir hata oluştu');
             
             // Re-enable save button
