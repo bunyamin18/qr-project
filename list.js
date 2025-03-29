@@ -39,22 +39,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // If still no data, try current list
-    if (!listData) {
-        try {
-            const currentList = localStorage.getItem('currentList');
-            if (currentList) {
-                const currentData = JSON.parse(currentList);
-                if (currentData.id === listId) {
-                    listData = currentData;
-                    console.log('Got data from currentList:', listData);
-                }
-            }
-        } catch (e) {
-            console.error('Error getting current list:', e);
-        }
-    }
-    
     if (listData) {
         // Set title
         document.getElementById('listTitle').textContent = listData.title;

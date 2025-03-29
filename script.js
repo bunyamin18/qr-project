@@ -1,204 +1,159 @@
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('listForm');
-    const itemsContainer = document.getElementById('items');
-    const addRowButton = document.getElementById('addRow');
+    const itemsContainer = document.getElementById('itemsContainer');
+    const addItemButton = document.getElementById('addItem');
     const saveButton = document.getElementById('saveButton');
-    const isEditing = window.location.search.includes('edit=true');
-    
-    // Update save button text based on mode
-    if (saveButton) {
-        const buttonText = saveButton.querySelector('.button-text');
-        if (buttonText) {
-            buttonText.textContent = isEditing ? 'Değişiklikleri Kaydet' : 'Kaydet';
-        }
-    }
-    
-    // If we're editing, load the existing data
+
+    // Check if we're editing an existing list
+    const urlParams = new URLSearchParams(window.location.search);
+    const isEditing = urlParams.get('edit') === 'true';
+
+    // Load editing data if available
     if (isEditing) {
-        try {
-            const editingData = JSON.parse(localStorage.getItem('editingList'));
-            if (editingData) {
-                document.getElementById('listTitle').value = editingData.title;
-                
-                // Remove default empty row
-                itemsContainer.innerHTML = '';
-                
-                // Add rows for each item
-                editingData.items.forEach(item => {
-                    addNewRow(item);
-                });
-            }
-        } catch (e) {
-            console.error('Error loading editing data:', e);
+        const editingData = JSON.parse(localStorage.getItem('editingList'));
+        if (editingData) {
+            document.getElementById('listTitle').value = editingData.title;
+            editingData.items.forEach(item => addNewRow(item));
+            saveButton.textContent = 'Değişiklikleri Kaydet';
         }
     }
 
-    // Add row event listener
-    if (addRowButton) {
-        addRowButton.addEventListener('click', () => addNewRow());
+    // Add first row if no items
+    if (itemsContainer.children.length === 0) {
+        addNewRow();
     }
 
-    // Delete row event delegation
-    if (itemsContainer) {
-        itemsContainer.addEventListener('click', function(e) {
-            if (e.target.classList.contains('delete-row')) {
-                const row = e.target.closest('.form-row');
-                if (itemsContainer.children.length > 1) {
-                    row.remove();
-                }
-            }
-        });
+    // Add item button click handler
+    addItemButton.addEventListener('click', () => addNewRow());
 
-        // Image preview functionality
-        itemsContainer.addEventListener('change', function(e) {
-            if (e.target.classList.contains('item-image')) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const preview = document.createElement('img');
-                        preview.src = e.target.result;
-                        preview.classList.add('image-preview');
-                        
-                        const container = e.target.parentElement;
-                        // Remove existing preview if any
-                        const existingPreview = container.querySelector('.image-preview');
-                        if (existingPreview) {
-                            existingPreview.remove();
-                        }
-                        
-                        // Update stored image value
-                        const storedImage = container.querySelector('.stored-image');
-                        if (storedImage) {
-                            storedImage.value = e.target.result;
-                        }
-                        
-                        container.appendChild(preview);
-                    };
-                    reader.readAsDataURL(file);
-                }
+    // Delete row button click handler
+    itemsContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('delete-row')) {
+            const row = e.target.closest('.item-row');
+            if (itemsContainer.children.length > 1) {
+                row.remove();
             }
-        });
-    }
+        }
+    });
+
+    // Handle image file selection
+    itemsContainer.addEventListener('change', function(e) {
+        if (e.target.classList.contains('item-image')) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                const row = e.target.closest('.item-row');
+                const storedImage = row.querySelector('.stored-image');
+                const preview = row.querySelector('.image-preview');
+                
+                reader.onload = function(e) {
+                    const imageData = e.target.result;
+                    storedImage.value = imageData;
+                    
+                    if (preview) {
+                        preview.src = imageData;
+                    } else {
+                        const newPreview = document.createElement('img');
+                        newPreview.src = imageData;
+                        newPreview.className = 'image-preview';
+                        row.querySelector('.image-container').appendChild(newPreview);
+                    }
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        }
+    });
 
     // Form submit handler
-    if (form) {
-        form.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            console.log('Form submitted');
-
-            // Disable save button
-            if (saveButton) {
-                saveButton.disabled = true;
-                const buttonText = saveButton.querySelector('.button-text');
-                if (buttonText) {
-                    buttonText.textContent = 'Kaydediliyor...';
-                }
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        try {
+            const items = Array.from(itemsContainer.children);
+            if (items.length === 0) {
+                throw new Error('En az bir öğe eklemelisiniz');
             }
+
+            // Get list ID and QR code
+            let listId;
+            let qrCode;
             
-            try {
-                // Check if title is empty
-                const title = document.getElementById('listTitle').value.trim();
-                if (!title) {
-                    throw new Error('Liste başlığı boş olamaz');
+            if (isEditing) {
+                const editingData = JSON.parse(localStorage.getItem('editingList'));
+                if (!editingData) {
+                    throw new Error('Düzenleme verisi bulunamadı');
                 }
-
-                // Check if there are items
-                const items = document.querySelectorAll('.form-row.item-row');
-                if (items.length === 0) {
-                    throw new Error('En az bir öğe eklemelisiniz');
-                }
-
-                // Get list ID from editing data or generate new one
-                let listId;
-                let qrCode;
-                
-                if (isEditing) {
-                    const editingData = JSON.parse(localStorage.getItem('editingList'));
-                    if (!editingData) {
-                        throw new Error('Düzenleme verisi bulunamadı');
-                    }
-                    listId = editingData.id;
-                    qrCode = editingData.qrCode;
-                    console.log('Using existing QR code');
-                } else {
-                    listId = Date.now().toString(36) + Math.random().toString(36).substr(2);
-                }
-
-                // Create list data object first
-                const listData = {
-                    id: listId,
-                    title: document.getElementById('listTitle').value,
-                    items: []
-                };
-
-                // Collect all items
-                let hasError = false;
-                items.forEach((row, index) => {
-                    const content = row.querySelector('.item-content').value.trim();
-                    const quantity = row.querySelector('.item-quantity').value.trim();
-                    const storedImage = row.querySelector('.stored-image').value;
-                    
-                    if (!content || !quantity) {
-                        hasError = true;
-                        return;
-                    }
-
-                    listData.items.push({
-                        content: content,
-                        quantity: quantity,
-                        image: storedImage
-                    });
-                });
-
-                if (hasError) {
-                    throw new Error('Lütfen tüm alanları doldurun');
-                }
-
-                // Prepare data for URL and QR code
-                const finalData = JSON.stringify(listData);
-                const encodedData = encodeURIComponent(finalData);
-                const baseUrl = `${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}`;
-                const listUrl = `${baseUrl}/list.html?id=${listId}&data=${encodedData}`;
-
-                // Generate QR code for new list or use existing one
-                if (!isEditing || !qrCode) {
-                    const qr = qrcode(0, 'L');
-                    qr.addData(listUrl);
-                    qr.make();
-                    qrCode = qr.createDataURL(10);
-                    console.log('Generated new QR code');
-                }
-
-                // Add QR code to list data
-                listData.qrCode = qrCode;
-
-                // Save to localStorage
-                localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
-                localStorage.setItem('currentList', JSON.stringify(listData));
-
-                if (isEditing) {
-                    localStorage.removeItem('editingList');
-                }
-
-                // Redirect to list view with data
-                window.location.href = listUrl;
-
-            } catch (error) {
-                console.error('Error saving list:', error);
-                alert(error.message || 'Liste kaydedilirken bir hata oluştu');
-                
-                // Re-enable save button on error
-                if (saveButton) {
-                    saveButton.disabled = false;
-                    const buttonText = saveButton.querySelector('.button-text');
-                    if (buttonText) {
-                        buttonText.textContent = isEditing ? 'Değişiklikleri Kaydet' : 'Kaydet';
-                    }
-                }
+                listId = editingData.id;
+                qrCode = editingData.qrCode;
+                console.log('Using existing QR code:', qrCode ? 'yes' : 'no');
+            } else {
+                listId = Date.now().toString(36) + Math.random().toString(36).substr(2);
             }
-        });
-    }
+
+            // Create list data object
+            const listData = {
+                id: listId,
+                title: document.getElementById('listTitle').value,
+                items: []
+            };
+
+            // Collect all items
+            let hasError = false;
+            items.forEach((row, index) => {
+                const content = row.querySelector('.item-content').value.trim();
+                const quantity = row.querySelector('.item-quantity').value.trim();
+                const storedImage = row.querySelector('.stored-image').value;
+                
+                if (!content || !quantity) {
+                    hasError = true;
+                    return;
+                }
+
+                listData.items.push({
+                    content: content,
+                    quantity: quantity,
+                    image: storedImage
+                });
+            });
+
+            if (hasError) {
+                throw new Error('Lütfen tüm alanları doldurun');
+            }
+
+            // Generate or use existing QR code
+            const baseUrl = `${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}`;
+            const finalData = JSON.stringify(listData);
+            const encodedData = encodeURIComponent(finalData);
+            const listUrl = `${baseUrl}/list.html?id=${listId}&data=${encodedData}`;
+
+            if (!qrCode) {
+                const qr = qrcode(0, 'L');
+                qr.addData(listUrl);
+                qr.make();
+                qrCode = qr.createDataURL(10);
+                console.log('Generated new QR code');
+            }
+
+            // Add QR code to list data
+            listData.qrCode = qrCode;
+
+            // Save to localStorage
+            localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
+            localStorage.setItem('currentList', JSON.stringify(listData));
+
+            if (isEditing) {
+                localStorage.removeItem('editingList');
+            }
+
+            // Redirect to list view
+            window.location.href = listUrl;
+
+        } catch (error) {
+            console.error('Error saving list:', error);
+            alert(error.message);
+        }
+    });
 
     function addNewRow(item = null) {
         const newRow = document.createElement('div');
