@@ -153,13 +153,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error('Lütfen tüm içerik ve miktar alanlarını doldurun');
                 }
 
-                // Resmi sıkıştır
-                const compressedImage = await compressImage(storedImage);
-                
                 listData.items.push({ 
                     content: content.substring(0, 50),
                     quantity: quantity.substring(0, 10),
-                    image: compressedImage 
+                    image: storedImage 
                 });
             }
 
@@ -191,6 +188,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error('QR kod oluşturulamadı');
                 }
 
+                listData.qrCode = qrCode;
+
                 // Yeni sayfaya yönlendir
                 window.location.href = `${listUrl}&data=${encodedData}`;
 
@@ -211,19 +210,27 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Resim sıkıştırma fonksiyonu
-    async function compressImage(imageData) {
-        if (!imageData) return '';
-
-        return new Promise((resolve, reject) => {
-            try {
-                const img = new Image();
-                img.src = imageData;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    
-                    // Resmi maksimum 500px genişliğe indir
-                    const maxWidth = 500;
-                    const scale = maxWidth / img.width;
-                    const newWidth = maxWidth
+    // Yeni satır ekleme fonksiyonu
+    function addNewRow(item = null) {
+        const newRow = document.createElement('div');
+        newRow.className = 'form-row item-row';
+        newRow.innerHTML = `
+            <div class="input-group content-field">
+                <label>İçerik:</label>
+                <input type="text" class="item-content" required value="${item?.content || ''}">
+            </div>
+            <div class="input-group">
+                <label>Miktar:</label>
+                <input type="text" class="item-quantity" required value="${item?.quantity || ''}">
+            </div>
+            <div class="input-group">
+                <label>Resim:</label>
+                <input type="file" class="item-image" accept="image/*">
+                <input type="hidden" class="stored-image" value="${item?.image || ''}">
+                ${item?.image ? `<img src="${item.image}" class="image-preview" alt="Ürün resmi">` : ''}
+            </div>
+            <button type="button" class="delete-row" title="Satırı sil">×</button>
+        `;
+        itemsContainer.appendChild(newRow);
+    }
+});
