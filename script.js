@@ -172,20 +172,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     listData.qrCode = qr.createDataURL(10);
                 }
 
-                // Save data to both localStorage and sessionStorage
-                // This way the data persists in this browser and is also available
-                // when accessed from another device via QR code
+                // Save data to localStorage
                 const finalData = JSON.stringify(listData);
                 localStorage.setItem(`list_${listId}`, finalData);
-                sessionStorage.setItem(`list_${listId}`, finalData);
                 localStorage.setItem('currentList', finalData);
 
                 if (isEditing) {
                     localStorage.removeItem('editingList');
                 }
 
-                // Redirect to list view
-                window.location.href = `list.html?id=${listId}`;
+                // Redirect to list view with data in URL
+                const encodedData = encodeURIComponent(finalData);
+                window.location.href = `list.html?id=${listId}&data=${encodedData}`;
 
             } catch (error) {
                 console.error('Error saving list:', error);

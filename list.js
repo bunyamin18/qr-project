@@ -1,7 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Get list ID from URL
+    // Get list ID and data from URL
     const urlParams = new URLSearchParams(window.location.search);
     const listId = urlParams.get('id');
+    const encodedData = urlParams.get('data');
     
     if (!listId) {
         console.error('No list ID found in URL');
@@ -9,35 +10,36 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
-    // Try to get list data from sessionStorage first (for QR code access)
+    // Try to get list data from URL first
     let listData = null;
-    try {
-        const sessionData = sessionStorage.getItem(`list_${listId}`);
-        if (sessionData) {
-            listData = JSON.parse(sessionData);
-            console.log('Got data from sessionStorage:', listData);
+    
+    if (encodedData) {
+        try {
+            listData = JSON.parse(decodeURIComponent(encodedData));
+            console.log('Got data from URL:', listData);
+            
+            // Save to localStorage for future use
+            localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
+            localStorage.setItem('currentList', JSON.stringify(listData));
+        } catch (e) {
+            console.error('Error parsing URL data:', e);
         }
-    } catch (e) {
-        console.error('Error getting data from sessionStorage:', e);
     }
-
-    // If no data in sessionStorage, try localStorage
+    
+    // If no data in URL, try localStorage
     if (!listData) {
         try {
             const storedData = localStorage.getItem(`list_${listId}`);
             if (storedData) {
                 listData = JSON.parse(storedData);
                 console.log('Got data from localStorage:', listData);
-                
-                // Save to sessionStorage for QR code access
-                sessionStorage.setItem(`list_${listId}`, storedData);
             }
         } catch (e) {
             console.error('Error getting data from localStorage:', e);
         }
     }
     
-    // If still no data, try currentList as fallback
+    // If still no data, try current list
     if (!listData) {
         try {
             const currentList = localStorage.getItem('currentList');
@@ -46,9 +48,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (currentData.id === listId) {
                     listData = currentData;
                     console.log('Got data from currentList:', listData);
-                    
-                    // Save to sessionStorage for QR code access
-                    sessionStorage.setItem(`list_${listId}`, JSON.stringify(listData));
                 }
             }
         } catch (e) {
@@ -104,7 +103,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Save QR code
                 listData.qrCode = qrDataUrl;
                 localStorage.setItem(`list_${listData.id}`, JSON.stringify(listData));
-                sessionStorage.setItem(`list_${listData.id}`, JSON.stringify(listData));
                 console.log('Generated new QR code');
             }
         }
