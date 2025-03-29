@@ -21,13 +21,13 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
-    // URL parametrelerini al
+    // URL parametrelerinden veri al
     const urlParams = new URLSearchParams(window.location.search);
-    const listId = urlParams.get('id');
+    const encodedData = urlParams.get('data');
 
-    // Liste ID kontrolü
-    if (!listId) {
-        alert('Liste ID bulunamadı');
+    // Veri kontrolü
+    if (!encodedData) {
+        alert('Liste verisi bulunamadı');
         window.location.href = 'index.html';
         return;
     }
@@ -35,57 +35,40 @@ document.addEventListener('DOMContentLoaded', function() {
     // Liste verisini al
     let listData = null;
 
-    // JSON dosyasından veri al
-    fetch(`data/${listId}.json`)
-        .then(response => {
-            if (response.ok) {
-                return response.json();
+    try {
+        const decodedString = decodeURIComponent(encodedData);
+        listData = JSON.parse(decodedString);
+        console.log('URL parametresinden veri alındı');
+        
+        // Veri yapısını kontrol et
+        if (!isValidListData(listData)) {
+            throw new Error('Geçersiz liste verisi');
+        }
+
+        // QR kod oluştur
+        createQRCode(listData.id).then(qrData => {
+            if (qrData) {
+                listData.qrCode = qrData;
+                displayListData(listData);
             } else {
-                throw new Error('Liste bulunamadı');
+                throw new Error('QR kod oluşturulamadı');
             }
-        })
-        .then(data => {
-            listData = data;
-            console.log('JSON dosyasından veri alındı');
-            
-            // Veri yapısını kontrol et
-            if (!isValidListData(listData)) {
-                throw new Error('Geçersiz liste verisi');
-            }
-
-            // QR kod oluştur
-            createQRCode(listId).then(qrData => {
-                if (qrData) {
-                    listData.qrCode = qrData;
-                    displayListData(listData);
-                } else {
-                    throw new Error('QR kod oluşturulamadı');
-                }
-            }).catch(error => {
-                console.error('QR kod oluşturma hatası:', error);
-                alert('QR kod oluşturulamadı');
-            });
-
-        })
-        .catch(error => {
-            console.error('Veri yükleme hatası:', error);
-            alert('Liste verisi yüklenirken bir hata oluştu');
-            window.location.href = 'index.html';
+        }).catch(error => {
+            console.error('QR kod oluşturma hatası:', error);
+            alert('QR kod oluşturulamadı');
         });
+
+    } catch (error) {
+        console.error('Veri yükleme hatası:', error);
+        alert('Liste verisi yüklenirken bir hata oluştu');
+        window.location.href = 'index.html';
+        return;
+    }
 
     // Düzenleme butonu event listener'ı ekle
     editButton.onclick = () => {
-        window.location.href = `index.html?edit=true&id=${listId}`;
+        window.location.href = `index.html?data=${encodedData}`;
     };
-
-    // Düzenleme butonunu ve stilini düzelt
-    editButton.textContent = 'Düzenle';
-    editButton.style.backgroundColor = '#4CAF50';
-    editButton.style.color = '#ffffff';
-    editButton.style.padding = '10px 20px';
-    editButton.style.border = 'none';
-    editButton.style.borderRadius = '5px';
-    editButton.style.cursor = 'pointer';
 });
 
 // Veri yapısını kontrol et
@@ -183,7 +166,7 @@ async function createQRCode(listId) {
             document.body.appendChild(qrElement);
             
             const qr = new QRCode(qrElement, {
-                text: `list.html?id=${listId}`,
+                text: `list.html?data=${encodeURIComponent(JSON.stringify({id: listId}))}`,
                 width: 256,
                 height: 256,
                 colorDark: "#000000",

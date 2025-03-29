@@ -24,7 +24,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // URL'den veri al
     const urlParams = new URLSearchParams(window.location.search);
     const encodedData = urlParams.get('data');
-    const listId = urlParams.get('id');
     
     if (encodedData) {
         try {
@@ -45,33 +44,6 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Veri yükleme hatası:', error);
             alert('Liste verisi yüklenirken bir hata oluştu');
         }
-    } else if (listId) {
-        fetch(`data/${listId}.json`)
-            .then(response => {
-                if (response.ok) {
-                    return response.json();
-                } else {
-                    throw new Error('Liste verisi bulunamadı');
-                }
-            })
-            .then(data => {
-                currentListData = data;
-                
-                // Veriyi form'a yükle
-                if (currentListData) {
-                    titleInput.value = currentListData.title || '';
-                    
-                    // Mevcut öğeleri ekle
-                    currentListData.items.forEach(item => {
-                        const row = createItemRow(item.content, item.value, item.image);
-                        itemsContainer.appendChild(row);
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Veri yükleme hatası:', error);
-                alert('Liste verisi yüklenirken bir hata oluştu');
-            });
     }
 
     // İlk satırı ekle
@@ -201,28 +173,11 @@ function handleFormSubmit(event) {
             });
         }
 
-        // Veriyi JSON dosyasına kaydet
-        fetch(`data/${listId}.json`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(listData)
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Veri kaydedilemedi');
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Sayfaya yönlendir
-            window.location.href = `list.html?id=${listId}`;
-        })
-        .catch(error => {
-            console.error('Veri kaydetme hatası:', error);
-            throw new Error('Liste verisi kaydedilemedi');
-        });
+        // Veriyi URL parametresine dönüştür
+        const encodedData = encodeURIComponent(JSON.stringify(listData));
+        
+        // Sayfaya yönlendir
+        window.location.href = `list.html?data=${encodedData}`;
 
     } catch (error) {
         console.error('Form gönderme hatası:', error);
