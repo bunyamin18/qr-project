@@ -1,22 +1,46 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Get list ID from URL
+    // Get list ID and data from URL
     const urlParams = new URLSearchParams(window.location.search);
     const listId = urlParams.get('id');
+    const encodedData = urlParams.get('data');
     
-    // Get list data based on ID
+    // Try to get list data from URL first
     let listData = null;
     
-    if (listId) {
-        // Try to get the specific list by ID
-        listData = JSON.parse(localStorage.getItem(`list_${listId}`));
+    if (encodedData) {
+        try {
+            // Try to parse the data from URL
+            listData = JSON.parse(decodeURIComponent(encodedData));
+        } catch (e) {
+            console.error('Error parsing URL data:', e);
+        }
     }
     
-    // If no list found by ID, try to get current list
+    // If no data in URL, try localStorage
+    if (!listData && listId) {
+        try {
+            listData = JSON.parse(localStorage.getItem(`list_${listId}`));
+        } catch (e) {
+            console.error('Error getting data from localStorage:', e);
+        }
+    }
+    
+    // If still no data, try current list
     if (!listData) {
-        listData = JSON.parse(localStorage.getItem('currentList'));
+        try {
+            listData = JSON.parse(localStorage.getItem('currentList'));
+        } catch (e) {
+            console.error('Error getting current list:', e);
+        }
     }
     
     if (listData) {
+        // Save the data to localStorage for future use
+        if (listId) {
+            localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
+            localStorage.setItem('currentList', JSON.stringify(listData));
+        }
+
         // Set title
         document.getElementById('listTitle').textContent = listData.title;
         
@@ -48,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const qrCodeImg = document.getElementById('qrCode');
         if (listData.qrCode && qrCodeImg) {
             qrCodeImg.src = listData.qrCode;
-            qrCodeImg.style.width = '200px'; // Make QR code larger
+            qrCodeImg.style.width = '200px';
             qrCodeImg.style.height = '200px';
         }
 

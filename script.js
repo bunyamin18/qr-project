@@ -97,16 +97,17 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
         localStorage.setItem('currentList', JSON.stringify(listData));
 
-        // Generate QR code with full URL
-        const qr = qrcode(4, 'L'); // Increased version number for larger QR code
+        // Generate QR code with URL and encoded data
+        const qr = qrcode(4, 'L');
         const currentUrl = window.location.href;
         const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
-        const listUrl = baseUrl + `list.html?id=${listId}`;
+        const encodedData = encodeURIComponent(JSON.stringify(listData));
+        const listUrl = baseUrl + `list.html?id=${listId}&data=${encodedData}`;
         qr.addData(listUrl);
         qr.make();
         
         // Create larger QR code
-        listData.qrCode = qr.createDataURL(10); // Increased cell size for larger QR code
+        listData.qrCode = qr.createDataURL(10);
 
         // Update storage with QR code
         localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
@@ -116,8 +117,8 @@ document.addEventListener('DOMContentLoaded', function() {
             localStorage.removeItem('editingList');
         }
 
-        // Redirect to list view
-        window.location.href = `list.html?id=${listId}`;
+        // Redirect to list view with data
+        window.location.href = `list.html?id=${listId}&data=${encodedData}`;
     });
 
     function addNewRow(item = null) {
