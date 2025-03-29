@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste Görüntüleme</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="public/qrcode.min.js"></script>
 </head>
 <body>
     <div class="container">
         <div class="list-header">
             <h1 id="listTitle"></h1>
             <button onclick="window.location.href='index.html'" class="edit-button">Yeni Liste</button>
+            <button class="edit-button">Düzenle</button>
         </div>
         
         <div class="list-content">
@@ -53,43 +53,40 @@
         }
 
         .list-header h1 {
-            color: #333;
             font-size: 24px;
+            color: #333;
         }
 
         .edit-button {
-            padding: 10px 20px;
-            background-color: #007bff;
+            background: #007bff;
             color: white;
             border: none;
+            padding: 8px 16px;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
             transition: background-color 0.3s;
         }
 
         .edit-button:hover {
-            background-color: #0056b3;
-            transform: translateY(-2px);
+            background: #0056b3;
         }
 
         .list-content {
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 30px;
         }
 
         .items-section, .qr-section {
-            background: white;
+            background: #f8f9fa;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
 
         .items-section h2, .qr-section h2 {
-            color: #333;
+            margin-top: 0;
             margin-bottom: 20px;
-            font-size: 20px;
+            color: #2c3e50;
         }
 
         .items-list {
@@ -101,50 +98,62 @@
         .list-row {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
+            gap: 15px;
             padding: 15px;
-            border-radius: 8px;
-            background: #f8f9fa;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .content, .value-container, .image-container {
+            display: flex;
+            flex-direction: column;
         }
 
         .label {
+            font-weight: bold;
             color: #6c757d;
-            font-weight: 500;
             margin-bottom: 5px;
         }
 
         .value {
-            font-size: 16px;
-            color: #333;
+            color: #2c3e50;
         }
 
         .image-wrapper {
-            position: relative;
-            width: 100px;
-            height: 100px;
-            border-radius: 8px;
-            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #f0f0f0;
+            border-radius: 4px;
+            padding: 10px;
         }
 
-        .item-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        .image-wrapper img {
+            max-width: 100px;
+            max-height: 100px;
+            object-fit: contain;
         }
 
-        .qr-section img {
-            max-width: 100%;
-            height: auto;
+        .qr-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .qr-container img {
+            max-width: 256px;
+            max-height: 256px;
         }
 
         .error-message {
             color: #dc3545;
-            font-size: 14px;
-            margin-top: 10px;
             text-align: center;
+            margin-top: 10px;
         }
     </style>
 
+    <script src="public/qrcode.min.js"></script>
     <script src="list.js"></script>
 </body>
 </html>

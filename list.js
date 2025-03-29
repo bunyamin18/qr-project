@@ -48,17 +48,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error('Geçersiz liste verisi');
             }
 
+            // QR kod oluştur
+            createQRCode(listId).then(qrData => {
+                if (qrData) {
+                    listData.qrCode = qrData;
+                    displayListData(listData);
+                } else {
+                    throw new Error('QR kod oluşturulamadı');
+                }
+            }).catch(error => {
+                console.error('QR kod oluşturma hatası:', error);
+                alert('QR kod oluşturulamadı');
+            });
+
         } catch (error) {
             console.error('URL verisi işlenirken hata:', error);
             alert('Liste verisi yüklenirken bir hata oluştu');
             window.location.href = 'index.html';
             return;
         }
-    }
-
-    // Eğer veri bulunduysa göster
-    if (listData) {
-        displayListData(listData);
     } else {
         alert('Liste bulunamadı');
         window.location.href = 'index.html';
@@ -147,4 +155,46 @@ function escapeHtml(unsafe) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
+}
+
+// QR kod oluşturma fonksiyonu
+async function createQRCode(listId) {
+    return new Promise((resolve, reject) => {
+        try {
+            // QR kod kütüphanesini kontrol et
+            if (typeof QRCode === 'undefined') {
+                console.error('QR kod kütüphanesi yüklenemedi');
+                reject(new Error('QR kod kütüphanesi yüklenemedi'));
+                return;
+            }
+
+            // QR kod oluştur
+            const qrElement = document.createElement('div');
+            document.body.appendChild(qrElement);
+            
+            const qr = new QRCode(qrElement, {
+                text: `list.html?id=${listId}`,
+                width: 256,
+                height: 256,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+
+            // QR kodu veri olarak al
+            const canvas = qrElement.querySelector('canvas');
+            if (canvas) {
+                const qrData = canvas.toDataURL();
+                document.body.removeChild(qrElement);
+                resolve(qrData);
+            } else {
+                document.body.removeChild(qrElement);
+                reject(new Error('QR kod oluşturulamadı'));
+            }
+
+        } catch (error) {
+            console.error('QR kod oluşturma hatası:', error);
+            reject(error);
+        }
+    });
 }
