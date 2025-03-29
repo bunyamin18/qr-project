@@ -23,16 +23,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add row event listener
     addRowButton.addEventListener('click', () => addNewRow());
 
-    // Delete row event delegation
-    itemsContainer.addEventListener('click', function(e) {
-        if (e.target.classList.contains('delete-row')) {
-            const row = e.target.closest('.item-row');
-            if (itemsContainer.children.length > 1) {
-                row.remove();
-            }
-        }
-    });
-
     // Image preview functionality
     itemsContainer.addEventListener('change', function(e) {
         if (e.target.classList.contains('item-image')) {
@@ -114,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <div class="input-field">
                     <label>Miktar:</label>
-                    <input type="number" class="item-quantity" required value="${item ? item.quantity : ''}">
+                    <input type="text" class="item-quantity" required value="${item ? item.quantity : ''}">
                 </div>
                 <div class="input-field">
                     <label>Resim:</label>
@@ -122,7 +112,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     ${item && item.image ? `<img src="${item.image}" class="image-preview">` : ''}
                     <input type="hidden" class="stored-image" value="${item && item.image ? item.image : ''}">
                 </div>
-                <button type="button" class="btn btn-danger delete-row">×</button>
             </div>
         `;
         itemsContainer.appendChild(newRow);
