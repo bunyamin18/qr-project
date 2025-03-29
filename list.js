@@ -3,13 +3,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
     const listId = urlParams.get('id');
     
-    // Get list data
-    let listData;
+    // Get list data based on ID
+    let listData = null;
+    
     if (listId) {
-        // If we have an ID in the URL (from QR code), get that specific list
+        // Try to get the specific list by ID
         listData = JSON.parse(localStorage.getItem(`list_${listId}`));
-    } else {
-        // Otherwise, get the current list
+    }
+    
+    // If no list found by ID, try to get current list
+    if (!listData) {
         listData = JSON.parse(localStorage.getItem('currentList'));
     }
     
@@ -46,9 +49,9 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('qrCode').src = listData.qrCode;
         }
 
-        // Update edit button URL to include list ID
+        // Update edit button to preserve list ID
         const editButton = document.querySelector('button[onclick*="edit=true"]');
-        if (editButton && listData.id) {
+        if (editButton) {
             editButton.onclick = () => {
                 localStorage.setItem('editingList', JSON.stringify(listData));
                 window.location.href = 'index.html?edit=true';

@@ -68,7 +68,13 @@ document.addEventListener('DOMContentLoaded', function() {
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         
+        // Generate a unique ID for the list if not editing
+        const listId = isEditing ? 
+            JSON.parse(localStorage.getItem('editingList')).id : 
+            Date.now().toString(36) + Math.random().toString(36).substr(2);
+
         const listData = {
+            id: listId,
             title: document.getElementById('listTitle').value,
             items: []
         };
@@ -87,21 +93,20 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        // Generate a unique ID for the list
-        const listId = isEditing ? JSON.parse(localStorage.getItem('editingList')).id : 
-                      Date.now().toString(36) + Math.random().toString(36).substr(2);
-        listData.id = listId;
-
-        // Generate QR code with absolute URL
+        // Generate QR code
         const qr = qrcode(0, 'L');
-        const currentUrl = window.location.href;
-        const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
+        // Get the full absolute URL
+        const protocol = window.location.protocol;
+        const host = window.location.host;
+        const path = window.location.pathname;
+        const baseUrl = protocol + '//' + host + path.substring(0, path.lastIndexOf('/') + 1);
         const listUrl = baseUrl + `list.html?id=${listId}`;
+        
         qr.addData(listUrl);
         qr.make();
         listData.qrCode = qr.createDataURL();
 
-        // Save to localStorage with the ID
+        // Save to localStorage
         localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
         localStorage.setItem('currentList', JSON.stringify(listData));
 
