@@ -120,22 +120,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     listId = editingData.id;
                     qrCode = editingData.qrCode;
+                    console.log('Using existing QR code');
                 } else {
                     listId = Date.now().toString(36) + Math.random().toString(36).substr(2);
                     // Generate new QR code only for new lists
                     const qr = qrcode(0, 'L');
                     const baseUrl = `${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}`;
-                    qr.addData(`${baseUrl}/list.html?id=${listId}`);
+                    const listUrl = `${baseUrl}/list.html?id=${listId}`;
+                    qr.addData(listUrl);
                     qr.make();
                     qrCode = qr.createDataURL(10);
+                    console.log('Generated new QR code');
                 }
 
-                // Create list data object
+                // Create list data object with QR code
                 const listData = {
                     id: listId,
                     title: document.getElementById('listTitle').value,
                     items: [],
-                    qrCode: qrCode // Always use the existing QR code
+                    qrCode: qrCode
                 };
 
                 // Collect all items

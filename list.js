@@ -85,19 +85,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Display QR code
         const qrCodeImg = document.getElementById('qrCode');
-        if (qrCodeImg) {
-            // Always generate QR code with current data
-            const qr = qrcode(0, 'L');
-            const baseUrl = `${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}`;
-            const currentData = JSON.stringify(listData);
-            const currentEncodedData = encodeURIComponent(currentData);
-            const listUrl = `${baseUrl}/list.html?id=${listId}&data=${currentEncodedData}`;
-            
-            qr.addData(listUrl);
-            qr.make();
-            
-            qrCodeImg.src = qr.createDataURL(10);
-            console.log('Generated QR code with current data');
+        if (qrCodeImg && listData.qrCode) {
+            qrCodeImg.src = listData.qrCode;
+            qrCodeImg.style.display = 'block'; // Make sure it's visible
+            console.log('QR code set:', listData.qrCode.substring(0, 100) + '...');
+        } else {
+            console.error('QR code missing:', qrCodeImg, listData.qrCode ? 'has qrCode' : 'no qrCode');
         }
 
         // Update edit button
