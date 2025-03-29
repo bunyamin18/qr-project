@@ -161,16 +161,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Create URL and QR code
             const baseUrl = window.location.origin;
-            const finalData = JSON.stringify({
-                id: listId,
-                title: title,
-                items: items.map(item => ({
-                    content: item.content,
-                    quantity: item.quantity,
-                    image: item.image
-                }))
-            });
-            const encodedData = btoa(finalData); // Base64 encoding
+            const finalData = JSON.stringify(listData);
+            const encodedData = encodeURIComponent(finalData);
             const listUrl = `${baseUrl}/list.html?id=${listId}&data=${encodedData}`;
 
             if (!qrCode) {
@@ -189,6 +181,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     if (!qrCode || typeof qrCode !== 'string') {
                         throw new Error('QR kod oluşturulamadı');
+                    }
+
+                    // QR kodu test et
+                    if (qrCode.startsWith('data:image/png;base64,')) {
+                        console.log('QR kod başarıyla oluşturuldu');
+                    } else {
+                        throw new Error('Geçersiz QR kod formatı');
                     }
                 } catch (error) {
                     console.error('Error generating QR code:', error);
