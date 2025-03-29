@@ -159,20 +159,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error('Lütfen tüm alanları doldurun');
                 }
 
-                // Store the list data in localStorage first
-                const savedData = JSON.stringify(listData);
-                localStorage.setItem(`list_${listId}`, savedData);
-                localStorage.setItem('currentList', savedData);
-
-                // Keep existing QR code if editing, or generate new one if new list
+                // Keep existing QR code if editing
                 if (isEditing && existingQrCode) {
                     listData.qrCode = existingQrCode;
                 } else {
+                    // Generate new QR code
                     const qr = qrcode(0, 'L');
-                    const currentUrl = window.location.href;
-                    const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
-                    const savedData = JSON.stringify(listData);
-                    const listUrl = `${baseUrl}list.html?id=${listId}&data=${encodeURIComponent(savedData)}`;
+                    const listUrl = `list.html?id=${listId}`;
                     
                     qr.addData(listUrl);
                     qr.make();
@@ -180,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     listData.qrCode = qr.createDataURL(10);
                 }
 
-                // Update storage with final data
+                // Store data in localStorage
                 const finalData = JSON.stringify(listData);
                 localStorage.setItem(`list_${listId}`, finalData);
                 localStorage.setItem('currentList', finalData);
@@ -189,8 +182,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     localStorage.removeItem('editingList');
                 }
 
-                // Redirect to list view with data in URL
-                window.location.href = `list.html?id=${listId}&data=${encodeURIComponent(finalData)}`;
+                // Redirect to list view
+                window.location.href = `list.html?id=${listId}`;
 
             } catch (error) {
                 console.error('Error saving list:', error);
