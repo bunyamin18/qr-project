@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="image-container">
                     <span class="label">Resim</span>
                     ${item.image ? 
-                        `<img src="${item.image}" class="item-image" alt="Ürün resmi" onerror="this.style.display='none'">` : 
+                        `<img src="${item.image}" class="item-image" alt="Ürün resmi">` : 
                         '<div class="value">Resim yok</div>'
                     }
                 </div>
