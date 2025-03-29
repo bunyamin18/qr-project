@@ -146,23 +146,24 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error('Lütfen tüm alanları doldurun');
                 }
 
-                // Store the list data in localStorage first
+                // Store the list data in localStorage
                 const savedData = JSON.stringify(listData);
                 localStorage.setItem(`list_${listId}`, savedData);
                 localStorage.setItem('currentList', savedData);
 
-                // Generate QR code with URL
+                // Generate QR code with URL and encoded data
                 const qr = qrcode(0, 'L');
                 const currentUrl = window.location.href;
                 const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
-                const listUrl = baseUrl + `list.html?id=${listId}`;
+                const encodedData = encodeURIComponent(savedData);
+                const listUrl = `${baseUrl}list.html?id=${listId}&data=${encodedData}`;
                 
                 qr.addData(listUrl);
                 qr.make();
                 
-                // Create larger QR code and save it
+                // Create larger QR code
                 listData.qrCode = qr.createDataURL(10);
-                
+
                 // Update storage with QR code
                 const finalData = JSON.stringify(listData);
                 localStorage.setItem(`list_${listId}`, finalData);
