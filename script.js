@@ -212,22 +212,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // QR kod oluşturma
             try {
+                // QR kod kütüphanesini kontrol et
                 if (typeof qrcode !== 'function') {
                     throw new Error('QR kod kütüphanesi yüklenemedi');
                 }
 
+                // QR kod oluştur
                 const qr = qrcode(0, 'L');
                 qr.addData(listUrl);
                 qr.make();
-                const qrCode = qr.createDataURL(10);
+                
+                // QR kodu veri olarak listeye ekle
+                listData.qrCode = qr.createDataURL(10);
 
-                if (!qrCode || typeof qrCode !== 'string') {
-                    throw new Error('QR kod oluşturulamadı');
-                }
+                // Veriyi tekrar kaydet
+                localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
 
-                listData.qrCode = qrCode;
-
-                // Yeni sayfaya yönlendir
+                // Sayfaya yönlendir
                 window.location.href = listUrl + '&data=' + encodedData;
 
             } catch (error) {
