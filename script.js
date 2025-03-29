@@ -36,7 +36,7 @@ document.getElementById('save-list').addEventListener('click', function() {
         listContent.items.push(item);
     }
     
-    // Listeyi kaydetme işlemi (localStorage veya sunucuya gönderme)
+    // Listeyi kaydetme işlemi
     localStorage.setItem('savedList', JSON.stringify(listContent));
     
     // QR kodu oluşturma ve gösterme
@@ -50,9 +50,9 @@ document.getElementById('save-list').addEventListener('click', function() {
     });
     
     alert('Liste kaydedildi ve QR kodu oluşturuldu!');
+    window.location.href = `list.html?data=${encodeURIComponent(JSON.stringify(listContent))}`;
 });
 
-// Listeyi QR kodu tarayarak yükleme ve düzenleme
 function loadListFromQRCode(qrCodeData) {
     const listContent = JSON.parse(qrCodeData);
     document.getElementById('list-title').value = listContent.title;
@@ -86,7 +86,6 @@ function loadListFromQRCode(qrCodeData) {
     });
 }
 
-// QR kodu verisini prompt ile al ve listeyi yükle
 document.getElementById('qr-code').addEventListener('click', function() {
     const qrCodeData = prompt('QR kodu verisini girin:');
     if (qrCodeData) {
@@ -94,7 +93,6 @@ document.getElementById('qr-code').addEventListener('click', function() {
     }
 });
 
-// URL'den veri al ve listeyi yükle
 window.onload = function() {
     const urlParams = new URLSearchParams(window.location.search);
     const data = urlParams.get('data');
