@@ -160,9 +160,17 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Create URL and QR code
-            const baseUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
-            const finalData = JSON.stringify(listData);
-            const encodedData = encodeURIComponent(finalData);
+            const baseUrl = window.location.origin;
+            const finalData = JSON.stringify({
+                id: listId,
+                title: title,
+                items: items.map(item => ({
+                    content: item.content,
+                    quantity: item.quantity,
+                    image: item.image
+                }))
+            });
+            const encodedData = btoa(finalData); // Base64 encoding
             const listUrl = `${baseUrl}/list.html?id=${listId}&data=${encodedData}`;
 
             if (!qrCode) {

@@ -27,7 +27,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // First try URL data
     if (encodedData) {
         try {
-            listData = JSON.parse(decodeURIComponent(encodedData));
+            // Base64'den çöz
+            const decodedData = atob(encodedData);
+            listData = JSON.parse(decodedData);
             console.log('Got data from URL');
             
             // Validate data structure
@@ -40,6 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
             localStorage.setItem('currentList', JSON.stringify(listData));
         } catch (error) {
             console.error('Error parsing URL data:', error);
+            throw error;
         }
     }
 
