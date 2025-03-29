@@ -85,6 +85,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 buttonText.textContent = 'Kaydediliyor...';
             }
 
+            // Check if title is empty
+            const title = document.getElementById('listTitle').value.trim();
+            if (!title) {
+                throw new Error('Liste başlığı boş olamaz');
+            }
+
             const items = Array.from(itemsContainer.children);
             if (items.length === 0) {
                 throw new Error('En az bir öğe eklemelisiniz');
@@ -109,20 +115,18 @@ document.addEventListener('DOMContentLoaded', function() {
             // Create list data object
             const listData = {
                 id: listId,
-                title: document.getElementById('listTitle').value,
+                title: title,
                 items: []
             };
 
             // Collect all items
-            let hasError = false;
-            items.forEach((row, index) => {
-                const content = row.querySelector('.item-content').value.trim();
-                const quantity = row.querySelector('.item-quantity').value.trim();
-                const storedImage = row.querySelector('.stored-image').value;
+            for (const row of items) {
+                const content = row.querySelector('.item-content')?.value?.trim();
+                const quantity = row.querySelector('.item-quantity')?.value?.trim();
+                const storedImage = row.querySelector('.stored-image')?.value || '';
                 
                 if (!content || !quantity) {
-                    hasError = true;
-                    return;
+                    throw new Error('Lütfen tüm içerik ve miktar alanlarını doldurun');
                 }
 
                 listData.items.push({
@@ -130,10 +134,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     quantity: quantity,
                     image: storedImage
                 });
-            });
-
-            if (hasError) {
-                throw new Error('Lütfen tüm alanları doldurun');
             }
 
             // Generate or use existing QR code
@@ -166,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         } catch (error) {
             console.error('Error saving list:', error);
-            alert(error.message);
+            alert(error.message || 'Beklenmeyen bir hata oluştu');
             
             // Re-enable save button on error
             saveButton.disabled = false;
