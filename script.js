@@ -50,7 +50,6 @@ document.getElementById('save-list').addEventListener('click', function() {
     });
     
     alert('Liste kaydedildi ve QR kodu oluşturuldu!');
-    window.location.href = `list.html?data=${encodeURIComponent(JSON.stringify(listContent))}`;
 });
 
 // Listeyi QR kodu tarayarak yükleme ve düzenleme
@@ -94,3 +93,12 @@ document.getElementById('qr-code').addEventListener('click', function() {
         loadListFromQRCode(qrCodeData);
     }
 });
+
+// URL'den veri al ve listeyi yükle
+window.onload = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const data = urlParams.get('data');
+    if (data) {
+        loadListFromQRCode(decodeURIComponent(data));
+    }
+}

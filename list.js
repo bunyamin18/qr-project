@@ -48,7 +48,7 @@ function loadList() {
 document.getElementById('edit-list').addEventListener('click', function() {
     const listData = getQueryParameter('data');
     if (listData) {
-        window.location.href = `index.html?data=${listData}`;
+        window.location.href = `index.html?data=${encodeURIComponent(listData)}`;
     }
 });
 
