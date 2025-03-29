@@ -40,9 +40,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error('Geçersiz liste verisi');
             }
 
-            // Veriyi localStorage'a kaydet
-            localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
-            localStorage.setItem('currentList', JSON.stringify(listData));
         } catch (error) {
             console.error('URL verisi işlenirken hata:', error);
             console.log('LocalStorage\'dan veri alınıyor...');
@@ -144,8 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Düzenleme butonunu güncelle
         editButton.onclick = () => {
-            localStorage.setItem('editingList', JSON.stringify(data));
-            window.location.href = 'index.html?edit=true';
+            window.location.href = 'index.html?edit=true&data=' + encodeURIComponent(JSON.stringify(data));
         };
     }
 
@@ -156,12 +152,5 @@ document.addEventListener('DOMContentLoaded', function() {
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
-    }
-
-    function redirectToHome(message) {
-        if (message) {
-            alert(message);
-        }
-        window.location.href = 'index.html';
     }
 });

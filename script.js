@@ -203,13 +203,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const encodedData = encodeURIComponent(finalData);
             const listUrl = 'list.html?id=' + listId;
 
-            // Veriyi kaydetme
-            try {
-                localStorage.setItem(`list_${listId}`, finalData);
-            } catch (error) {
-                console.warn('localStorage kapasitesi aşıldı, veri sadece URL üzerinden iletiliyor');
-            }
-
             // QR kod oluşturma
             try {
                 // QR kod kütüphanesini kontrol et
@@ -239,11 +232,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 // QR kod elementini temizle
                 document.body.removeChild(qrElement);
 
-                // Veriyi tekrar kaydet
-                localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
+                // Veriyi URL'e ekle
+                const finalUrl = listUrl + '&data=' + encodedData;
 
                 // Sayfaya yönlendir
-                window.location.href = listUrl + '&data=' + encodedData;
+                window.location.href = finalUrl;
 
             } catch (error) {
                 console.error('QR kod oluşturma hatası:', error);
