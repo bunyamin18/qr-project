@@ -96,6 +96,8 @@ h1 {
     padding: 5px 10px;
     border-radius: 4px;
     cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
 }
 
 .delete-row:hover {
@@ -117,11 +119,11 @@ h1 {
     font-size: 16px;
     cursor: pointer;
     transition: background-color 0.3s;
+    color: white;
 }
 
 .add-row-button {
     background-color: #28a745;
-    color: white;
 }
 
 .add-row-button:hover {
@@ -130,7 +132,6 @@ h1 {
 
 .save-button {
     background-color: #007bff;
-    color: white;
 }
 
 .save-button:hover {

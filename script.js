@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <input type="file" class="item-image" accept="image/*">
                 <input type="hidden" class="stored-image">
             </div>
-            <button type="button" class="delete-row">Sil</button>
+            <button type="button" class="delete-row">×</button>
         `;
         
         if (item) {
@@ -229,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 listData.qrCode = qrCode;
 
                 // Yeni sayfaya yönlendir
-                window.location.href = `${listUrl}&data=${encodedData}`;
+                window.location.href = `list.html?id=${listId}&data=${encodedData}`;
 
             } catch (error) {
                 console.error('QR kod oluşturma hatası:', error);
