@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Create URL and QR code
-            const baseUrl = `${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}`;
+            const baseUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
             const finalData = JSON.stringify(listData);
             const encodedData = encodeURIComponent(finalData);
             const listUrl = `${baseUrl}/list.html?id=${listId}&data=${encodedData}`;
@@ -168,15 +168,23 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!qrCode) {
                 try {
                     if (typeof qrcode !== 'function') {
-                        throw new Error('QR kod kütüphanesi yüklenemedi');
+                        throw new Error('QR kod kütüphanesi yüklenemedi. Lütfen sayfayı yenileyin.');
                     }
-                    const qr = qrcode(0, 'L');
+
+                    // QR kod oluştur
+                    const typeNumber = 0;
+                    const errorCorrectionLevel = 'L';
+                    const qr = qrcode(typeNumber, errorCorrectionLevel);
                     qr.addData(listUrl);
                     qr.make();
                     qrCode = qr.createDataURL(10);
+
+                    if (!qrCode || typeof qrCode !== 'string') {
+                        throw new Error('QR kod oluşturulamadı');
+                    }
                 } catch (error) {
                     console.error('Error generating QR code:', error);
-                    throw new Error('QR kod oluşturulurken hata oluştu');
+                    throw new Error(error.message || 'QR kod oluşturulurken hata oluştu');
                 }
             }
 
