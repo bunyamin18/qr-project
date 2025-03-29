@@ -156,7 +156,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error('Lütfen tüm içerik ve miktar alanlarını doldurun');
                 }
 
-                listData.items.push({ content, quantity, image: storedImage });
+                // Resmi Base64'den sıkıştır
+                const compressedImage = storedImage ? storedImage.substring(0, 1000) : '';
+                
+                listData.items.push({ 
+                    content, 
+                    quantity, 
+                    image: compressedImage 
+                });
             }
 
             // Create URL and QR code
