@@ -27,9 +27,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // First try URL data
     if (encodedData) {
         try {
-            // Base64'den çöz
-            const decodedData = atob(encodedData);
-            listData = JSON.parse(decodedData);
+            // URL encoded string'i decode et
+            const decodedString = decodeURIComponent(encodedData);
+            listData = JSON.parse(decodedString);
             console.log('Got data from URL');
             
             // Validate data structure
@@ -42,7 +42,8 @@ document.addEventListener('DOMContentLoaded', function() {
             localStorage.setItem('currentList', JSON.stringify(listData));
         } catch (error) {
             console.error('Error parsing URL data:', error);
-            throw error;
+            // URL'den veri alınamazsa, localStorage'dan deneyelim
+            console.log('Trying to get data from localStorage...');
         }
     }
 
@@ -61,6 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch (error) {
             console.error('Error getting data from localStorage:', error);
+            throw error;
         }
     }
 
