@@ -172,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const finalData = JSON.stringify(listData);
                 const encodedData = encodeURIComponent(finalData);
 
-                // Generate or update QR code
+                // Generate QR code
                 const qr = qrcode(0, 'L');
                 const baseUrl = `${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}`;
                 const listUrl = `${baseUrl}/list.html?id=${listId}&data=${encodedData}`;

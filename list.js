@@ -33,11 +33,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (storedData) {
                 listData = JSON.parse(storedData);
                 console.log('Got data from localStorage:', listData);
-                
-                // Redirect with data in URL
-                const encodedData = encodeURIComponent(storedData);
-                window.location.href = `list.html?id=${listId}&data=${encodedData}`;
-                return;
             }
         } catch (e) {
             console.error('Error getting data from localStorage:', e);
@@ -53,11 +48,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (currentData.id === listId) {
                     listData = currentData;
                     console.log('Got data from currentList:', listData);
-                    
-                    // Redirect with data in URL
-                    const encodedData = encodeURIComponent(currentList);
-                    window.location.href = `list.html?id=${listId}&data=${encodedData}`;
-                    return;
                 }
             }
         } catch (e) {
@@ -95,9 +85,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Display QR code
         const qrCodeImg = document.getElementById('qrCode');
-        if (qrCodeImg && listData.qrCode) {
-            qrCodeImg.src = listData.qrCode;
-            console.log('QR code set from listData');
+        if (qrCodeImg) {
+            // Always generate QR code with current data
+            const qr = qrcode(0, 'L');
+            const baseUrl = `${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}`;
+            const currentData = JSON.stringify(listData);
+            const currentEncodedData = encodeURIComponent(currentData);
+            const listUrl = `${baseUrl}/list.html?id=${listId}&data=${currentEncodedData}`;
+            
+            qr.addData(listUrl);
+            qr.make();
+            
+            qrCodeImg.src = qr.createDataURL(10);
+            console.log('Generated QR code with current data');
         }
 
         // Update edit button
