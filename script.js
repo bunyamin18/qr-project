@@ -12,7 +12,7 @@ document.getElementById('add-row').addEventListener('click', function() {
     cell3.innerHTML = '<input type="file" accept="image/*">';
     cell4.innerHTML = '<button class="delete-row">Sil</button>';
     
-    cell4.getElementsByClassName('delete-row')[0].addEventListener('click', function() {
+    cell4.querySelector('.delete-row').addEventListener('click', function() {
         newRow.remove();
     });
 });
@@ -21,7 +21,7 @@ document.getElementById('save-list').addEventListener('click', function() {
     const title = document.getElementById('list-title').value;
     const table = document.getElementById('list-table');
     const rows = table.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
-    let listContent = {
+    const listContent = {
         title: title,
         items: []
     };
@@ -29,9 +29,9 @@ document.getElementById('save-list').addEventListener('click', function() {
     for (let i = 0; i < rows.length; i++) {
         const cells = rows[i].getElementsByTagName('td');
         const item = {
-            description: cells[0].getElementsByTagName('input')[0].value,
-            value: cells[1].getElementsByTagName('input')[0].value,
-            image: cells[2].getElementsByTagName('input')[0].files[0] ? URL.createObjectURL(cells[2].getElementsByTagName('input')[0].files[0]) : null
+            description: cells[0].querySelector('input').value,
+            value: cells[1].querySelector('input').value,
+            image: cells[2].querySelector('input').files[0] ? URL.createObjectURL(cells[2].querySelector('input').files[0]) : null
         };
         listContent.items.push(item);
     }
@@ -73,7 +73,7 @@ function loadListFromQRCode(qrCodeData) {
         cell3.innerHTML = `<input type="file" accept="image/*">`;
         cell4.innerHTML = '<button class="delete-row">Sil</button>';
         
-        cell4.getElementsByClassName('delete-row')[0].addEventListener('click', function() {
+        cell4.querySelector('.delete-row').addEventListener('click', function() {
             newRow.remove();
         });
         
