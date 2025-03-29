@@ -50,7 +50,6 @@ document.getElementById('save-list').addEventListener('click', function() {
     });
     
     alert('Liste kaydedildi ve QR kodu oluşturuldu!');
-    window.location.href = `list.html?data=${encodeURIComponent(JSON.stringify(listContent))}`;
 });
 
 function loadListFromQRCode(qrCodeData) {
