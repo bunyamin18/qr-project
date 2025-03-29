@@ -6,7 +6,7 @@
 }
 
 body {
-    background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
+    background: linear-gradient(120deg, #e0f7fa 0%, #80deea 50%, #4dd0e1 100%);
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -16,46 +16,60 @@ body {
 
 .container {
     width: 100%;
-    max-width: 1000px;
+    max-width: 1200px;
     margin: 0 auto;
+    padding: 2rem;
 }
 
 .card {
-    background: rgba(255, 255, 255, 0.95);
-    padding: 2.5rem;
-    border-radius: 15px;
-    box-shadow: 0 8px 32px rgba(0, 150, 190, 0.1);
+    background: rgba(255, 255, 255, 0.9);
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 150, 190, 0.2);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(0, 150, 190, 0.25);
 }
 
 h1 {
-    color: #00838f;
-    margin-bottom: 2rem;
+    color: #006064;
+    margin-bottom: 2.5rem;
     text-align: center;
-    font-size: 2.2rem;
+    font-size: 2.5rem;
+    font-weight: 600;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    letter-spacing: 1px;
 }
 
 .form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 1.5rem;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
 label {
     display: block;
-    margin-bottom: 0.5rem;
-    color: #006064;
-    font-weight: 500;
+    margin-bottom: 0.8rem;
+    color: #00838f;
+    font-weight: 600;
     font-size: 1.1rem;
+    letter-spacing: 0.5px;
 }
 
 input[type="text"],
 input[type="number"] {
     width: 100%;
-    padding: 0.75rem;
+    padding: 1rem;
     border: 2px solid #b2ebf2;
-    border-radius: 8px;
-    font-size: 1rem;
+    border-radius: 10px;
+    font-size: 1.1rem;
     transition: all 0.3s ease;
     background: white;
 }
@@ -63,68 +77,91 @@ input[type="number"] {
 input[type="text"]:focus,
 input[type="number"]:focus {
     border-color: #00acc1;
-    box-shadow: 0 0 0 3px rgba(0, 172, 193, 0.2);
+    box-shadow: 0 0 0 4px rgba(0, 172, 193, 0.15);
     outline: none;
 }
 
-.btn {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 8px;
+input[type="file"] {
+    padding: 0.8rem;
+    border: 2px dashed #b2ebf2;
+    border-radius: 10px;
+    width: 100%;
     cursor: pointer;
-    font-size: 1rem;
-    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+input[type="file"]:hover {
+    border-color: #00acc1;
+    background: rgba(178, 235, 242, 0.1);
+}
+
+.btn {
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 600;
     transition: all 0.3s ease;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
 }
 
 .btn-primary {
-    background: #00acc1;
+    background: linear-gradient(135deg, #00acc1 0%, #0097a7 100%);
     color: white;
-    box-shadow: 0 4px 6px rgba(0, 172, 193, 0.2);
+    box-shadow: 0 5px 15px rgba(0, 172, 193, 0.3);
 }
 
 .btn-danger {
-    background: #ef5350;
+    background: linear-gradient(135deg, #ff5252 0%, #f44336 100%);
     color: white;
-    box-shadow: 0 4px 6px rgba(239, 83, 80, 0.2);
+    box-shadow: 0 5px 15px rgba(244, 67, 54, 0.3);
 }
 
 .btn-warning {
-    background: #26c6da;
+    background: linear-gradient(135deg, #26c6da 0%, #00acc1 100%);
     color: white;
-    box-shadow: 0 4px 6px rgba(38, 198, 218, 0.2);
+    box-shadow: 0 5px 15px rgba(38, 198, 218, 0.3);
 }
 
 .btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.btn:active {
+    transform: translateY(-1px);
 }
 
 table {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    margin: 1.5rem 0;
+    margin: 2rem 0;
     background: white;
-    border-radius: 10px;
+    border-radius: 15px;
     overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 th, td {
-    padding: 1.2rem;
+    padding: 1.5rem;
     text-align: left;
     border-bottom: 1px solid #e0f7fa;
 }
 
 th {
-    background: #00acc1;
+    background: linear-gradient(135deg, #00acc1 0%, #0097a7 100%);
     color: white;
     font-weight: 600;
     text-transform: uppercase;
-    font-size: 0.9rem;
-    letter-spacing: 0.5px;
+    font-size: 1rem;
+    letter-spacing: 1px;
+}
+
+tr:hover {
+    background: rgba(224, 247, 250, 0.3);
 }
 
 tr:last-child td {
@@ -133,36 +170,46 @@ tr:last-child td {
 
 .actions {
     display: flex;
-    gap: 0.8rem;
+    gap: 1rem;
 }
 
 .image-preview {
-    max-width: 120px;
-    max-height: 120px;
+    max-width: 150px;
+    max-height: 150px;
     object-fit: cover;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
+    border: 3px solid #b2ebf2;
 }
 
 .image-preview:hover {
-    transform: scale(1.05);
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 #qrCode {
     text-align: center;
-    margin: 2rem 0;
-    padding: 1.5rem;
+    margin: 3rem 0;
+    padding: 2rem;
     background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+#qrCode img {
+    max-width: 200px;
+    height: auto;
+    border: 5px solid #e0f7fa;
     border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 10px;
 }
 
 .buttons-container {
     display: flex;
     justify-content: center;
-    gap: 1.2rem;
-    margin-top: 2rem;
+    gap: 1.5rem;
+    margin-top: 3rem;
 }
 
 @media (max-width: 768px) {
@@ -170,16 +217,29 @@ tr:last-child td {
         padding: 1rem;
     }
     
+    .container {
+        padding: 1rem;
+    }
+    
     .card {
         padding: 1.5rem;
     }
     
+    .form-group {
+        padding: 1rem;
+    }
+    
     th, td {
-        padding: 0.8rem;
+        padding: 1rem;
     }
     
     .image-preview {
-        max-width: 80px;
-        max-height: 80px;
+        max-width: 100px;
+        max-height: 100px;
+    }
+    
+    .btn {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
     }
 }
