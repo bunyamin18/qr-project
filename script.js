@@ -159,11 +159,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error('Lütfen tüm alanları doldurun');
                 }
 
-                // If editing, keep the existing QR code
+                // If editing, keep the existing QR code but update its data
                 if (isEditing && existingQrCode) {
-                    listData.qrCode = existingQrCode;
+                    const qr = qrcode(0, 'L');
+                    const currentUrl = window.location.href;
+                    const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
+                    const savedData = JSON.stringify(listData);
+                    const listUrl = `${baseUrl}list.html?id=${listId}&data=${encodeURIComponent(savedData)}`;
+                    
+                    qr.addData(listUrl);
+                    qr.make();
+                    
+                    // Keep the same size as the existing QR code
+                    listData.qrCode = qr.createDataURL(10);
                 } else {
-                    // Generate QR code with URL and encoded data
+                    // Generate new QR code for new list
                     const qr = qrcode(0, 'L');
                     const currentUrl = window.location.href;
                     const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
