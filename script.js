@@ -87,19 +87,28 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        // Generate QR code with full URL
+        // Generate a unique ID for the list
+        const listId = Date.now().toString(36) + Math.random().toString(36).substr(2);
+        listData.id = listId;
+
+        // Save to localStorage with the ID
+        localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
+        localStorage.setItem('currentList', JSON.stringify(listData));
+
+        // Generate QR code with list ID
         const qr = qrcode(0, 'L');
         const currentUrl = window.location.href.split('?')[0];
-        const listUrl = currentUrl.replace('index.html', 'list.html');
+        const listUrl = currentUrl.replace('index.html', `list.html?id=${listId}`);
         qr.addData(listUrl);
         qr.make();
         listData.qrCode = qr.createDataURL();
 
-        // Save to localStorage
+        // Update the stored data with QR code
+        localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
         localStorage.setItem('currentList', JSON.stringify(listData));
 
         // Redirect to list view
-        window.location.href = 'list.html';
+        window.location.href = `list.html?id=${listId}`;
     });
 
     function addNewRow(item = null) {

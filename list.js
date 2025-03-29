@@ -1,5 +1,17 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const listData = JSON.parse(localStorage.getItem('currentList'));
+    // Get list ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const listId = urlParams.get('id');
+    
+    // Get list data
+    let listData;
+    if (listId) {
+        // If we have an ID in the URL (from QR code), get that specific list
+        listData = JSON.parse(localStorage.getItem(`list_${listId}`));
+    } else {
+        // Otherwise, get the current list
+        listData = JSON.parse(localStorage.getItem('currentList'));
+    }
     
     if (listData) {
         // Set title
@@ -33,5 +45,17 @@ document.addEventListener('DOMContentLoaded', function() {
         if (listData.qrCode) {
             document.getElementById('qrCode').src = listData.qrCode;
         }
+
+        // Update edit button URL to include list ID
+        const editButton = document.querySelector('button[onclick*="edit=true"]');
+        if (editButton && listData.id) {
+            editButton.onclick = () => {
+                localStorage.setItem('editingList', JSON.stringify(listData));
+                window.location.href = 'index.html?edit=true';
+            };
+        }
+    } else {
+        // If no list data found, redirect to index
+        window.location.href = 'index.html';
     }
 });
