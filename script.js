@@ -13,7 +13,7 @@ document.getElementById('add-row').addEventListener('click', function() {
     cell4.innerHTML = '<button class="delete-row">Sil</button>';
     
     cell4.getElementsByClassName('delete-row')[0].addEventListener('click', function() {
-        table.removeChild(newRow);
+        newRow.remove();
     });
 });
 
@@ -74,7 +74,7 @@ function loadListFromQRCode(qrCodeData) {
         cell4.innerHTML = '<button class="delete-row">Sil</button>';
         
         cell4.getElementsByClassName('delete-row')[0].addEventListener('click', function() {
-            table.removeChild(newRow);
+            newRow.remove();
         });
         
         if (item.image) {
@@ -86,6 +86,7 @@ function loadListFromQRCode(qrCodeData) {
     });
 }
 
+// QR kodu verisini prompt ile al ve listeyi yükle
 document.getElementById('qr-code').addEventListener('click', function() {
     const qrCodeData = prompt('QR kodu verisini girin:');
     if (qrCodeData) {

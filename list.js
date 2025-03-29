@@ -1,42 +1,45 @@
-document.addEventListener('DOMContentLoaded', function() {
+function getQueryParameter(name) {
     const urlParams = new URLSearchParams(window.location.search);
-    const listId = urlParams.get('id');
-    
-    console.log("Aranan Liste Kimliği:", listId); // Kontrol için konsol çıktısı
-    
-    if (listId) {
-        const savedList = localStorage.getItem(listId);
-        
-        console.log("Bulunan Liste:", savedList); // Kontrol için konsol çıktısı
-        
-        if (savedList) {
-            const list = JSON.parse(savedList);
-            displayList(list);
-        } else {
-            const listDetailsBody = document.getElementById('listDetailsBody');
-            listDetailsBody.innerHTML = '<tr><td colspan="3">Liste bulunamadı. Lütfen doğru QR kodu kullandığınızdan emin olun.</td></tr>';
-        }
-    } else {
-        const listDetailsBody = document.getElementById('listDetailsBody');
-        listDetailsBody.innerHTML = '<tr><td colspan="3">Geçerli bir liste kimliği bulunamadı.</td></tr>';
-    }
-});
+    return urlParams.get(name);
+}
 
-function displayList(list) {
-    const listTitleElement = document.getElementById('listTitle');
-    const listDetailsBody = document.getElementById('listDetailsBody');
+function loadList() {
+    const listData = getQueryParameter('data');
+    if (!listData) {
+        alert('Liste verisi bulunamadı!');
+        return;
+    }
+
+    const listContent = JSON.parse(decodeURIComponent(listData));
+    document.getElementById('list-title').innerText = listContent.title;
+
+    const table = document.getElementById('list-table').getElementsByTagName('tbody')[0];
+    table.innerHTML = ''; // Mevcut satırları temizle
     
-    listTitleElement.textContent = list.title;
-    listDetailsBody.innerHTML = ''; // Önceki içeriği temizle
-    
-    list.items.forEach(item => {
-        const row = listDetailsBody.insertRow();
-        row.innerHTML = `
-            <td>${item.name}</td>
-            <td>${item.value}</td>
-            <td>${item.image ? `<img src="${item.image}" style="max-width:100px; max-height:100px;">` : 'Resim Yok'}</td>
-        `;
+    listContent.items.forEach(item => {
+        const newRow = table.insertRow();
+        
+        const cell1 = newRow.insertCell(0);
+        const cell2 = newRow.insertCell(1);
+        const cell3 = newRow.insertCell(2);
+        
+        cell1.innerText = item.description;
+        cell2.innerText = item.value;
+        
+        if (item.image) {
+            const img = document.createElement('img');
+            img.src = item.image;
+            img.style.width = '50px';
+            cell3.appendChild(img);
+        }
     });
 }
 
-// Diğer fonksiyonlar aynı kalacak
+document.getElementById('edit-list').addEventListener('click', function() {
+    const listData = getQueryParameter('data');
+    if (listData) {
+        window.location.href = `index.html?data=${listData}`;
+    }
+});
+
+window.onload = loadList;
