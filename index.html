@@ -138,39 +138,21 @@
 </head>
 <body>
     <div class="main-container">
-        <h1>Liste Oluştur</h1>
+        <h1>Yeni Liste Oluştur</h1>
+        
         <form id="listForm">
-            <div class="form-row">
-                <div class="input-group content-field">
-                    <label for="listTitle">Liste Başlığı:</label>
-                    <input type="text" id="listTitle" required>
-                </div>
+            <div class="form-group">
+                <label for="listTitle">Liste Başlığı:</label>
+                <input type="text" id="listTitle" required>
             </div>
 
-            <div id="items">
-                <div class="form-row item-row">
-                    <div class="input-group content-field">
-                        <label>İçerik:</label>
-                        <input type="text" class="item-content" required>
-                    </div>
-                    <div class="input-group">
-                        <label>Miktar:</label>
-                        <input type="text" class="item-quantity" required>
-                    </div>
-                    <div class="input-group">
-                        <label>Resim:</label>
-                        <input type="file" class="item-image" accept="image/*">
-                        <input type="hidden" class="stored-image">
-                    </div>
-                    <button type="button" class="delete-row">×</button>
-                </div>
+            <div id="items" class="items-container">
+                <!-- Öğeler buraya eklenecek -->
             </div>
 
-            <div class="buttons">
-                <button type="button" id="addRow" class="btn-warning">Yeni Öğe Ekle</button>
-                <button type="submit" id="saveButton" class="btn-primary">
-                    <span class="button-text">Kaydet</span>
-                </button>
+            <div class="button-group">
+                <button type="button" id="addRow" class="add-row-button">Yeni Öğe Ekle</button>
+                <button type="submit" id="saveButton" class="save-button">Kaydet</button>
             </div>
         </form>
     </div>

@@ -115,6 +115,44 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Yeni satır ekleme fonksiyonu
+    function addNewRow(item = null) {
+        const newRow = document.createElement('div');
+        newRow.className = 'form-row item-row';
+        newRow.innerHTML = `
+            <div class="item-content-container">
+                <label for="item-content">İçerik:</label>
+                <input type="text" class="item-content" required>
+            </div>
+            <div class="item-quantity-container">
+                <label for="item-quantity">Miktar:</label>
+                <input type="number" class="item-quantity" required>
+            </div>
+            <div class="item-image-container">
+                <label for="item-image">Resim:</label>
+                <input type="file" class="item-image" accept="image/*">
+                <input type="hidden" class="stored-image">
+            </div>
+            <button type="button" class="delete-row">Sil</button>
+        `;
+        
+        if (item) {
+            newRow.querySelector('.item-content').value = item.content;
+            newRow.querySelector('.item-quantity').value = item.quantity;
+            if (item.image) {
+                newRow.querySelector('.stored-image').value = item.image;
+                const preview = newRow.querySelector('.item-image-container');
+                const img = document.createElement('img');
+                img.src = item.image;
+                img.className = 'image-preview';
+                img.alt = 'Ürün resmi';
+                preview.appendChild(img);
+            }
+        }
+        
+        itemsContainer.appendChild(newRow);
+    }
+
     // Form gönderme fonksiyonu
     async function handleFormSubmit() {
         try {
@@ -200,30 +238,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         } catch (error) {
             console.error('Form gönderme hatası:', error);
-            alert(error.message || 'Beklenmeyen bir hata oluştu');
-            
-            saveButton.disabled = false;
-            const buttonText = saveButton.querySelector('.button-text');
-            if (buttonText) {
-                buttonText.textContent = isEditing ? 'Değişiklikleri Kaydet' : 'Kaydet';
-            }
+            alert(error.message);
         }
     }
-
-    // Yeni satır ekleme fonksiyonu
-    function addNewRow(item = null) {
-        const newRow = document.createElement('div');
-        newRow.className = 'form-row item-row';
-        newRow.innerHTML = `
-            <div class="input-group content-field">
-                <label>İçerik:</label>
-                <input type="text" class="item-content" required value="${item?.content || ''}">
-            </div>
-            <div class="input-group">
-                <label>Miktar:</label>
-                <input type="text" class="item-quantity" required value="${item?.quantity || ''}">
-            </div>
-            <div class="input-group">
-                <label>Resim:</label>
-                <input type="file" class="item-image" accept="image/*">
-                <input type="hidden" class="stored-image" value="${item?.image || ''
+});
