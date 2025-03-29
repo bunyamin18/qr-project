@@ -4,48 +4,147 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste Oluştur</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #00bcd4, #80deea);
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .main-container {
+            width: 90%;
+            max-width: 800px;
+            margin: 20px auto;
+            background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #006064;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .form-row {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-group {
+            flex: 1;
+        }
+
+        .content-field {
+            flex: 2;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #00838f;
+            font-weight: 500;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0f7fa;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            border: 2px dashed #b2ebf2;
+            border-radius: 8px;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            color: white;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00bcd4, #0097a7);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #4dd0e1, #00acc1);
+        }
+
+        .image-preview {
+            max-width: 150px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 3px solid white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <div class="center-card">
-            <h1>Liste Oluştur</h1>
-            <form id="listForm">
-                <div class="form-group">
+    <div class="main-container">
+        <h1>Liste Oluştur</h1>
+        <form id="listForm">
+            <div class="form-row">
+                <div class="input-group content-field">
+                    <label for="listTitle">Liste Başlığı:</label>
+                    <input type="text" id="listTitle" required>
+                </div>
+            </div>
+
+            <div id="items">
+                <div class="form-row">
+                    <div class="input-group content-field">
+                        <label>İçerik:</label>
+                        <input type="text" class="item-content" required>
+                    </div>
                     <div class="input-group">
-                        <div class="input-field">
-                            <label for="listTitle">Liste Başlığı:</label>
-                            <input type="text" id="listTitle" required>
-                        </div>
+                        <label>Miktar:</label>
+                        <input type="text" class="item-quantity" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Resim:</label>
+                        <input type="file" class="item-image" accept="image/*">
                     </div>
                 </div>
+            </div>
 
-                <div id="items">
-                    <div class="form-group item-row">
-                        <div class="input-group">
-                            <div class="input-field">
-                                <label>İçerik:</label>
-                                <input type="text" class="item-content" required>
-                            </div>
-                            <div class="input-field">
-                                <label>Miktar:</label>
-                                <input type="text" class="item-quantity" required>
-                            </div>
-                            <div class="input-field">
-                                <label>Resim:</label>
-                                <input type="file" class="item-image" accept="image/*">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="buttons-container">
-                    <button type="button" id="addRow" class="btn btn-warning">Yeni Öğe Ekle</button>
-                    <button type="submit" class="btn btn-primary">Kaydet</button>
-                </div>
-            </form>
-        </div>
+            <div class="buttons">
+                <button type="button" id="addRow" class="btn-warning">Yeni Öğe Ekle</button>
+                <button type="submit" class="btn-primary">Kaydet</button>
+            </div>
+        </form>
     </div>
     <script src="script.js"></script>
 </body>
