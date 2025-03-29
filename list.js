@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const titleElement = document.getElementById('listTitle');
     const itemsList = document.getElementById('itemsList');
     const qrCodeImg = document.getElementById('qrCode');
+    const qrError = document.getElementById('qrError');
     const editButton = document.querySelector('button[onclick*="edit=true"]');
 
     // Kontroller
@@ -129,9 +130,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (data.qrCode) {
             qrCodeImg.src = data.qrCode;
             qrCodeImg.style.display = 'block';
+            qrError.style.display = 'none';
             console.log('QR kod gösterildi');
         } else {
             qrCodeImg.style.display = 'none';
+            qrError.style.display = 'block';
+            qrError.textContent = 'QR kod oluşturulamadı';
             console.log('QR kod bulunamadı');
         }
 

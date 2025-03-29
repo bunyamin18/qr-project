@@ -118,49 +118,20 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-
-        .qr-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        #qrCode {
-            width: 200px;
-            height: 200px;
-            margin: 10px 0;
-        }
-
-        .action-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .action-buttons button {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
+            background: rgba(0, 0, 0, 0.2);
             cursor: pointer;
-            color: white;
-            transition: transform 0.2s;
         }
 
-        .action-buttons button:hover {
-            transform: translateY(-2px);
+        .qr-section img {
+            max-width: 100%;
+            height: auto;
         }
 
-        .action-buttons button:first-child {
-            background: linear-gradient(135deg, #00bcd4, #0097a7);
-        }
-
-        .action-buttons button:last-child {
-            background: linear-gradient(135deg, #4dd0e1, #00acc1);
+        .error-message {
+            color: #d32f2f;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
         }
     </style>
 </head>
@@ -173,24 +144,17 @@
         
         <div class="list-content">
             <div class="items-section">
-                <h2>Ürünler</h2>
+                <h2>Öğeler</h2>
                 <div id="itemsList" class="items-list"></div>
             </div>
-
+            
             <div class="qr-section">
                 <h2>QR Kod</h2>
-                <div id="qrContainer">
-                    <img id="qrCode" src="" alt="QR Kod">
-                </div>
+                <img id="qrCode" src="" alt="QR Kod" style="display: none;">
+                <div class="error-message" id="qrError"></div>
             </div>
         </div>
-
-        <div class="action-buttons">
-            <button onclick="window.location.href='index.html?edit=true'">Düzenle</button>
-            <button onclick="window.location.href='index.html'">Ana Sayfa</button>
-        </div>
     </div>
-
     <script src="list.js"></script>
 </body>
 </html>
