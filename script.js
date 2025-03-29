@@ -132,11 +132,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     const storedImage = row.querySelector('.stored-image');
                     const imagePreview = row.querySelector('.image-preview');
                     
+                    const imageData = storedImage && storedImage.value ? storedImage.value : 
+                                    (imagePreview ? imagePreview.src : null);
+
                     listData.items.push({
                         content: content,
                         quantity: quantity,
-                        image: storedImage && storedImage.value ? storedImage.value : 
-                               (imagePreview ? imagePreview.src : null)
+                        image: imageData
                     });
                 });
 
@@ -148,8 +150,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const qr = qrcode(0, 'L');
                 const currentUrl = window.location.href;
                 const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
-                const encodedData = encodeURIComponent(JSON.stringify(listData));
-                const listUrl = baseUrl + `list.html?id=${listId}&data=${encodedData}`;
+                const listUrl = baseUrl + `list.html?id=${listId}`;
                 
                 qr.addData(listUrl);
                 qr.make();
@@ -158,15 +159,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 listData.qrCode = qr.createDataURL(10);
 
                 // Store the list data in localStorage
-                localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
-                localStorage.setItem('currentList', JSON.stringify(listData));
+                const savedData = JSON.stringify(listData);
+                localStorage.setItem(`list_${listId}`, savedData);
+                localStorage.setItem('currentList', savedData);
 
                 if (isEditing) {
                     localStorage.removeItem('editingList');
                 }
 
-                // Redirect to list view with data
-                window.location.href = `list.html?id=${listId}&data=${encodedData}`;
+                // Redirect to list view
+                window.location.href = `list.html?id=${listId}&data=${encodeURIComponent(savedData)}`;
             } catch (error) {
                 console.error('Error saving list:', error);
                 alert(error.message || 'Liste kaydedilirken bir hata oluştu');
@@ -195,8 +197,8 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="input-group">
                 <label>Resim:</label>
                 <input type="file" class="item-image" accept="image/*">
-                ${item && item.image ? `<img src="${item.image}" class="image-preview">` : ''}
                 <input type="hidden" class="stored-image" value="${item && item.image ? item.image : ''}">
+                ${item && item.image ? `<img src="${item.image}" class="image-preview">` : ''}
             </div>
             <button type="button" class="delete-row">×</button>
         `;

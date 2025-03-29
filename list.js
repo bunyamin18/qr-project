@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             // Try to parse the data from URL
             listData = JSON.parse(decodeURIComponent(encodedData));
+            console.log('Got data from URL:', listData);
         } catch (e) {
             console.error('Error parsing URL data:', e);
         }
@@ -19,7 +20,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // If no data in URL, try localStorage
     if (!listData && listId) {
         try {
-            listData = JSON.parse(localStorage.getItem(`list_${listId}`));
+            const storedData = localStorage.getItem(`list_${listId}`);
+            if (storedData) {
+                listData = JSON.parse(storedData);
+                console.log('Got data from localStorage:', listData);
+            }
         } catch (e) {
             console.error('Error getting data from localStorage:', e);
         }
@@ -28,19 +33,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // If still no data, try current list
     if (!listData) {
         try {
-            listData = JSON.parse(localStorage.getItem('currentList'));
+            const currentList = localStorage.getItem('currentList');
+            if (currentList) {
+                listData = JSON.parse(currentList);
+                console.log('Got data from currentList:', listData);
+            }
         } catch (e) {
             console.error('Error getting current list:', e);
         }
     }
     
     if (listData) {
-        // Save the data to localStorage for future use
-        if (listId) {
-            localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
-            localStorage.setItem('currentList', JSON.stringify(listData));
-        }
-
         // Set title
         document.getElementById('listTitle').textContent = listData.title;
         
@@ -61,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <div class="image-container">
                     <span class="label">Resim</span>
-                    ${item.image ? `<img src="${item.image}" class="item-image">` : '<div class="value">Resim yok</div>'}
+                    ${item.image ? `<img src="${item.image}" class="item-image" alt="Ürün resmi">` : '<div class="value">Resim yok</div>'}
                 </div>
             `;
             
@@ -70,8 +73,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Display QR code
         const qrCodeImg = document.getElementById('qrCode');
-        if (listData.qrCode && qrCodeImg) {
-            qrCodeImg.src = listData.qrCode;
+        if (qrCodeImg) {
+            if (listData.qrCode) {
+                qrCodeImg.src = listData.qrCode;
+                console.log('QR code set from listData');
+            } else {
+                // Generate QR code if not exists
+                const qr = qrcode(0, 'L');
+                const currentUrl = window.location.href;
+                const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
+                const listUrl = baseUrl + `list.html?id=${listData.id}`;
+                
+                qr.addData(listUrl);
+                qr.make();
+                
+                const qrDataUrl = qr.createDataURL(10);
+                qrCodeImg.src = qrDataUrl;
+                
+                // Save QR code
+                listData.qrCode = qrDataUrl;
+                localStorage.setItem(`list_${listData.id}`, JSON.stringify(listData));
+                console.log('Generated new QR code');
+            }
         }
 
         // Update edit button
@@ -83,6 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
             };
         }
     } else {
+        console.error('No list data found');
         // If no list data found, redirect to index
         window.location.href = 'index.html';
     }
