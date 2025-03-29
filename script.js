@@ -7,17 +7,21 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // If we're editing, load the existing data
     if (isEditing) {
-        const editingData = JSON.parse(localStorage.getItem('editingList'));
-        if (editingData) {
-            document.getElementById('listTitle').value = editingData.title;
-            
-            // Remove default empty row
-            itemsContainer.innerHTML = '';
-            
-            // Add rows for each item
-            editingData.items.forEach(item => {
-                addNewRow(item);
-            });
+        try {
+            const editingData = JSON.parse(localStorage.getItem('editingList'));
+            if (editingData) {
+                document.getElementById('listTitle').value = editingData.title;
+                
+                // Remove default empty row
+                itemsContainer.innerHTML = '';
+                
+                // Add rows for each item
+                editingData.items.forEach(item => {
+                    addNewRow(item);
+                });
+            }
+        } catch (e) {
+            console.error('Error loading editing data:', e);
         }
     }
 
@@ -95,9 +99,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 // Generate a unique ID for the list if not editing
-                const listId = isEditing && localStorage.getItem('editingList') ? 
-                    JSON.parse(localStorage.getItem('editingList')).id : 
-                    Date.now().toString(36) + Math.random().toString(36).substr(2);
+                let listId;
+                if (isEditing) {
+                    try {
+                        const editingData = JSON.parse(localStorage.getItem('editingList'));
+                        listId = editingData.id;
+                    } catch (e) {
+                        console.error('Error getting editing list ID:', e);
+                        listId = Date.now().toString(36) + Math.random().toString(36).substr(2);
+                    }
+                } else {
+                    listId = Date.now().toString(36) + Math.random().toString(36).substr(2);
+                }
 
                 const listData = {
                     id: listId,
@@ -131,23 +144,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error('Lütfen tüm alanları doldurun');
                 }
 
-                // Store the list data in localStorage
-                localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
-                localStorage.setItem('currentList', JSON.stringify(listData));
-
                 // Generate QR code with URL and encoded data
-                const qr = qrcode(4, 'L');
+                const qr = qrcode(0, 'L');
                 const currentUrl = window.location.href;
                 const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
                 const encodedData = encodeURIComponent(JSON.stringify(listData));
                 const listUrl = baseUrl + `list.html?id=${listId}&data=${encodedData}`;
+                
                 qr.addData(listUrl);
                 qr.make();
                 
                 // Create larger QR code
                 listData.qrCode = qr.createDataURL(10);
 
-                // Update storage with QR code
+                // Store the list data in localStorage
                 localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
                 localStorage.setItem('currentList', JSON.stringify(listData));
 

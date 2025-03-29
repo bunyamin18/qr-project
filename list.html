@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste Görüntüle</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -40,7 +41,7 @@
             margin-bottom: 20px;
             display: flex;
             gap: 20px;
-            align-items: center;
+            align-items: flex-start;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
         }
 
@@ -50,31 +51,33 @@
 
         .quantity {
             flex: 1;
-            text-align: center;
         }
 
         .image-container {
-            flex: 1;
-            text-align: center;
-        }
-
-        .item-image {
-            max-width: 150px;
-            border-radius: 8px;
-            border: 3px solid white;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            flex: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .label {
+            display: block;
             color: #00838f;
             font-weight: 500;
-            margin-bottom: 5px;
-            display: block;
+            margin-bottom: 8px;
         }
 
         .value {
             font-size: 16px;
             color: #333;
+        }
+
+        .item-image {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 8px;
+            border: 3px solid white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
         }
 
         .buttons {
@@ -102,8 +105,14 @@
             background: linear-gradient(135deg, #00bcd4, #0097a7);
         }
 
+        .btn-warning {
+            background: linear-gradient(135deg, #4dd0e1, #00acc1);
+        }
+
         .qr-container {
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             margin-top: 30px;
             background: white;
             padding: 20px;
@@ -111,29 +120,32 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
         }
 
-        .qr-code {
-            max-width: 200px;
-            margin: 0 auto;
+        .qr-container h2 {
+            color: #006064;
+            margin-bottom: 15px;
         }
 
-        .qr-label {
-            color: #00838f;
-            font-weight: 500;
-            margin-top: 10px;
+        #qrCode {
+            width: 200px;
+            height: 200px;
+            margin: 10px 0;
         }
     </style>
 </head>
 <body>
     <div class="main-container">
         <h1 id="listTitle"></h1>
+        
         <div id="itemsList"></div>
+
         <div class="qr-container">
-            <img id="qrCode" class="qr-code">
-            <div class="qr-label">QR Kodu</div>
+            <h2>QR Kod</h2>
+            <img id="qrCode" alt="QR Code">
         </div>
+
         <div class="buttons">
-            <button onclick="window.location.href='index.html?edit=true'" class="btn-primary">Düzenle</button>
-            <button onclick="window.location.href='index.html'" class="btn-primary">Yeni Liste</button>
+            <button class="btn-warning" onclick="window.location.href='index.html'">Yeni Liste</button>
+            <button class="btn-primary" onclick="window.location.href='index.html?edit=true'">Düzenle</button>
         </div>
     </div>
     <script src="list.js"></script>
