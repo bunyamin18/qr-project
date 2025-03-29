@@ -10,11 +10,15 @@
 <body>
     <div class="container">
         <div class="center-card">
-            <h1>Yeni Liste Oluştur</h1>
+            <h1>Liste Oluştur</h1>
             <form id="listForm">
                 <div class="form-group">
-                    <label for="listTitle">Liste Başlığı:</label>
-                    <input type="text" id="listTitle" required>
+                    <div class="input-group">
+                        <div class="input-field">
+                            <label for="listTitle">Liste Başlığı:</label>
+                            <input type="text" id="listTitle" required>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="items">
@@ -26,19 +30,19 @@
                             </div>
                             <div class="input-field">
                                 <label>Miktar:</label>
-                                <input type="number" class="item-quantity" required min="1">
+                                <input type="text" class="item-quantity" required>
                             </div>
                             <div class="input-field">
                                 <label>Resim:</label>
                                 <input type="file" class="item-image" accept="image/*">
                             </div>
-                            <button type="button" class="btn btn-danger delete-row">Sil</button>
+                            <button type="button" class="btn btn-danger delete-row">×</button>
                         </div>
                     </div>
                 </div>
 
                 <div class="buttons-container">
-                    <button type="button" id="addRow" class="btn btn-warning">Yeni Satır Ekle</button>
+                    <button type="button" id="addRow" class="btn btn-warning">Yeni Öğe Ekle</button>
                     <button type="submit" class="btn btn-primary">Kaydet</button>
                 </div>
             </form>

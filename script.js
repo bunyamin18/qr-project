@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 </div>
                 <div class="input-field">
                     <label>Miktar:</label>
-                    <input type="text" class="item-quantity" required value="${item ? item.quantity : ''}">
+                    <input type="number" class="item-quantity" required value="${item ? item.quantity : ''}">
                 </div>
                 <div class="input-field">
                     <label>Resim:</label>
@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     ${item && item.image ? `<img src="${item.image}" class="image-preview">` : ''}
                     <input type="hidden" class="stored-image" value="${item && item.image ? item.image : ''}">
                 </div>
-                <button type="button" class="btn btn-danger delete-row">Sil</button>
+                <button type="button" class="btn btn-danger delete-row">×</button>
             </div>
         `;
         itemsContainer.appendChild(newRow);
