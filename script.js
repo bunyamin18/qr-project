@@ -218,7 +218,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 // QR kod oluştur
-                const qr = new QRCode(document.createElement('div'), {
+                const qrElement = document.createElement('div');
+                document.body.appendChild(qrElement);
+                
+                new QRCode(qrElement, {
                     text: listUrl,
                     width: 256,
                     height: 256,
@@ -226,12 +229,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     colorLight: "#ffffff",
                     correctLevel: QRCode.CorrectLevel.H
                 });
-                
+
                 // QR kodu veri olarak listeye ekle
-                const qrElement = qr.getCanvas();
-                if (qrElement) {
-                    listData.qrCode = qrElement.toDataURL();
+                const canvas = qrElement.querySelector('canvas');
+                if (canvas) {
+                    listData.qrCode = canvas.toDataURL();
                 }
+
+                // QR kod elementini temizle
+                document.body.removeChild(qrElement);
 
                 // Veriyi tekrar kaydet
                 localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
