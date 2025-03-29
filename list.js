@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
             qrCodeImg.style.width = '200px';
             qrCodeImg.style.height = '200px';
         }
-
+a
         // Update edit button
         const editButton = document.querySelector('button[onclick*="edit=true"]');
         if (editButton) {
