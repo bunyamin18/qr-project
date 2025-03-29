@@ -1,42 +1,36 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Get list ID and data from URL
+    // Get list ID from URL
     const urlParams = new URLSearchParams(window.location.search);
     const listId = urlParams.get('id');
-    const encodedData = urlParams.get('data');
     
-    // Try to get list data from URL first
+    if (!listId) {
+        console.error('No list ID found in URL');
+        window.location.href = 'index.html';
+        return;
+    }
+
+    // Try to get list data from localStorage
     let listData = null;
-    
-    if (encodedData) {
-        try {
-            // Try to parse the data from URL
-            listData = JSON.parse(decodeURIComponent(encodedData));
-            console.log('Got data from URL:', listData);
-        } catch (e) {
-            console.error('Error parsing URL data:', e);
+    try {
+        const storedData = localStorage.getItem(`list_${listId}`);
+        if (storedData) {
+            listData = JSON.parse(storedData);
+            console.log('Got data from localStorage:', listData);
         }
+    } catch (e) {
+        console.error('Error getting data from localStorage:', e);
     }
     
-    // If no data in URL, try localStorage
-    if (!listData && listId) {
-        try {
-            const storedData = localStorage.getItem(`list_${listId}`);
-            if (storedData) {
-                listData = JSON.parse(storedData);
-                console.log('Got data from localStorage:', listData);
-            }
-        } catch (e) {
-            console.error('Error getting data from localStorage:', e);
-        }
-    }
-    
-    // If still no data, try current list
+    // If no data found, try currentList as fallback
     if (!listData) {
         try {
             const currentList = localStorage.getItem('currentList');
             if (currentList) {
-                listData = JSON.parse(currentList);
-                console.log('Got data from currentList:', listData);
+                const currentData = JSON.parse(currentList);
+                if (currentData.id === listId) {
+                    listData = currentData;
+                    console.log('Got data from currentList:', listData);
+                }
             }
         } catch (e) {
             console.error('Error getting current list:', e);
@@ -106,8 +100,8 @@ document.addEventListener('DOMContentLoaded', function() {
             };
         }
     } else {
-        console.error('No list data found');
-        // If no list data found, redirect to index
+        console.error('No list data found for ID:', listId);
+        alert('Liste bulunamadı');
         window.location.href = 'index.html';
     }
 });

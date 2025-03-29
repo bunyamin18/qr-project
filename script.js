@@ -146,7 +146,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error('Lütfen tüm alanları doldurun');
                 }
 
-                // Generate QR code with URL and encoded data
+                // Store the list data in localStorage first
+                const savedData = JSON.stringify(listData);
+                localStorage.setItem(`list_${listId}`, savedData);
+                localStorage.setItem('currentList', savedData);
+
+                // Generate QR code with URL
                 const qr = qrcode(0, 'L');
                 const currentUrl = window.location.href;
                 const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
@@ -155,20 +160,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 qr.addData(listUrl);
                 qr.make();
                 
-                // Create larger QR code
+                // Create larger QR code and save it
                 listData.qrCode = qr.createDataURL(10);
-
-                // Store the list data in localStorage
-                const savedData = JSON.stringify(listData);
-                localStorage.setItem(`list_${listId}`, savedData);
-                localStorage.setItem('currentList', savedData);
+                
+                // Update storage with QR code
+                const finalData = JSON.stringify(listData);
+                localStorage.setItem(`list_${listId}`, finalData);
+                localStorage.setItem('currentList', finalData);
 
                 if (isEditing) {
                     localStorage.removeItem('editingList');
                 }
 
                 // Redirect to list view
-                window.location.href = `list.html?id=${listId}&data=${encodeURIComponent(savedData)}`;
+                window.location.href = listUrl;
             } catch (error) {
                 console.error('Error saving list:', error);
                 alert(error.message || 'Liste kaydedilirken bir hata oluştu');
