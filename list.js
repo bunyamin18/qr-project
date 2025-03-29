@@ -85,18 +85,37 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Display QR code
         const qrCodeImg = document.getElementById('qrCode');
-        if (qrCodeImg && listData.qrCode) {
-            qrCodeImg.src = listData.qrCode;
-            qrCodeImg.style.display = 'block'; // Make sure it's visible
-            console.log('QR code set:', listData.qrCode.substring(0, 100) + '...');
-        } else {
-            console.error('QR code missing:', qrCodeImg, listData.qrCode ? 'has qrCode' : 'no qrCode');
+        if (qrCodeImg) {
+            if (listData.qrCode) {
+                qrCodeImg.src = listData.qrCode;
+                qrCodeImg.style.display = 'block';
+                console.log('Using existing QR code');
+            } else {
+                // Generate QR code if missing
+                const qr = qrcode(0, 'L');
+                const baseUrl = `${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}`;
+                const currentData = JSON.stringify(listData);
+                const currentEncodedData = encodeURIComponent(currentData);
+                const listUrl = `${baseUrl}/list.html?id=${listId}&data=${currentEncodedData}`;
+                
+                qr.addData(listUrl);
+                qr.make();
+                
+                const qrCode = qr.createDataURL(10);
+                qrCodeImg.src = qrCode;
+                qrCodeImg.style.display = 'block';
+                
+                // Save QR code
+                listData.qrCode = qrCode;
+                localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
+                console.log('Generated new QR code');
+            }
         }
 
         // Update edit button
         const editButton = document.querySelector('button[onclick*="edit=true"]');
         if (editButton) {
-            editButton.onclick = () => {
+            editButton.onclick = a() => {
                 localStorage.setItem('editingList', JSON.stringify(listData));
                 window.location.href = 'index.html?edit=true';
             };
