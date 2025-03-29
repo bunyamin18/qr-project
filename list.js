@@ -125,17 +125,17 @@ document.addEventListener('DOMContentLoaded', function() {
             itemsList.appendChild(row);
         });
 
-        // Display QR code
+        // QR kodu göster
         if (data.qrCode) {
             qrCodeImg.src = data.qrCode;
             qrCodeImg.style.display = 'block';
-            console.log('QR code displayed');
+            console.log('QR kod gösterildi');
         } else {
             qrCodeImg.style.display = 'none';
-            console.log('No QR code available');
+            console.log('QR kod bulunamadı');
         }
 
-        // Update edit button
+        // Düzenleme butonunu güncelle
         editButton.onclick = () => {
             localStorage.setItem('editingList', JSON.stringify(data));
             window.location.href = 'index.html?edit=true';
