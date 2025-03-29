@@ -122,7 +122,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Display QR code
         if (data.qrCode) {
-            qrCodeImg.src = data.qrCode;
+            // QR kodu Base64 formatında olabilir, onu düzeltelim
+            const qrCodeUrl = data.qrCode.replace(/^data:image\/png;base64,/, '');
+            qrCodeImg.src = `data:image/png;base64,${qrCodeUrl}`;
             qrCodeImg.style.display = 'block';
             console.log('QR code displayed');
         } else {
