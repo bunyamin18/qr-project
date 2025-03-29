@@ -94,7 +94,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const qr = qrcode(0, 'L');
                 const currentUrl = window.location.href;
                 const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
-                const listUrl = `${baseUrl}list.html?id=${listId}`;
+                const savedData = JSON.stringify(listData);
+                const listUrl = `${baseUrl}list.html?id=${listId}&data=${encodeURIComponent(savedData)}`;
                 
                 qr.addData(listUrl);
                 qr.make();
