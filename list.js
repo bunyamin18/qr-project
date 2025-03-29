@@ -1,10 +1,18 @@
+// Gerekli elementleri sakla
+let titleElement;
+let itemsList;
+let qrContainer;
+let qrError;
+let editButton;
+
+// Sayfa yüklendiğinde çalışacak fonksiyon
 document.addEventListener('DOMContentLoaded', function() {
     // DOM elementlerini al
-    const titleElement = document.getElementById('listTitle');
-    const itemsList = document.getElementById('itemsList');
-    const qrContainer = document.getElementById('qrContainer');
-    const qrError = document.getElementById('qrError');
-    const editButton = document.querySelector('.edit-button');
+    titleElement = document.getElementById('listTitle');
+    itemsList = document.getElementById('itemsList');
+    qrContainer = document.getElementById('qrContainer');
+    qrError = document.getElementById('qrError');
+    editButton = document.querySelector('.edit-button');
 
     // Kontroller
     if (!titleElement || !itemsList || !qrContainer || !qrError || !editButton) {
@@ -56,84 +64,87 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = 'index.html';
     }
 
-    // Yardımcı fonksiyonlar
-    function isValidListData(data) {
-        return (
-            data &&
-            typeof data === 'object' &&
-            typeof data.id === 'string' &&
-            typeof data.title === 'string' &&
-            Array.isArray(data.items) &&
-            data.items.every(item => 
-                item &&
-                typeof item === 'object' &&
-                typeof item.content === 'string' &&
-                typeof item.value === 'string'
-            )
-        );
-    }
-
-    function displayListData(data) {
-        // Başlığı göster
-        titleElement.textContent = data.title;
-        
-        // Öğeleri göster
-        data.items.forEach(item => {
-            const row = document.createElement('div');
-            row.className = 'list-row';
-            
-            row.innerHTML = `
-                <div class="content">
-                    <span class="label">İçerik</span>
-                    <div class="value">${escapeHtml(item.content)}</div>
-                </div>
-                <div class="value-container">
-                    <span class="label">Miktar/Değer</span>
-                    <div class="value">${escapeHtml(item.value)}</div>
-                </div>
-                <div class="image-container">
-                    <span class="label">Resim</span>
-                    ${item.image ? 
-                        `<div class="image-wrapper">
-                            <img src="${item.image}" class="item-image" alt="Ürün resmi" style="max-width: 100px; max-height: 100px;">
-                        </div>` : 
-                        '<div class="value">Resim yok</div>'
-                    }
-                </div>
-            `;
-            
-            itemsList.appendChild(row);
-        });
-
-        // QR kodu göster
-        if (data.qrCode) {
-            const qrImg = document.createElement('img');
-            qrImg.src = data.qrCode;
-            qrImg.alt = 'QR Kod';
-            qrImg.style.maxWidth = '256px';
-            qrImg.style.maxHeight = '256px';
-            
-            qrContainer.innerHTML = '';
-            qrContainer.appendChild(qrImg);
-            qrError.style.display = 'none';
-        } else {
-            qrContainer.innerHTML = '';
-            qrError.style.display = 'block';
-            qrError.textContent = 'QR kod oluşturulamadı';
-        }
-
-        // Düzenleme butonunu güncelle
-        editButton.onclick = () => {
-            window.location.href = 'index.html?edit=true&data=' + encodeURIComponent(JSON.stringify(data));
-        };
-    }
-
-    function escapeHtml(unsafe) {
-        return unsafe
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
+    // Düzenleme butonu event listener'ı ekle
+    editButton.onclick = () => {
+        window.location.href = `index.html?edit=true&data=${encodeURIComponent(JSON.stringify(listData))}`;
+    };
 });
+
+// Veri yapısını kontrol et
+function isValidListData(data) {
+    return (
+        data &&
+        typeof data === 'object' &&
+        typeof data.id === 'string' &&
+        typeof data.title === 'string' &&
+        Array.isArray(data.items) &&
+        data.items.every(item => 
+            item &&
+            typeof item === 'object' &&
+            typeof item.content === 'string' &&
+            typeof item.value === 'string'
+        )
+    );
+}
+
+// Liste verisini göster
+function displayListData(data) {
+    // Başlığı göster
+    titleElement.textContent = data.title;
+    
+    // Öğeleri göster
+    data.items.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'list-row';
+        
+        row.innerHTML = `
+            <div class="content">
+                <span class="label">İçerik</span>
+                <div class="value">${escapeHtml(item.content)}</div>
+            </div>
+            <div class="value-container">
+                <span class="label">Miktar/Değer</span>
+                <div class="value">${escapeHtml(item.value)}</div>
+            </div>
+            <div class="image-container">
+                <span class="label">Resim</span>
+                ${item.image ? 
+                    `<div class="image-wrapper">
+                        <img src="${item.image}" class="item-image" alt="Ürün resmi" style="max-width: 100px; max-height: 100px;">
+                    </div>` : 
+                    '<div class="value">Resim yok</div>'
+                }
+            </div>
+        `;
+        
+        itemsList.appendChild(row);
+    });
+
+    // QR kodu göster
+    if (data.qrCode) {
+        const qrImg = document.createElement('img');
+        qrImg.src = data.qrCode;
+        qrImg.alt = 'QR Kod';
+        qrImg.style.maxWidth = '256px';
+        qrImg.style.maxHeight = '256px';
+        
+        qrContainer.innerHTML = '';
+        qrContainer.appendChild(qrImg);
+        qrError.style.display = 'none';
+    } else {
+        qrContainer.innerHTML = '';
+        qrError.style.display = 'block';
+        qrError.textContent = 'QR kod oluşturulamadı';
+    }
+}
+
+// HTML escape fonksiyonu
+function escapeHtml(unsafe) {
+    if (typeof unsafe !== 'string') return unsafe;
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
