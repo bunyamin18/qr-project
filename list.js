@@ -35,12 +35,18 @@ document.addEventListener('DOMContentLoaded', function() {
     // Liste verisini al
     let listData = null;
 
-    // localStorage'dan veri al
-    try {
-        const storedData = localStorage.getItem(`list_${listId}`);
-        if (storedData) {
-            listData = JSON.parse(storedData);
-            console.log('LocalStorage'dan veri alındı');
+    // JSON dosyasından veri al
+    fetch(`data/${listId}.json`)
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                throw new Error('Liste bulunamadı');
+            }
+        })
+        .then(data => {
+            listData = data;
+            console.log('JSON dosyasından veri alındı');
             
             // Veri yapısını kontrol et
             if (!isValidListData(listData)) {
@@ -60,15 +66,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('QR kod oluşturulamadı');
             });
 
-        } else {
-            throw new Error('Liste bulunamadı');
-        }
-    } catch (error) {
-        console.error('Veri yükleme hatası:', error);
-        alert('Liste verisi yüklenirken bir hata oluştu');
-        window.location.href = 'index.html';
-        return;
-    }
+        })
+        .catch(error => {
+            console.error('Veri yükleme hatası:', error);
+            alert('Liste verisi yüklenirken bir hata oluştu');
+            window.location.href = 'index.html';
+        });
 
     // Düzenleme butonu event listener'ı ekle
     editButton.onclick = () => {
