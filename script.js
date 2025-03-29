@@ -95,6 +95,9 @@ function createItemRow(content = '', value = '', image = '') {
                         const img = document.createElement('img');
                         img.className = 'image-preview';
                         img.src = e.target.result;
+                        img.style.maxWidth = '100px';
+                        img.style.maxHeight = '100px';
+                        img.style.objectFit = 'cover';
                         row.querySelector('.item-image-container').appendChild(img);
                     }
                 };

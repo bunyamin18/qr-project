@@ -111,7 +111,7 @@ function displayListData(data) {
                 <span class="label">Resim</span>
                 ${item.image ? 
                     `<div class="image-wrapper">
-                        <img src="${item.image}" class="item-image" alt="Ürün resmi" style="max-width: 100px; max-height: 100px;">
+                        <img src="${item.image}" class="item-image" alt="Ürün resmi" style="max-width: 100px; max-height: 100px; object-fit: cover;">
                     </div>` : 
                     '<div class="value">Resim yok</div>'
                 }
@@ -166,7 +166,7 @@ async function createQRCode(listId) {
             document.body.appendChild(qrElement);
             
             const qr = new QRCode(qrElement, {
-                text: `list.html?data=${encodeURIComponent(JSON.stringify({id: listId}))}`,
+                text: `https://okulprojesibunyamin.netlify.app/list.html?data=${encodeURIComponent(JSON.stringify({id: listId}))}`,
                 width: 256,
                 height: 256,
                 colorDark: "#000000",
