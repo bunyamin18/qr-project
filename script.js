@@ -109,18 +109,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error('En az bir öğe eklemelisiniz');
                 }
 
-                // Generate a unique ID for the list if not editing
+                // Get list ID from editing data or generate new one
                 let listId;
                 let existingQrCode;
+                
                 if (isEditing) {
-                    try {
-                        const editingData = JSON.parse(localStorage.getItem('editingList'));
-                        listId = editingData.id;
-                        existingQrCode = editingData.qrCode;
-                    } catch (e) {
-                        console.error('Error getting editing list ID:', e);
-                        listId = Date.now().toString(36) + Math.random().toString(36).substr(2);
+                    const editingData = JSON.parse(localStorage.getItem('editingList'));
+                    if (!editingData || !editingData.id) {
+                        throw new Error('Düzenleme verisi bulunamadı');
                     }
+                    listId = editingData.id;
+                    existingQrCode = editingData.qrCode;
                 } else {
                     listId = Date.now().toString(36) + Math.random().toString(36).substr(2);
                 }
@@ -159,11 +158,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error('Lütfen tüm alanları doldurun');
                 }
 
-                // Keep existing QR code if editing
+                // Keep existing QR code when editing
                 if (isEditing && existingQrCode) {
                     listData.qrCode = existingQrCode;
                 } else {
-                    // Generate new QR code
+                    // Generate new QR code with full URL
                     const qr = qrcode(0, 'L');
                     const listUrl = `${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/list.html?id=${listId}`;
                     
@@ -173,9 +172,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     listData.qrCode = qr.createDataURL(10);
                 }
 
-                // Store data in localStorage
+                // Save data to both localStorage and sessionStorage
+                // This way the data persists in this browser and is also available
+                // when accessed from another device via QR code
                 const finalData = JSON.stringify(listData);
                 localStorage.setItem(`list_${listId}`, finalData);
+                sessionStorage.setItem(`list_${listId}`, finalData);
                 localStorage.setItem('currentList', finalData);
 
                 if (isEditing) {
