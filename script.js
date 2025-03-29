@@ -164,18 +164,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 localStorage.setItem(`list_${listId}`, savedData);
                 localStorage.setItem('currentList', savedData);
 
-                // Generate QR code with URL and encoded data
-                const qr = qrcode(0, 'L');
-                const currentUrl = window.location.href;
-                const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
-                const encodedData = encodeURIComponent(savedData);
-                const listUrl = `${baseUrl}list.html?id=${listId}&data=${encodedData}`;
-                
-                qr.addData(listUrl);
-                qr.make();
-                
-                // Create QR code with same size
-                listData.qrCode = qr.createDataURL(10);
+                // Keep existing QR code if editing, or generate new one if new list
+                if (isEditing && existingQrCode) {
+                    listData.qrCode = existingQrCode;
+                } else {
+                    const qr = qrcode(0, 'L');
+                    const currentUrl = window.location.href;
+                    const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
+                    const listUrl = `${baseUrl}list.html?id=${listId}`;
+                    
+                    qr.addData(listUrl);
+                    qr.make();
+                    
+                    listData.qrCode = qr.createDataURL(10);
+                }
 
                 // Update storage with final data
                 const finalData = JSON.stringify(listData);
@@ -186,8 +188,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     localStorage.removeItem('editingList');
                 }
 
-                // Redirect to list view with data
-                window.location.href = listUrl;
+                // Redirect to list view with just ID
+                window.location.href = `list.html?id=${listId}`;
 
             } catch (error) {
                 console.error('Error saving list:', error);
