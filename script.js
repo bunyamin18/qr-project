@@ -93,20 +93,23 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        // Generate QR code
+        // Create JSON data for QR code
+        const qrData = {
+            id: listId,
+            data: listData
+        };
+
+        // Store the list data in localStorage
+        localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
+        localStorage.setItem('currentList', JSON.stringify(listData));
+
+        // Generate QR code with just the data
         const qr = qrcode(0, 'L');
-        // Get the full absolute URL
-        const protocol = window.location.protocol;
-        const host = window.location.host;
-        const path = window.location.pathname;
-        const baseUrl = protocol + '//' + host + path.substring(0, path.lastIndexOf('/') + 1);
-        const listUrl = baseUrl + `list.html?id=${listId}`;
-        
-        qr.addData(listUrl);
+        qr.addData(JSON.stringify(qrData));
         qr.make();
         listData.qrCode = qr.createDataURL();
 
-        // Save to localStorage
+        // Update storage with QR code
         localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
         localStorage.setItem('currentList', JSON.stringify(listData));
 
