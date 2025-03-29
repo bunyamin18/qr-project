@@ -213,17 +213,22 @@ document.addEventListener('DOMContentLoaded', function() {
             // QR kod oluşturma
             try {
                 // QR kod kütüphanesini kontrol et
-                if (typeof QRCode === 'undefined') {
+                if (typeof qrcode === 'undefined') {
                     throw new Error('QR kod kütüphanesi yüklenemedi');
                 }
 
                 // QR kod oluştur
-                const qr = QRCode(0, 'L');
-                qr.addData(listUrl);
-                qr.make();
+                const qr = new QRCode({
+                    text: listUrl,
+                    width: 256,
+                    height: 256,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
                 
                 // QR kodu veri olarak listeye ekle
-                listData.qrCode = qr.createDataURL(10);
+                listData.qrCode = qr.createDataURL();
 
                 // Veriyi tekrar kaydet
                 localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
