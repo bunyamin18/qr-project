@@ -28,49 +28,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Edit button functionality
     document.getElementById('editButton').addEventListener('click', function() {
-        // Store the current list data
+        // Store the current list data in editingList
         localStorage.setItem('editingList', JSON.stringify(listData));
+        // Redirect to index.html with edit parameter
         window.location.href = 'index.html?edit=true';
     });
-
-    // Check if we're editing an existing list
-    if (window.location.search.includes('edit=true')) {
-        const editingData = JSON.parse(localStorage.getItem('editingList'));
-        if (editingData) {
-            document.getElementById('listTitle').value = editingData.title;
-            
-            // Remove default empty row
-            document.getElementById('items').innerHTML = '';
-            
-            // Add rows for each item
-            editingData.items.forEach(item => {
-                const newRow = document.createElement('div');
-                newRow.className = 'form-group item-row';
-                newRow.innerHTML = `
-                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
-                        <div style="flex: 2;">
-                            <label>İçerik:</label>
-                            <input type="text" class="item-content" required value="${item.content}">
-                        </div>
-                        <div style="flex: 1;">
-                            <label>Miktar:</label>
-                            <input type="number" class="item-quantity" required min="1" value="${item.quantity}">
-                        </div>
-                        <div style="flex: 2;">
-                            <label>Resim:</label>
-                            <input type="file" class="item-image" accept="image/*">
-                            ${item.image ? `<img src="${item.image}" class="image-preview">` : ''}
-                        </div>
-                        <div style="display: flex; align-items: flex-end;">
-                            <button type="button" class="btn btn-danger delete-row">Sil</button>
-                        </div>
-                    </div>
-                `;
-                document.getElementById('items').appendChild(newRow);
-            });
-            
-            // Clear editing data
-            localStorage.removeItem('editingList');
-        }
-    }
 });
