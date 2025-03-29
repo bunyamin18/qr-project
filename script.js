@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const qrElement = document.createElement('div');
                 document.body.appendChild(qrElement);
                 
-                new QRCode(qrElement, {
+                const qr = new QRCode(qrElement, {
                     text: listUrl,
                     width: 256,
                     height: 256,
@@ -227,13 +227,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 const canvas = qrElement.querySelector('canvas');
                 if (canvas) {
                     listData.qrCode = canvas.toDataURL();
+                } else {
+                    throw new Error('QR kod oluşturulamadı');
                 }
 
                 // QR kod elementini temizle
                 document.body.removeChild(qrElement);
 
                 // Veriyi URL'e ekle
-                const finalUrl = listUrl + '&data=' + encodedData;
+                const finalUrl = listUrl + '?data=' + encodedData;
 
                 // Sayfaya yönlendir
                 window.location.href = finalUrl;

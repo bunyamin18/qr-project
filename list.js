@@ -42,26 +42,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         } catch (error) {
             console.error('URL verisi işlenirken hata:', error);
-            console.log('LocalStorage\'dan veri alınıyor...');
-        }
-    }
-
-    // Eğer URL'den veri alınamazsa, localStorage'dan al
-    if (!listData) {
-        try {
-            const storedData = localStorage.getItem(`list_${listId}`);
-            if (storedData) {
-                listData = JSON.parse(storedData);
-                console.log('LocalStorage\'dan veri alındı');
-                
-                // Veri yapısını kontrol et
-                if (!isValidListData(listData)) {
-                    throw new Error('Geçersiz liste verisi');
-                }
-            }
-        } catch (error) {
-            console.error('LocalStorage verisi işlenirken hata:', error);
-            throw error;
+            alert('Liste verisi yüklenirken bir hata oluştu');
+            window.location.href = 'index.html';
+            return;
         }
     }
 
