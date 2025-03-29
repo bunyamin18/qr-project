@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (!titleElement || !itemsList || !qrCodeImg || !editButton) {
         console.error('Required DOM elements not found');
-        redirectToHome('Gerekli elementler bulunamadı');
+        alert('Sayfa yüklenirken bir hata oluştu');
         return;
     }
 
@@ -17,7 +17,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const encodedData = urlParams.get('data');
 
     if (!listId) {
-        redirectToHome('Liste ID bulunamadı');
+        alert('Liste ID bulunamadı');
+        window.location.href = 'index.html';
         return;
     }
 
@@ -70,7 +71,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (listData) {
         displayListData(listData);
     } else {
-        redirectToHome('Liste bulunamadı');
+        alert('Liste bulunamadı');
+        window.location.href = 'index.html';
     }
 
     // Helper Functions

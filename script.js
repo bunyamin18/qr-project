@@ -1,30 +1,31 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Get DOM elements
+    // DOM elementlerini al
     const form = document.getElementById('listForm');
     const itemsContainer = document.getElementById('items');
     const addRowButton = document.getElementById('addRow');
     const saveButton = document.getElementById('saveButton');
     const titleInput = document.getElementById('listTitle');
 
+    // Kontroller
     if (!form || !itemsContainer || !addRowButton || !saveButton || !titleInput) {
-        console.error('Required DOM elements not found');
-        alert('Sayfa yüklenirken hata oluştu');
+        console.error('DOM elementleri bulunamadı');
+        alert('Sayfa yüklenirken bir hata oluştu');
         return;
     }
 
-    // Initialize
+    // Düzenleme modu kontrolü
+    let currentListData = null;
     const urlParams = new URLSearchParams(window.location.search);
     const isEditing = urlParams.get('edit') === 'true';
-    let currentListData = null;
 
-    // Load editing data if available
+    // Düzenleme modu için veri yükleme
     if (isEditing) {
         try {
             const editingData = localStorage.getItem('editingList');
             if (editingData) {
                 currentListData = JSON.parse(editingData);
-                titleInput.value = currentListData.title || '';
-                itemsContainer.innerHTML = ''; // Clear default row
+                titleInput.value = currentListData.title;
+                itemsContainer.innerHTML = '';
                 
                 if (Array.isArray(currentListData.items)) {
                     currentListData.items.forEach(item => addNewRow(item));
@@ -36,18 +37,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         } catch (error) {
-            console.error('Error loading editing data:', error);
+            console.error('Düzenleme verisi yüklenirken hata:', error);
             alert('Düzenleme verisi yüklenirken hata oluştu');
             return;
         }
     }
 
-    // Add first row if no items
+    // İlk satırı ekle
     if (itemsContainer.children.length === 0) {
         addNewRow();
     }
 
-    // Event Listeners
+    // Olay dinleyicileri
     addRowButton.addEventListener('click', () => addNewRow());
 
     itemsContainer.addEventListener('click', function(e) {
@@ -67,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     form.addEventListener('submit', handleFormSubmit);
 
-    // Helper Functions
+    // Resim yükleme fonksiyonu
     async function handleImageUpload(input) {
         if (!input.files || !input.files[0]) return;
 
@@ -94,11 +95,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 container.appendChild(preview);
             }
         } catch (error) {
-            console.error('Error handling image:', error);
+            console.error('Resim yükleme hatası:', error);
             alert('Resim yüklenirken hata oluştu');
         }
     }
 
+    // Dosya okuma fonksiyonu
     function readFileAsDataURL(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -108,10 +110,9 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Form gönderme fonksiyonu
     async function handleFormSubmit(e) {
         e.preventDefault();
-        
-        // Disable save button
         saveButton.disabled = true;
         const buttonText = saveButton.querySelector('.button-text');
         if (buttonText) {
@@ -119,33 +120,32 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
-            // Validate title
+            // Başlık kontrolü
             const title = titleInput.value.trim();
             if (!title) {
                 throw new Error('Liste başlığı boş olamaz');
             }
 
-            // Validate items
+            // Öğeler kontrolü
             const items = Array.from(itemsContainer.children);
             if (!items.length) {
                 throw new Error('En az bir öğe eklemelisiniz');
             }
 
-            // Get or create list ID
+            // Liste ID'si
             let listId = currentListData?.id;
-            
             if (!listId) {
                 listId = Date.now().toString(36) + Math.random().toString(36).substr(2);
             }
 
-            // Create list data
+            // Liste verisi oluşturma
             const listData = {
                 id: listId,
                 title: title,
                 items: []
             };
 
-            // Collect items
+            // Öğeleri ekleme
             for (const row of items) {
                 const content = row.querySelector('.item-content')?.value?.trim();
                 const quantity = row.querySelector('.item-quantity')?.value?.trim();
@@ -162,21 +162,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
 
-            // Create URL and QR code
+            // URL oluşturma
             const baseUrl = window.location.origin;
             const finalData = JSON.stringify(listData);
             const encodedData = encodeURIComponent(finalData);
             const listUrl = `${baseUrl}/list.html?id=${listId}`;
 
-            // Save data to localStorage
+            // Veriyi kaydetme
             localStorage.setItem(`list_${listId}`, finalData);
 
+            // QR kod oluşturma
             try {
                 if (typeof qrcode !== 'function') {
-                    throw new Error('QR kod kütüphanesi yüklenemedi. Lütfen sayfayı yenileyin.');
+                    throw new Error('QR kod kütüphanesi yüklenemedi');
                 }
 
-                // QR kod oluştur
                 const qr = qrcode(0, 'L');
                 qr.addData(listUrl);
                 qr.make();
@@ -186,33 +186,29 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error('QR kod oluşturulamadı');
                 }
 
-                // QR kodu listData'ya ekle
                 listData.qrCode = qrCode;
-
-                // Data'yı tekrar kaydet
                 localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
 
-                // Navigate to list view
+                // Yeni sayfaya yönlendir
                 window.location.href = `${listUrl}&data=${encodedData}`;
 
             } catch (error) {
-                console.error('Error generating QR code:', error);
+                console.error('QR kod oluşturma hatası:', error);
                 throw new Error(error.message || 'QR kod oluşturulurken hata oluştu');
             }
 
         } catch (error) {
-            console.error('Form submission error:', error);
+            console.error('Form gönderme hatası:', error);
             alert(error.message || 'Beklenmeyen bir hata oluştu');
             
-            // Re-enable save button
             saveButton.disabled = false;
-            const buttonText = saveButton.querySelector('.button-text');
             if (buttonText) {
                 buttonText.textContent = isEditing ? 'Değişiklikleri Kaydet' : 'Kaydet';
             }
         }
     }
 
+    // Yeni satır ekleme fonksiyonu
     function addNewRow(item = null) {
         const newRow = document.createElement('div');
         newRow.className = 'form-row item-row';
@@ -231,8 +227,4 @@ document.addEventListener('DOMContentLoaded', function() {
                 <input type="hidden" class="stored-image" value="${item?.image || ''}">
                 ${item?.image ? `<img src="${item.image}" class="image-preview" alt="Ürün resmi">` : ''}
             </div>
-            <button type="button" class="delete-row" title="Satırı sil">×</button>
-        `;
-        itemsContainer.appendChild(newRow);
-    }
-});
+            <button type="button" class="delete-row" title="Satırı sil">×</button
