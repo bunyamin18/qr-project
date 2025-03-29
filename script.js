@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // URL oluşturma
             const finalData = JSON.stringify(listData);
             const encodedData = encodeURIComponent(finalData);
-            const listUrl = `list.html?id=${listId}`;
+            const listUrl = 'list.html?id=' + listId;
 
             // Veriyi kaydetme
             try {
@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 listData.qrCode = qrCode;
 
                 // Yeni sayfaya yönlendir
-                window.location.href = `${listUrl}&data=${encodedData}`;
+                window.location.href = listUrl + '&data=' + encodedData;
 
             } catch (error) {
                 console.error('QR kod oluşturma hatası:', error);

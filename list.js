@@ -4,10 +4,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const itemsList = document.getElementById('itemsList');
     const qrCodeImg = document.getElementById('qrCode');
     const qrError = document.getElementById('qrError');
-    const editButton = document.querySelector('button[onclick*="edit=true"]');
+    const editButton = document.querySelector('.edit-button');
 
     // Kontroller
-    if (!titleElement || !itemsList || !qrCodeImg || !editButton) {
+    if (!titleElement || !itemsList || !qrCodeImg || !qrError || !editButton) {
         console.error('Gerekli DOM elementleri bulunamadı');
         alert('Sayfa yüklenirken bir hata oluştu');
         return;
@@ -116,7 +116,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     ${item.image ? 
                         `<div class="image-wrapper">
                             <img src="${item.image}" class="item-image" alt="Ürün resmi" style="max-width: 100px; max-height: 100px;">
-                            <div class="image-overlay"></div>
                         </div>` : 
                         '<div class="value">Resim yok</div>'
                     }
