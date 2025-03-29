@@ -15,30 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Add rows for each item
             editingData.items.forEach(item => {
-                const newRow = document.createElement('div');
-                newRow.className = 'form-group item-row';
-                newRow.innerHTML = `
-                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
-                        <div style="flex: 2;">
-                            <label>İçerik:</label>
-                            <input type="text" class="item-content" required value="${item.content}">
-                        </div>
-                        <div style="flex: 1;">
-                            <label>Miktar:</label>
-                            <input type="number" class="item-quantity" required min="1" value="${item.quantity}">
-                        </div>
-                        <div style="flex: 2;">
-                            <label>Resim:</label>
-                            <input type="file" class="item-image" accept="image/*">
-                            ${item.image ? `<img src="${item.image}" class="image-preview">` : ''}
-                            <input type="hidden" class="stored-image" value="${item.image || ''}">
-                        </div>
-                        <div style="display: flex; align-items: flex-end;">
-                            <button type="button" class="btn btn-danger delete-row">Sil</button>
-                        </div>
-                    </div>
-                `;
-                itemsContainer.appendChild(newRow);
+                addNewRow(item);
             });
         }
     }
@@ -126,27 +103,26 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = 'list.html';
     });
 
-    function addNewRow() {
+    function addNewRow(item = null) {
         const newRow = document.createElement('div');
         newRow.className = 'form-group item-row';
         newRow.innerHTML = `
-            <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
-                <div style="flex: 2;">
+            <div class="input-group">
+                <div class="input-field">
                     <label>İçerik:</label>
-                    <input type="text" class="item-content" required>
+                    <input type="text" class="item-content" required value="${item ? item.content : ''}">
                 </div>
-                <div style="flex: 1;">
+                <div class="input-field">
                     <label>Miktar:</label>
-                    <input type="number" class="item-quantity" required min="1" value="1">
+                    <input type="text" class="item-quantity" required value="${item ? item.quantity : ''}">
                 </div>
-                <div style="flex: 2;">
+                <div class="input-field">
                     <label>Resim:</label>
                     <input type="file" class="item-image" accept="image/*">
-                    <input type="hidden" class="stored-image" value="">
+                    ${item && item.image ? `<img src="${item.image}" class="image-preview">` : ''}
+                    <input type="hidden" class="stored-image" value="${item && item.image ? item.image : ''}">
                 </div>
-                <div style="display: flex; align-items: flex-end;">
-                    <button type="button" class="btn btn-danger delete-row">Sil</button>
-                </div>
+                <button type="button" class="btn btn-danger delete-row">Sil</button>
             </div>
         `;
         itemsContainer.appendChild(newRow);

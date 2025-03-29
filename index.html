@@ -1,51 +1,49 @@
-    <!DOCTYPE html>
-    <html lang="tr">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Liste Yönetimi</title>
-        <link rel="stylesheet" href="style.css">
-        <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
-    </head>
-    <body>
-        <div class="container">
-            <div class="card">
-                <h1>Yeni Liste Oluştur</h1>
-                <form id="listForm">
-                    <div class="form-group">
-                        <label for="listTitle">Liste Başlığı:</label>
-                        <input type="text" id="listTitle" required>
-                    </div>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste Oluştur</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="center-card">
+            <h1>Yeni Liste Oluştur</h1>
+            <form id="listForm">
+                <div class="form-group">
+                    <label for="listTitle">Liste Başlığı:</label>
+                    <input type="text" id="listTitle" required>
+                </div>
 
-                    <div id="items">
-                        <div class="form-group item-row">
-                            <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
-                                <div style="flex: 2;">
-                                    <label>İçerik:</label>
-                                    <input type="text" class="item-content" required>
-                                </div>
-                                <div style="flex: 1;">
-                                    <label>Miktar:</label>
-                                    <input type="number" class="item-quantity" required min="1">
-                                </div>
-                                <div style="flex: 2;">
-                                    <label>Resim:</label>
-                                    <input type="file" class="item-image" accept="image/*">
-                                </div>
-                                <div style="display: flex; align-items: flex-end;">
-                                    <button type="button" class="btn btn-danger delete-row">Sil</button>
-                                </div>
+                <div id="items">
+                    <div class="form-group item-row">
+                        <div class="input-group">
+                            <div class="input-field">
+                                <label>İçerik:</label>
+                                <input type="text" class="item-content" required>
                             </div>
+                            <div class="input-field">
+                                <label>Miktar:</label>
+                                <input type="number" class="item-quantity" required min="1">
+                            </div>
+                            <div class="input-field">
+                                <label>Resim:</label>
+                                <input type="file" class="item-image" accept="image/*">
+                            </div>
+                            <button type="button" class="btn btn-danger delete-row">Sil</button>
                         </div>
                     </div>
+                </div>
 
-                    <div class="buttons-container">
-                        <button type="button" class="btn btn-warning" id="addRow">Yeni Satır Ekle</button>
-                        <button type="submit" class="btn btn-primary">Kaydet</button>
-                    </div>
-                </form>
-            </div>
+                <div class="buttons-container">
+                    <button type="button" id="addRow" class="btn btn-warning">Yeni Satır Ekle</button>
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                </div>
+            </form>
         </div>
-        <script src="script.js"></script>
-    </body>
-    </html>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
