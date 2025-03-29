@@ -133,7 +133,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Get or create list ID
             let listId = currentListData?.id;
-            let qrCode = currentListData?.qrCode;
             
             if (!listId) {
                 listId = Date.now().toString(36) + Math.random().toString(36).substr(2);
@@ -174,46 +173,35 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Save data to localStorage
             localStorage.setItem(`list_${listId}`, finalData);
-            
-            if (!qrCode) {
-                try {
-                    if (typeof qrcode !== 'function') {
-                        throw new Error('QR kod kütüphanesi yüklenemedi. Lütfen sayfayı yenileyin.');
-                    }
 
-                    // QR kod oluştur
-                    const qr = qrcode(0, 'L');
-                    qr.addData(listUrl);
-                    qr.make();
-                    qrCode = qr.createDataURL(10);
-
-                    if (!qrCode || typeof qrCode !== 'string') {
-                        throw new Error('QR kod oluşturulamadı');
-                    }
-
-                } catch (error) {
-                    console.error('Error generating QR code:', error);
-                    throw new Error(error.message || 'QR kod oluşturulurken hata oluştu');
-                }
-            }
-
-            // Add QR code to list data
-            listData.qrCode = qrCode;
-
+            // Create QR code
             try {
-                // Save data
-                localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
-                localStorage.setItem('currentList', JSON.stringify(listData));
-
-                if (isEditing) {
-                    localStorage.removeItem('editingList');
+                if (typeof qrcode !== 'function') {
+                    throw new Error('QR kod kütüphanesi yüklenemedi. Lütfen sayfayı yenileyin.');
                 }
+
+                // QR kod oluştur
+                const qr = qrcode(0, 'L');
+                qr.addData(listUrl);
+                qr.make();
+                const qrCode = qr.createDataURL(10);
+
+                if (!qrCode || typeof qrCode !== 'string') {
+                    throw new Error('QR kod oluşturulamadı');
+                }
+
+                // QR kodu listData'ya ekle
+                listData.qrCode = qrCode;
+
+                // Data'yı tekrar kaydet
+                localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
 
                 // Navigate to list view
                 window.location.href = `${listUrl}&data=${encodedData}`;
+
             } catch (error) {
-                console.error('Error saving to localStorage:', error);
-                throw new Error('Liste kaydedilirken hata oluştu');
+                console.error('Error generating QR code:', error);
+                throw new Error(error.message || 'QR kod oluşturulurken hata oluştu');
             }
 
         } catch (error) {
