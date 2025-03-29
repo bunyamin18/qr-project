@@ -24,7 +24,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // URL parametrelerini al
     const urlParams = new URLSearchParams(window.location.search);
     const listId = urlParams.get('id');
-    const encodedData = urlParams.get('data');
 
     // Liste ID kontrolü
     if (!listId) {
@@ -36,12 +35,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Liste verisini al
     let listData = null;
 
-    // İlk olarak URL'den veri al
-    if (encodedData) {
-        try {
-            const decodedString = decodeURIComponent(encodedData);
-            listData = JSON.parse(decodedString);
-            console.log('URL\'den veri alındı');
+    // localStorage'dan veri al
+    try {
+        const storedData = localStorage.getItem(`list_${listId}`);
+        if (storedData) {
+            listData = JSON.parse(storedData);
+            console.log('LocalStorage'dan veri alındı');
             
             // Veri yapısını kontrol et
             if (!isValidListData(listData)) {
@@ -61,20 +60,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('QR kod oluşturulamadı');
             });
 
-        } catch (error) {
-            console.error('URL verisi işlenirken hata:', error);
-            alert('Liste verisi yüklenirken bir hata oluştu');
-            window.location.href = 'index.html';
-            return;
+        } else {
+            throw new Error('Liste bulunamadı');
         }
-    } else {
-        alert('Liste bulunamadı');
+    } catch (error) {
+        console.error('Veri yükleme hatası:', error);
+        alert('Liste verisi yüklenirken bir hata oluştu');
         window.location.href = 'index.html';
+        return;
     }
 
     // Düzenleme butonu event listener'ı ekle
     editButton.onclick = () => {
-        window.location.href = `index.html?edit=true&data=${encodeURIComponent(JSON.stringify(listData))}`;
+        window.location.href = `index.html?edit=true&id=${listId}`;
     };
 });
 

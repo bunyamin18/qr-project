@@ -9,146 +9,98 @@
     <style>
         body {
             margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(135deg, #00bcd4, #80deea);
+            padding: 20px;
             font-family: 'Segoe UI', sans-serif;
+            background-color: #f5f5f5;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
-            background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
-            border-radius: 20px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
-            text-align: center;
-            color: #006064;
+            margin-top: 0;
             margin-bottom: 30px;
-            font-size: 28px;
+            color: #333;
         }
 
         .form-group {
             margin-bottom: 20px;
         }
 
-        .form-group label {
+        label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #00838f;
+            margin-bottom: 10px;
+            color: #666;
         }
 
-        .form-group input {
+        input {
             width: 100%;
             padding: 8px;
+            margin-bottom: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            font-size: 16px;
         }
 
         .items-container {
-            margin: 20px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 15px;
+            margin-bottom: 20px;
         }
 
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr auto;
-            gap: 15px;
-            margin-bottom: 15px;
-            padding: 10px;
-            border: 1px solid #eee;
-            border-radius: 4px;
-            background: white;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-        }
-
-        .item-content-container,
-        .item-value-container,
-        .item-image-container {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .item-image-container input[type="file"] {
-            margin-top: 5px;
-        }
-
-        .image-preview {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            border-radius: 4px;
-            margin-top: 5px;
-            border: 3px solid white;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .delete-row {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: bold;
-            position: absolute;
-            right: -10px;
-            top: -10px;
-            width: 30px;
-            height: 30px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        .delete-row:hover {
-            background-color: #c82333;
-            transform: scale(1.1);
-        }
-
-        .button-group {
+        .item-row {
             display: flex;
             gap: 10px;
-            margin-top: 20px;
-            justify-content: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
         }
 
-        .add-row-button,
-        .save-button {
-            padding: 10px 20px;
+        .item-row input {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
             border: none;
+            padding: 8px 16px;
             border-radius: 4px;
-            font-size: 16px;
             cursor: pointer;
             transition: background-color 0.3s;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        .add-item, .save-button, .edit-button {
+            background: #007bff;
             color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
 
-        .add-row-button {
-            background-color: #28a745;
+        .add-item:hover, .save-button:hover, .edit-button:hover {
+            background: #0056b3;
         }
 
-        .add-row-button:hover {
-            background-color: #218838;
-            transform: translateY(-2px);
+        .qr-container {
+            margin-top: 30px;
+            text-align: center;
         }
 
-        .save-button {
-            background-color: #007bff;
-        }
-
-        .save-button:hover {
-            background-color: #0056b3;
-            transform: translateY(-2px);
+        .qr-container img {
+            max-width: 256px;
+            max-height: 256px;
         }
     </style>
 </head>
@@ -162,15 +114,18 @@
                 <input type="text" id="listTitle" required>
             </div>
 
-            <div id="items" class="items-container">
-                <!-- Öğeler buraya eklenecek -->
+            <div class="form-group">
+                <label for="addItem">Yeni Öğe Ekle</label>
+                <div class="items-container" id="itemsContainer">
+                    <!-- Öğeler buraya eklenecek -->
+                </div>
+                <button type="button" class="add-item">Yeni Öğe Ekle</button>
             </div>
 
-            <div class="button-group">
-                <button type="button" id="addRow" class="add-row-button">Yeni Öğe Ekle</button>
-                <button type="submit" id="saveButton" class="save-button">Kaydet</button>
-            </div>
+            <button type="submit" class="save-button">Listeyi Kaydet</button>
         </form>
+        <div class="qr-container" id="qrContainer"></div>
+        <button type="button" class="edit-button" id="editButton">Listeyi Düzenle</button>
     </div>
     <script src="script.js"></script>
 </body>

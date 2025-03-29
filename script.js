@@ -198,13 +198,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
 
-            // Veriyi URL'e ekle
-            const finalData = JSON.stringify(listData);
-            const encodedData = encodeURIComponent(finalData);
-            const finalUrl = `list.html?id=${listId}&data=${encodedData}`;
+            // Veriyi localStorage'a kaydet
+            try {
+                localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
+            } catch (error) {
+                console.error('LocalStorage kaydetme hatası:', error);
+                throw new Error('Liste verisi kaydedilemedi');
+            }
 
             // Sayfaya yönlendir
-            window.location.href = finalUrl;
+            window.location.href = `list.html?id=${listId}`;
 
         } catch (error) {
             console.error('Form gönderme hatası:', error);
