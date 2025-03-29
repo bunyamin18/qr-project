@@ -74,6 +74,15 @@ document.addEventListener('DOMContentLoaded', function() {
     editButton.onclick = () => {
         window.location.href = `index.html?edit=true&id=${listId}`;
     };
+
+    // Düzenleme butonunu ve stilini düzelt
+    editButton.textContent = 'Düzenle';
+    editButton.style.backgroundColor = '#4CAF50';
+    editButton.style.color = '#ffffff';
+    editButton.style.padding = '10px 20px';
+    editButton.style.border = 'none';
+    editButton.style.borderRadius = '5px';
+    editButton.style.cursor = 'pointer';
 });
 
 // Veri yapısını kontrol et
