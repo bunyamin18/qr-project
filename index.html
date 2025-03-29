@@ -139,7 +139,7 @@
 <body>
     <div class="main-container">
         <h1>Liste Oluştur</h1>
-        <form id="listForm">
+        <form id="listForm" onsubmit="return false;">
             <div class="form-row">
                 <div class="input-group content-field">
                     <label for="listTitle">Liste Başlığı:</label>
@@ -160,6 +160,7 @@
                     <div class="input-group">
                         <label>Resim:</label>
                         <input type="file" class="item-image" accept="image/*">
+                        <input type="hidden" class="stored-image">
                     </div>
                     <button type="button" class="delete-row">×</button>
                 </div>
