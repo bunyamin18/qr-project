@@ -161,10 +161,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Keep existing QR code when editing
                 if (isEditing && existingQrCode) {
                     listData.qrCode = existingQrCode;
-                } else {
-                    // Generate new QR code with full URL
+                } 
+
+                // Save data first
+                const finalData = JSON.stringify(listData);
+                const encodedData = encodeURIComponent(finalData);
+
+                // Generate QR code if new list or update existing one
+                if (!isEditing || !existingQrCode) {
                     const qr = qrcode(0, 'L');
-                    const listUrl = `${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/list.html?id=${listId}`;
+                    const baseUrl = `${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}`;
+                    const listUrl = `${baseUrl}/list.html?id=${listId}&data=${encodedData}`;
                     
                     qr.addData(listUrl);
                     qr.make();
@@ -172,17 +179,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     listData.qrCode = qr.createDataURL(10);
                 }
 
-                // Save data to localStorage
-                const finalData = JSON.stringify(listData);
-                localStorage.setItem(`list_${listId}`, finalData);
-                localStorage.setItem('currentList', finalData);
+                // Save to localStorage
+                localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
+                localStorage.setItem('currentList', JSON.stringify(listData));
 
                 if (isEditing) {
                     localStorage.removeItem('editingList');
                 }
 
-                // Redirect to list view with data in URL
-                const encodedData = encodeURIComponent(finalData);
+                // Redirect to list view with data
                 window.location.href = `list.html?id=${listId}&data=${encodedData}`;
 
             } catch (error) {

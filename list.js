@@ -33,6 +33,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (storedData) {
                 listData = JSON.parse(storedData);
                 console.log('Got data from localStorage:', listData);
+                
+                // Redirect with data in URL
+                const encodedData = encodeURIComponent(storedData);
+                window.location.href = `list.html?id=${listId}&data=${encodedData}`;
+                return;
             }
         } catch (e) {
             console.error('Error getting data from localStorage:', e);
@@ -48,6 +53,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (currentData.id === listId) {
                     listData = currentData;
                     console.log('Got data from currentList:', listData);
+                    
+                    // Redirect with data in URL
+                    const encodedData = encodeURIComponent(currentList);
+                    window.location.href = `list.html?id=${listId}&data=${encodedData}`;
+                    return;
                 }
             }
         } catch (e) {
@@ -85,26 +95,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Display QR code
         const qrCodeImg = document.getElementById('qrCode');
-        if (qrCodeImg) {
-            if (listData.qrCode) {
-                qrCodeImg.src = listData.qrCode;
-                console.log('QR code set from listData');
-            } else {
-                // Generate QR code if not exists
-                const qr = qrcode(0, 'L');
-                const listUrl = `${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/list.html?id=${listId}`;
-                
-                qr.addData(listUrl);
-                qr.make();
-                
-                const qrDataUrl = qr.createDataURL(10);
-                qrCodeImg.src = qrDataUrl;
-                
-                // Save QR code
-                listData.qrCode = qrDataUrl;
-                localStorage.setItem(`list_${listData.id}`, JSON.stringify(listData));
-                console.log('Generated new QR code');
-            }
+        if (qrCodeImg && listData.qrCode) {
+            qrCodeImg.src = listData.qrCode;
+            console.log('QR code set from listData');
         }
 
         // Update edit button
