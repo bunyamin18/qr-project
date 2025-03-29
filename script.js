@@ -52,7 +52,7 @@ document.getElementById('saveList').addEventListener('click', function() {
     const listData = JSON.stringify(items);
     localStorage.setItem('itemList', listData); // Listeyi localStorage'a kaydet
 
-    const qrCodeUrl = 'https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(location.href + '?list=' + btoa(listData));
+    const qrCodeUrl = 'https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(location.href.replace('index.html', 'list.html') + '?list=' + btoa(listData));
     qrCodeContainer.innerHTML = `<img src="${qrCodeUrl}" alt="QR Kodu">`;
 });
 

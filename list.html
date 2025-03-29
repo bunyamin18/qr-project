@@ -1,37 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste Görüntüleyici</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <title>Liste Görüntüleme</title>
 </head>
 <body>
     <div class="container">
-        <div class="list-header">
-            <h1 id="list-title">Liste Adı</h1>
-        </div>
-        <div class="list-content">
-            <table id="list-table">
-                <thead>
-                    <tr>
-                        <th>Ne Olduğu</th>
-                        <th>Miktarı/Değeri</th>
-                        <th>Resim</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Dinamik olarak satırlar eklenecek -->
-                </tbody>
-            </table>
-        </div>
-        <div class="actions">
-            <button id="edit-list">Listeyi Düzenle</button>
-        </div>
-        <div id="qr-code" class="qr-code">
-            <!-- QR kodu burada görüntülenecek -->
-        </div>
+        <h1>Liste Görüntüleme</h1>
+        <table id="itemTable">
+            <thead>
+                <tr>
+                    <th>Öğe Adı</th>
+                    <th>Miktar/Değer</th>
+                    <th>Resim</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Liste Öğeleri Buraya Eklenecek -->
+            </tbody>
+        </table>
+        <button id="editList">Düzenle</button>
     </div>
     <script src="list.js"></script>
 </body>
