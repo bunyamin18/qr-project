@@ -188,8 +188,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     localStorage.removeItem('editingList');
                 }
 
-                // Redirect to list view with just ID
-                window.location.href = `list.html?id=${listId}`;
+                // Redirect to list view with data in URL
+                const encodedData = encodeURIComponent(finalData);
+                window.location.href = `list.html?id=${listId}&data=${encodedData}`;
 
             } catch (error) {
                 console.error('Error saving list:', error);
