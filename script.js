@@ -161,19 +161,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Create URL and QR code
             const baseUrl = window.location.origin;
-            const finalData = {
-                id: listId,
-                title: title,
-                items: listData.items.map(item => ({
-                    content: item.content,
-                    quantity: item.quantity,
-                    image: item.image
-                }))
-            };
-
-            // URL'yi daha küçük hale getirmek için veriyi sıkıştır
-            const compressedData = JSON.stringify(finalData);
-            const encodedData = btoa(compressedData);
+            const finalData = JSON.stringify(listData);
+            const encodedData = encodeURIComponent(finalData);
             const listUrl = `${baseUrl}/list.html?id=${listId}&data=${encodedData}`;
 
             if (!qrCode) {
@@ -183,29 +172,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
 
                     // QR kod oluştur
-                    const typeNumber = 4; // Daha büyük tip numarası
-                    const errorCorrectionLevel = 'M'; // Daha yüksek hata düzeltme seviyesi
-                    const qr = qrcode(typeNumber, errorCorrectionLevel);
+                    const qr = qrcode(0, 'L');
                     qr.addData(listUrl);
                     qr.make();
                     qrCode = qr.createDataURL(10);
 
                     if (!qrCode || typeof qrCode !== 'string') {
                         throw new Error('QR kod oluşturulamadı');
-                    }
-
-                    // QR kodu test et
-                    if (qrCode.startsWith('data:image/png;base64,')) {
-                        console.log('QR kod başarıyla oluşturuldu');
-                    } else {
-                        throw new Error('Geçersiz QR kod formatı');
-                    }
-
-                    // QR kodun boyutunu kontrol et
-                    const qrSize = qrCode.length;
-                    console.log(`QR kod boyutu: ${qrSize} karakter`);
-                    if (qrSize > 100000) { // 100KB sınır
-                        throw new Error('QR kod çok büyük');
                     }
 
                 } catch (error) {

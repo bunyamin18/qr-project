@@ -27,9 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // First try URL data
     if (encodedData) {
         try {
-            // Base64'den çöz
-            const decodedData = atob(encodedData);
-            listData = JSON.parse(decodedData);
+            listData = JSON.parse(decodeURIComponent(encodedData));
             console.log('Got data from URL');
             
             // Validate data structure
