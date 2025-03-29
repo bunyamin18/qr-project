@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 // Resmi Base64'den sıkıştır
-                const compressedImage = storedImage ? storedImage.substring(0, 1000) : '';
+                const compressedImage = storedImage ? storedImage.substring(0, 2000) : '';
                 
                 listData.items.push({ 
                     content: content.substring(0, 50),
@@ -170,8 +170,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const baseUrl = window.location.origin;
             const finalData = JSON.stringify(listData);
             const encodedData = encodeURIComponent(finalData);
-            const listUrl = `${baseUrl}/list.html?id=${listId}&data=${encodedData}`;
+            const listUrl = `${baseUrl}/list.html?id=${listId}`;
 
+            // Save data to localStorage
+            localStorage.setItem(`list_${listId}`, finalData);
+            
             if (!qrCode) {
                 try {
                     if (typeof qrcode !== 'function') {
@@ -207,7 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 // Navigate to list view
-                window.location.href = listUrl;
+                window.location.href = `${listUrl}&data=${encodedData}`;
             } catch (error) {
                 console.error('Error saving to localStorage:', error);
                 throw new Error('Liste kaydedilirken hata oluştu');
