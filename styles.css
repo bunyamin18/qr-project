@@ -1,21 +1,25 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
+    background-color: #e0f7fa; /* Yumuşak mavi arka plan */
     color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
 }
 
 .container {
     max-width: 600px;
-    margin: auto;
     padding: 20px;
     background-color: white;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
 }
 
 h1 {
     text-align: center;
-    color: #4CAF50;
+    color: #00796b; /* Modern bir başlık rengi */
 }
 
 .input-section {
@@ -33,24 +37,31 @@ input[type="text"], input[type="number"] {
 
 button {
     padding: 10px 15px;
-    background-color: #4CAF50;
+    background-color: #00796b; /* Buton rengi */
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 button:hover {
-    background-color: #45a049;
+    background-color: #004d40; /* Buton hover rengi */
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
+    margin-bottom: 20px;
 }
 
 th, td {
     padding: 10px;
     text-align: left;
     border-bottom: 1px solid #ddd;
+}
+
+#qrCode {
+    text-align: center; /* QR kodu ortala */
+    margin-top: 20px;
 }

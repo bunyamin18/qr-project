@@ -1,5 +1,14 @@
 let items = [];
 
+// Mevcut listeyi yükle
+function loadList() {
+    const storedList = localStorage.getItem('itemList');
+    if (storedList) {
+        items = JSON.parse(storedList);
+        updateTable();
+    }
+}
+
 document.getElementById('addItem').addEventListener('click', function() {
     const name = document.getElementById('itemName').value;
     const value = document.getElementById('itemValue').value;
@@ -22,7 +31,7 @@ document.getElementById('addItem').addEventListener('click', function() {
 function updateTable() {
     const tbody = document.getElementById('itemTable').querySelector('tbody');
     tbody.innerHTML = '';
-    items.forEach((item, index) => {
+    items.forEach((item) => {
         const row = `<tr>
             <td>${item.name}</td>
             <td>${item.value}</td>
@@ -41,6 +50,11 @@ function clearInputs() {
 document.getElementById('saveList').addEventListener('click', function() {
     const qrCodeContainer = document.getElementById('qrCode');
     const listData = JSON.stringify(items);
-    const qrCodeUrl = 'https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(listData);
+    localStorage.setItem('itemList', listData); // Listeyi localStorage'a kaydet
+
+    const qrCodeUrl = 'https://api.qrserver.com/v1/create-qr-code/?data=' + encodeURIComponent(location.href + '?list=' + btoa(listData));
     qrCodeContainer.innerHTML = `<img src="${qrCodeUrl}" alt="QR Kodu">`;
 });
+
+// Sayfa yüklendiğinde listeyi yükle
+loadList();
