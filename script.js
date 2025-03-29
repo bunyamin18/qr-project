@@ -73,6 +73,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 alert('Liste verisi yüklenirken bir hata oluştu');
             });
     }
+
+    // İlk satırı ekle
+    if (itemsContainer.children.length === 0) {
+        addItem();
+    }
 });
 
 // Yeni öğe ekleme fonksiyonu
@@ -198,7 +203,7 @@ function handleFormSubmit(event) {
 
         // Veriyi JSON dosyasına kaydet
         fetch(`data/${listId}.json`, {
-            method: 'PUT',
+            method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
@@ -208,10 +213,11 @@ function handleFormSubmit(event) {
             if (!response.ok) {
                 throw new Error('Veri kaydedilemedi');
             }
-
+            return response.json();
+        })
+        .then(data => {
             // Sayfaya yönlendir
             window.location.href = `list.html?id=${listId}`;
-
         })
         .catch(error => {
             console.error('Veri kaydetme hatası:', error);
