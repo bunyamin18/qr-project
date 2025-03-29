@@ -1,66 +1,114 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Get list ID and data from URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const listId = urlParams.get('id');
-    const encodedData = urlParams.get('data');
-    
-    if (!listId) {
-        console.error('No list ID found in URL');
-        window.location.href = 'index.html';
+    // Get DOM elements
+    const titleElement = document.getElementById('listTitle');
+    const itemsList = document.getElementById('itemsList');
+    const qrCodeImg = document.getElementById('qrCode');
+    const editButton = document.querySelector('button[onclick*="edit=true"]');
+
+    if (!titleElement || !itemsList || !qrCodeImg || !editButton) {
+        console.error('Required DOM elements not found');
+        redirectToHome('Gerekli elementler bulunamadı');
         return;
     }
 
-    // Try to get list data from URL first
+    // Get URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const listId = urlParams.get('id');
+    const encodedData = urlParams.get('data');
+
+    if (!listId) {
+        redirectToHome('Liste ID bulunamadı');
+        return;
+    }
+
+    // Try to get list data
     let listData = null;
-    
+
+    // First try URL data
     if (encodedData) {
         try {
             listData = JSON.parse(decodeURIComponent(encodedData));
-            console.log('Got data from URL:', listData);
+            console.log('Got data from URL');
             
+            // Validate data structure
+            if (!isValidListData(listData)) {
+                throw new Error('Geçersiz liste verisi');
+            }
+
             // Save to localStorage for future use
             localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
             localStorage.setItem('currentList', JSON.stringify(listData));
-        } catch (e) {
-            console.error('Error parsing URL data:', e);
+        } catch (error) {
+            console.error('Error parsing URL data:', error);
         }
     }
-    
-    // If no data in URL, try localStorage
+
+    // If no URL data, try localStorage
     if (!listData) {
         try {
             const storedData = localStorage.getItem(`list_${listId}`);
             if (storedData) {
                 listData = JSON.parse(storedData);
-                console.log('Got data from localStorage:', listData);
+                console.log('Got data from localStorage');
+                
+                // Validate data structure
+                if (!isValidListData(listData)) {
+                    throw new Error('Geçersiz liste verisi');
+                }
             }
-        } catch (e) {
-            console.error('Error getting data from localStorage:', e);
+        } catch (error) {
+            console.error('Error getting data from localStorage:', error);
         }
     }
-    
+
+    // Display list data if available
     if (listData) {
+        displayListData(listData);
+    } else {
+        redirectToHome('Liste bulunamadı');
+    }
+
+    // Helper Functions
+    function isValidListData(data) {
+        return (
+            data &&
+            typeof data === 'object' &&
+            typeof data.id === 'string' &&
+            typeof data.title === 'string' &&
+            Array.isArray(data.items) &&
+            data.items.every(item => 
+                item &&
+                typeof item === 'object' &&
+                typeof item.content === 'string' &&
+                typeof item.quantity === 'string'
+            )
+        );
+    }
+
+    function displayListData(data) {
         // Set title
-        document.getElementById('listTitle').textContent = listData.title;
+        titleElement.textContent = data.title;
         
         // Display items
-        const itemsList = document.getElementById('itemsList');
-        listData.items.forEach(item => {
+        data.items.forEach(item => {
             const row = document.createElement('div');
             row.className = 'list-row';
             
             row.innerHTML = `
                 <div class="content">
                     <span class="label">İçerik</span>
-                    <div class="value">${item.content}</div>
+                    <div class="value">${escapeHtml(item.content)}</div>
                 </div>
                 <div class="quantity">
                     <span class="label">Miktar</span>
-                    <div class="value">${item.quantity}</div>
+                    <div class="value">${escapeHtml(item.quantity)}</div>
                 </div>
                 <div class="image-container">
                     <span class="label">Resim</span>
-                    ${item.image ? `<img src="${item.image}" class="item-image" alt="Ürün resmi">` : '<div class="value">Resim yok</div>'}
+                    ${item.image ? 
+                        `<img src="${item.image}" class="item-image" alt="Ürün resmi" onerror="this.style.display='none'">` : 
+                        '<div class="value">Resim yok</div>'
+                    }
                 </div>
             `;
             
@@ -68,24 +116,35 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Display QR code
-        const qrCodeImg = document.getElementById('qrCode');
-        if (qrCodeImg && listData.qrCode) {
-            qrCodeImg.src = listData.qrCode;
+        if (data.qrCode) {
+            qrCodeImg.src = data.qrCode;
             qrCodeImg.style.display = 'block';
-            console.log('Using saved QR code');
+            console.log('QR code displayed');
+        } else {
+            qrCodeImg.style.display = 'none';
+            console.log('No QR code available');
         }
 
         // Update edit button
-        const editButton = document.querySelector('button[onclick*="edit=true"]');
-        if (editButton) {
-            editButton.onclick = () => {
-                localStorage.setItem('editingList', JSON.stringify(listData));
-                window.location.href = 'index.html?edit=true';
-            };
+        editButton.onclick = () => {
+            localStorage.setItem('editingList', JSON.stringify(data));
+            window.location.href = 'index.html?edit=true';
+        };
+    }
+
+    function escapeHtml(unsafe) {
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function redirectToHome(message) {
+        if (message) {
+            alert(message);
         }
-    } else {
-        console.error('No list data found for ID:', listId);
-        alert('Liste bulunamadı');
         window.location.href = 'index.html';
     }
 });
