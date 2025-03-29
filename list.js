@@ -9,22 +9,18 @@
     <style>
         body {
             margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(135deg, #00bcd4, #80deea);
+            padding: 20px;
             font-family: 'Segoe UI', sans-serif;
+            background-color: #f5f5f5;
         }
 
         .container {
             width: 90%;
             max-width: 800px;
             margin: 20px auto;
-            background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
-            padding: 30px;
-            border-radius: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
 
@@ -58,40 +54,78 @@
         }
 
         .list-content {
-            display: flex;
-            gap: 20px;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
         }
 
-        .items-section {
-            flex: 2;
+        .items-section, .qr-section {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
         }
 
-        .items-section h2 {
+        .items-section h2, .qr-section h2 {
             color: #006064;
             margin-bottom: 15px;
         }
 
         .items-list {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .list-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+
+        .label {
+            color: #00838f;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .value {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .image-wrapper {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .item-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
         }
 
         .qr-section {
-            flex: 1;
-        }
-
-        .qr-section h2 {
-            color: #006064;
-            margin-bottom: 15px;
-        }
-
-        #qrContainer {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         #qrCode {

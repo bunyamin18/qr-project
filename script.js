@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 // Resmi Base64'den sıkıştır
-                const compressedImage = storedImage ? storedImage.substring(0, 5000) : '';
+                const compressedImage = storedImage ? storedImage.substring(0, 1000) : '';
                 
                 listData.items.push({ 
                     content: content.substring(0, 50),
