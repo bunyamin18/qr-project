@@ -155,13 +155,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error('Lütfen tüm içerik ve miktar alanlarını doldurun');
                 }
 
-                // Resmi Base64'den sıkıştır
-                const compressedImage = storedImage ? storedImage.substring(0, 1000) : '';
-                
                 listData.items.push({ 
                     content: content.substring(0, 50),
                     quantity: quantity.substring(0, 10),
-                    image: compressedImage 
+                    image: storedImage 
                 });
             }
 
@@ -174,7 +171,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Save data to localStorage
             localStorage.setItem(`list_${listId}`, finalData);
 
-            // Create QR code
             try {
                 if (typeof qrcode !== 'function') {
                     throw new Error('QR kod kütüphanesi yüklenemedi. Lütfen sayfayı yenileyin.');

@@ -1,197 +1,158 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste Görüntüleme</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #f5f5f5;
-        }
+document.addEventListener('DOMContentLoaded', function() {
+    // Get DOM elements
+    const titleElement = document.getElementById('listTitle');
+    const itemsList = document.getElementById('itemsList');
+    const qrCodeImg = document.getElementById('qrCode');
+    const editButton = document.querySelector('button[onclick*="edit=true"]');
 
-        .container {
-            width: 90%;
-            max-width: 800px;
-            margin: 20px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
+    if (!titleElement || !itemsList || !qrCodeImg || !editButton) {
+        console.error('Required DOM elements not found');
+        redirectToHome('Gerekli elementler bulunamadı');
+        return;
+    }
 
-        .list-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
+    // Get URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const listId = urlParams.get('id');
+    const encodedData = urlParams.get('data');
 
-        .list-header h1 {
-            text-align: center;
-            color: #006064;
-            margin-bottom: 0;
-            font-size: 28px;
-        }
+    if (!listId) {
+        redirectToHome('Liste ID bulunamadı');
+        return;
+    }
 
-        .list-header button {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            color: white;
-            transition: transform 0.2s;
-            background: linear-gradient(135deg, #4dd0e1, #00acc1);
-        }
+    // Try to get list data
+    let listData = null;
 
-        .list-header button:hover {
-            transform: translateY(-2px);
-        }
+    // First try URL data
+    if (encodedData) {
+        try {
+            // URL encoded string'i decode et
+            const decodedString = decodeURIComponent(encodedData);
+            listData = JSON.parse(decodedString);
+            console.log('Got data from URL');
+            
+            // Validate data structure
+            if (!isValidListData(listData)) {
+                throw new Error('Geçersiz liste verisi');
+            }
 
-        .list-content {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
+            // Save to localStorage for future use
+            localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
+            localStorage.setItem('currentList', JSON.stringify(listData));
+        } catch (error) {
+            console.error('Error parsing URL data:', error);
+            // URL'den veri alınamazsa, localStorage'dan deneyelim
+            console.log('Trying to get data from localStorage...');
         }
+    }
 
-        .items-section, .qr-section {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    // If no URL data, try localStorage
+    if (!listData) {
+        try {
+            const storedData = localStorage.getItem(`list_${listId}`);
+            if (storedData) {
+                listData = JSON.parse(storedData);
+                console.log('Got data from localStorage');
+                
+                // Validate data structure
+                if (!isValidListData(listData)) {
+                    throw new Error('Geçersiz liste verisi');
+                }
+            }
+        } catch (error) {
+            console.error('Error getting data from localStorage:', error);
+            throw error;
         }
+    }
 
-        .items-section h2, .qr-section h2 {
-            color: #006064;
-            margin-bottom: 15px;
-        }
+    // Display list data if available
+    if (listData) {
+        displayListData(listData);
+    } else {
+        redirectToHome('Liste bulunamadı');
+    }
 
-        .items-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
+    // Helper Functions
+    function isValidListData(data) {
+        return (
+            data &&
+            typeof data === 'object' &&
+            typeof data.id === 'string' &&
+            typeof data.title === 'string' &&
+            Array.isArray(data.items) &&
+            data.items.every(item => 
+                item &&
+                typeof item === 'object' &&
+                typeof item.content === 'string' &&
+                typeof item.quantity === 'string'
+            )
+        );
+    }
 
-        .list-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 20px;
-            padding: 15px;
-            border-radius: 10px;
-            background: #f8f9fa;
-        }
-
-        .label {
-            color: #00838f;
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
-
-        .value {
-            font-size: 16px;
-            color: #333;
-        }
-
-        .image-wrapper {
-            position: relative;
-            width: 100px;
-            height: 100px;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .item-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .image-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-        }
-
-        .qr-section {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        #qrCode {
-            width: 200px;
-            height: 200px;
-            margin: 10px 0;
-            display: none;
-        }
-
-        .action-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 30px;
-        }
-
-        .action-buttons button {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            color: white;
-            transition: transform 0.2s;
-        }
-
-        .action-buttons button:hover {
-            transform: translateY(-2px);
-        }
-
-        .action-buttons button:first-child {
-            background: linear-gradient(135deg, #00bcd4, #0097a7);
-        }
-
-        .action-buttons button:last-child {
-            background: linear-gradient(135deg, #4dd0e1, #00acc1);
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="list-header">
-            <h1 id="listTitle"></h1>
-            <button onclick="window.location.href='index.html'">Yeni Liste</button>
-        </div>
+    function displayListData(data) {
+        // Set title
+        titleElement.textContent = data.title;
         
-        <div class="list-content">
-            <div class="items-section">
-                <h2>Ürünler</h2>
-                <div id="itemsList" class="items-list"></div>
-            </div>
-
-            <div class="qr-section">
-                <h2>QR Kod</h2>
-                <div id="qrContainer">
-                    <img id="qrCode" src="" alt="QR Kod" style="display: none;">
+        // Display items
+        data.items.forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'list-row';
+            
+            row.innerHTML = `
+                <div class="content">
+                    <span class="label">İçerik</span>
+                    <div class="value">${escapeHtml(item.content)}</div>
                 </div>
-            </div>
-        </div>
+                <div class="quantity">
+                    <span class="label">Miktar</span>
+                    <div class="value">${escapeHtml(item.quantity)}</div>
+                </div>
+                <div class="image-container">
+                    <span class="label">Resim</span>
+                    ${item.image ? 
+                        `<div class="image-wrapper">
+                            <img src="${item.image}" class="item-image" alt="Ürün resmi" style="max-width: 100px; max-height: 100px;">
+                            <div class="image-overlay"></div>
+                        </div>` : 
+                        '<div class="value">Resim yok</div>'
+                    }
+                </div>
+            `;
+            
+            itemsList.appendChild(row);
+        });
 
-        <div class="action-buttons">
-            <button onclick="window.location.href='index.html?edit=true'">Düzenle</button>
-            <button onclick="window.location.href='index.html'">Ana Sayfa</button>
-        </div>
-    </div>
+        // Display QR code
+        if (data.qrCode) {
+            qrCodeImg.src = data.qrCode;
+            qrCodeImg.style.display = 'block';
+            console.log('QR code displayed');
+        } else {
+            qrCodeImg.style.display = 'none';
+            console.log('No QR code available');
+        }
 
-    <script src="list.js"></script>
-</body>
-</html>
+        // Update edit button
+        editButton.onclick = () => {
+            localStorage.setItem('editingList', JSON.stringify(data));
+            window.location.href = 'index.html?edit=true';
+        };
+    }
+
+    function escapeHtml(unsafe) {
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function redirectToHome(message) {
+        if (message) {
+            alert(message);
+        }
+        window.location.href = 'index.html';
+    }
+});
