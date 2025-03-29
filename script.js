@@ -213,12 +213,12 @@ document.addEventListener('DOMContentLoaded', function() {
             // QR kod oluşturma
             try {
                 // QR kod kütüphanesini kontrol et
-                if (typeof qrcode !== 'function') {
+                if (typeof QRCode === 'undefined') {
                     throw new Error('QR kod kütüphanesi yüklenemedi');
                 }
 
                 // QR kod oluştur
-                const qr = qrcode(0, 'L');
+                const qr = QRCode(0, 'L');
                 qr.addData(listUrl);
                 qr.make();
                 
