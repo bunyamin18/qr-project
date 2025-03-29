@@ -3,25 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
     <title>Liste Görüntüleme</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Liste Görüntüleme</h1>
-        <table id="itemTable">
-            <thead>
-                <tr>
-                    <th>Öğe Adı</th>
-                    <th>Miktar/Değer</th>
-                    <th>Resim</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Liste Öğeleri Buraya Eklenecek -->
-            </tbody>
-        </table>
-        <button id="editList">Düzenle</button>
+        <div class="card">
+            <h1 id="listTitleDisplay"></h1>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>İçerik</th>
+                        <th>Miktar</th>
+                        <th>Resim</th>
+                    </tr>
+                </thead>
+                <tbody id="listItems">
+                </tbody>
+            </table>
+
+            <div id="qrCode"></div>
+
+            <div class="buttons-container">
+                <button class="btn btn-warning" id="editButton">Düzenle</button>
+                <button class="btn btn-primary" onclick="window.location.href='index.html'">Yeni Liste</button>
+            </div>
+        </div>
     </div>
     <script src="list.js"></script>
 </body>
