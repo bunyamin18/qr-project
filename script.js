@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }))
             };
 
-            // URL'yi daha kısa hale getirmek için veriyi sıkıştır
+            // URL'yi daha küçük hale getirmek için veriyi sıkıştır
             const compressedData = JSON.stringify(finalData);
             const encodedData = btoa(compressedData);
             const listUrl = `${baseUrl}/list.html?id=${listId}&data=${encodedData}`;
@@ -207,6 +207,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (qrSize > 100000) { // 100KB sınır
                         throw new Error('QR kod çok büyük');
                     }
+
                 } catch (error) {
                     console.error('Error generating QR code:', error);
                     throw new Error(error.message || 'QR kod oluşturulurken hata oluştu');
