@@ -226,4 +226,11 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="input-group">
                 <label>Resim:</label>
                 <input type="file" class="item-image" accept="image/*">
-                <input type="hidden" class="stored-image" value="${item?.image || ''
+                <input type="hidden" class="stored-image" value="${item?.image || ''}">
+                ${item?.image ? `<img src="${item.image}" class="image-preview" alt="Ürün resmi">` : ''}
+            </div>
+            <button type="button" class="delete-row" title="Satırı sil">×</button>
+        `;
+        itemsContainer.appendChild(newRow);
+    }
+});
