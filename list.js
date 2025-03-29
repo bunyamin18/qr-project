@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 // Generate QR code if not exists
                 const qr = qrcode(0, 'L');
-                const listUrl = `list.html?id=${listId}`;
+                const listUrl = `${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/list.html?id=${listId}`;
                 
                 qr.addData(listUrl);
                 qr.make();
