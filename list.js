@@ -33,6 +33,16 @@ function loadList() {
             cell3.appendChild(img);
         }
     });
+
+    // QR kodu oluşturma ve gösterme
+    const qrCodeContainer = document.getElementById('qr-code');
+    qrCodeContainer.innerHTML = ''; // Mevcut QR kodunu temizle
+    
+    const qrCode = new QRCode(qrCodeContainer, {
+        text: JSON.stringify(listContent),
+        width: 256, // QR kod genişliğini arttır
+        height: 256 // QR kod yüksekliğini arttır
+    });
 }
 
 document.getElementById('edit-list').addEventListener('click', function() {
