@@ -88,24 +88,26 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         // Generate a unique ID for the list
-        const listId = Date.now().toString(36) + Math.random().toString(36).substr(2);
+        const listId = isEditing ? JSON.parse(localStorage.getItem('editingList')).id : 
+                      Date.now().toString(36) + Math.random().toString(36).substr(2);
         listData.id = listId;
+
+        // Generate QR code with absolute URL
+        const qr = qrcode(0, 'L');
+        const currentUrl = window.location.href;
+        const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
+        const listUrl = baseUrl + `list.html?id=${listId}`;
+        qr.addData(listUrl);
+        qr.make();
+        listData.qrCode = qr.createDataURL();
 
         // Save to localStorage with the ID
         localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
         localStorage.setItem('currentList', JSON.stringify(listData));
 
-        // Generate QR code with list ID
-        const qr = qrcode(0, 'L');
-        const currentUrl = window.location.href.split('?')[0];
-        const listUrl = currentUrl.replace('index.html', `list.html?id=${listId}`);
-        qr.addData(listUrl);
-        qr.make();
-        listData.qrCode = qr.createDataURL();
-
-        // Update the stored data with QR code
-        localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
-        localStorage.setItem('currentList', JSON.stringify(listData));
+        if (isEditing) {
+            localStorage.removeItem('editingList');
+        }
 
         // Redirect to list view
         window.location.href = `list.html?id=${listId}`;
