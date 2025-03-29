@@ -6,7 +6,7 @@
 }
 
 body {
-    background: linear-gradient(120deg, #e0f7fa 0%, #80deea 50%, #4dd0e1 100%);
+    background: linear-gradient(135deg, #00bcd4 0%, #b2ebf2 100%);
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -16,24 +16,29 @@ body {
 
 .container {
     width: 100%;
-    max-width: 1200px;
+    max-width: 1000px;
     margin: 0 auto;
-    padding: 2rem;
 }
 
 .card {
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
     padding: 3rem;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 150, 190, 0.2);
+    border-radius: 25px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.3);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: slideIn 0.5s ease-out;
 }
 
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 40px rgba(0, 150, 190, 0.25);
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 h1 {
@@ -48,10 +53,16 @@ h1 {
 
 .form-group {
     margin-bottom: 2rem;
-    background: rgba(255, 255, 255, 0.8);
-    padding: 1.5rem;
+    background: white;
+    padding: 2rem;
     border-radius: 15px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
 label {
@@ -82,7 +93,7 @@ input[type="number"]:focus {
 }
 
 input[type="file"] {
-    padding: 0.8rem;
+    padding: 1rem;
     border: 2px dashed #b2ebf2;
     border-radius: 10px;
     width: 100%;
@@ -168,11 +179,6 @@ tr:last-child td {
     border-bottom: none;
 }
 
-.actions {
-    display: flex;
-    gap: 1rem;
-}
-
 .image-preview {
     max-width: 150px;
     max-height: 150px;
@@ -181,6 +187,7 @@ tr:last-child td {
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
     border: 3px solid #b2ebf2;
+    margin-top: 1rem;
 }
 
 .image-preview:hover {
@@ -214,10 +221,6 @@ tr:last-child td {
 
 @media (max-width: 768px) {
     body {
-        padding: 1rem;
-    }
-    
-    .container {
         padding: 1rem;
     }
     

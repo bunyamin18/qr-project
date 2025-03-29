@@ -6,23 +6,54 @@
     <title>Liste Görüntüleme</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <style>
+        .no-image {
+            padding: 1rem;
+            background: #f5f5f5;
+            border-radius: 10px;
+            color: #666;
+            text-align: center;
+            font-style: italic;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        #listTitleDisplay {
+            background: linear-gradient(135deg, #00acc1 0%, #0097a7 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid #b2ebf2;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <div class="card">
             <h1 id="listTitleDisplay"></h1>
             
-            <table>
-                <thead>
-                    <tr>
-                        <th>İçerik</th>
-                        <th>Miktar</th>
-                        <th>Resim</th>
-                    </tr>
-                </thead>
-                <tbody id="listItems">
-                </tbody>
-            </table>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>İçerik</th>
+                            <th>Miktar</th>
+                            <th>Resim</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listItems">
+                    </tbody>
+                </table>
+            </div>
 
             <div id="qrCode"></div>
 

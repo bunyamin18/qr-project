@@ -15,7 +15,10 @@ document.addEventListener('DOMContentLoaded', function() {
         row.innerHTML = `
             <td>${item.content}</td>
             <td>${item.quantity}</td>
-            <td>${item.image ? `<img src="${item.image}" class="image-preview">` : 'Resim yok'}</td>
+            <td>${item.image ? 
+                `<img src="${item.image}" class="image-preview" alt="Ürün resmi">` : 
+                '<div class="no-image">Resim yok</div>'
+            }</td>
         `;
         listItemsContainer.appendChild(row);
     });
@@ -28,9 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Edit button functionality
     document.getElementById('editButton').addEventListener('click', function() {
-        // Store the current list data in editingList
         localStorage.setItem('editingList', JSON.stringify(listData));
-        // Redirect to index.html with edit parameter
         window.location.href = 'index.html?edit=true';
     });
 });
