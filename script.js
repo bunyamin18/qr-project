@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 // QR kod oluştur
-                const qr = new QRCode({
+                const qr = new QRCode(document.createElement('div'), {
                     text: listUrl,
                     width: 256,
                     height: 256,
