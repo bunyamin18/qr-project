@@ -109,58 +109,51 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error('En az bir öğe eklemelisiniz');
                 }
 
-                // Get list ID from editing data or generate new one
+                // Get list ID and QR code from editing data or generate new one
                 let listId;
+                let qrCode;
                 
                 if (isEditing) {
                     const editingData = JSON.parse(localStorage.getItem('editingList'));
-                    if (!editingData || !editingData.id) {
+                    if (!editingData) {
                         throw new Error('Düzenleme verisi bulunamadı');
                     }
                     listId = editingData.id;
+                    qrCode = editingData.qrCode;
                 } else {
                     listId = Date.now().toString(36) + Math.random().toString(36).substr(2);
+                    // Generate new QR code only for new lists
+                    const qr = qrcode(0, 'L');
+                    const baseUrl = `${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}`;
+                    qr.addData(`${baseUrl}/list.html?id=${listId}`);
+                    qr.make();
+                    qrCode = qr.createDataURL(10);
                 }
 
+                // Create list data object
                 const listData = {
                     id: listId,
-                    title: title,
-                    items: []
+                    title: document.getElementById('listTitle').value,
+                    items: [],
+                    qrCode: qrCode // Always use the existing QR code
                 };
-
-                // Get existing QR code if editing
-                if (isEditing) {
-                    try {
-                        const editingData = JSON.parse(localStorage.getItem('editingList'));
-                        if (editingData && editingData.qrCode) {
-                            listData.qrCode = editingData.qrCode;
-                        }
-                    } catch (e) {
-                        console.error('Error getting existing QR code:', e);
-                    }
-                }
 
                 // Collect all items
                 let hasError = false;
                 items.forEach((row, index) => {
                     const content = row.querySelector('.item-content').value.trim();
                     const quantity = row.querySelector('.item-quantity').value.trim();
+                    const storedImage = row.querySelector('.stored-image').value;
                     
                     if (!content || !quantity) {
                         hasError = true;
-                        throw new Error(`Sıra ${index + 1}: İçerik ve miktar alanları boş olamaz`);
+                        return;
                     }
-
-                    const storedImage = row.querySelector('.stored-image');
-                    const imagePreview = row.querySelector('.image-preview');
-                    
-                    const imageData = storedImage && storedImage.value ? storedImage.value : 
-                                    (imagePreview ? imagePreview.src : null);
 
                     listData.items.push({
                         content: content,
                         quantity: quantity,
-                        image: imageData
+                        image: storedImage
                     });
                 });
 
@@ -168,29 +161,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error('Lütfen tüm alanları doldurun');
                 }
 
-                // Save data first
+                // Save data to localStorage
                 const finalData = JSON.stringify(listData);
-                const encodedData = encodeURIComponent(finalData);
-
-                // Generate QR code
-                const qr = qrcode(0, 'L');
-                const baseUrl = `${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}`;
-                const listUrl = `${baseUrl}/list.html?id=${listId}&data=${encodedData}`;
-                
-                qr.addData(listUrl);
-                qr.make();
-                
-                listData.qrCode = qr.createDataURL(10);
-
-                // Save to localStorage
-                localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
-                localStorage.setItem('currentList', JSON.stringify(listData));
+                localStorage.setItem(`list_${listId}`, finalData);
+                localStorage.setItem('currentList', finalData);
 
                 if (isEditing) {
                     localStorage.removeItem('editingList');
                 }
 
-                // Redirect to list view with data
+                // Redirect to list view with data in URL
+                const encodedData = encodeURIComponent(finalData);
                 window.location.href = `list.html?id=${listId}&data=${encodedData}`;
 
             } catch (error) {
