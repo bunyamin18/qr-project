@@ -111,7 +111,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="image-container">
                     <span class="label">Resim</span>
                     ${item.image ? 
-                        `<img src="${item.image}" class="item-image" alt="Ürün resmi" style="max-width: 100px; max-height: 100px;">` : 
+                        `<div class="image-wrapper">
+                            <img src="${item.image}" class="item-image" alt="Ürün resmi" style="max-width: 100px; max-height: 100px;">
+                            <div class="image-overlay"></div>
+                        </div>` : 
                         '<div class="value">Resim yok</div>'
                     }
                 </div>
