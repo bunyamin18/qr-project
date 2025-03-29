@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (saveButton) {
         const buttonText = saveButton.querySelector('.button-text');
         if (buttonText) {
-            buttonText.textContent = isEditing ? 'Değişiklikleri Kaydet' : 'Yeni Liste Oluştur';
+            buttonText.textContent = isEditing ? 'Değişiklikleri Kaydet' : 'Kaydet';
         }
     }
     
@@ -159,35 +159,25 @@ document.addEventListener('DOMContentLoaded', function() {
                     throw new Error('Lütfen tüm alanları doldurun');
                 }
 
-                // If editing, keep the existing QR code but update its data
-                if (isEditing && existingQrCode) {
-                    const qr = qrcode(0, 'L');
-                    const currentUrl = window.location.href;
-                    const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
-                    const savedData = JSON.stringify(listData);
-                    const listUrl = `${baseUrl}list.html?id=${listId}&data=${encodeURIComponent(savedData)}`;
-                    
-                    qr.addData(listUrl);
-                    qr.make();
-                    
-                    // Keep the same size as the existing QR code
-                    listData.qrCode = qr.createDataURL(10);
-                } else {
-                    // Generate new QR code for new list
-                    const qr = qrcode(0, 'L');
-                    const currentUrl = window.location.href;
-                    const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
-                    const savedData = JSON.stringify(listData);
-                    const listUrl = `${baseUrl}list.html?id=${listId}&data=${encodeURIComponent(savedData)}`;
-                    
-                    qr.addData(listUrl);
-                    qr.make();
-                    
-                    // Create larger QR code
-                    listData.qrCode = qr.createDataURL(10);
-                }
+                // Store the list data in localStorage first
+                const savedData = JSON.stringify(listData);
+                localStorage.setItem(`list_${listId}`, savedData);
+                localStorage.setItem('currentList', savedData);
 
-                // Store the list data in localStorage
+                // Generate QR code with URL and encoded data
+                const qr = qrcode(0, 'L');
+                const currentUrl = window.location.href;
+                const baseUrl = currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1);
+                const encodedData = encodeURIComponent(savedData);
+                const listUrl = `${baseUrl}list.html?id=${listId}&data=${encodedData}`;
+                
+                qr.addData(listUrl);
+                qr.make();
+                
+                // Create QR code with same size
+                listData.qrCode = qr.createDataURL(10);
+
+                // Update storage with final data
                 const finalData = JSON.stringify(listData);
                 localStorage.setItem(`list_${listId}`, finalData);
                 localStorage.setItem('currentList', finalData);
@@ -196,8 +186,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     localStorage.removeItem('editingList');
                 }
 
-                // Redirect to list view
-                window.location.href = `list.html?id=${listId}`;
+                // Redirect to list view with data
+                window.location.href = listUrl;
+
             } catch (error) {
                 console.error('Error saving list:', error);
                 alert(error.message || 'Liste kaydedilirken bir hata oluştu');
@@ -207,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     saveButton.disabled = false;
                     const buttonText = saveButton.querySelector('.button-text');
                     if (buttonText) {
-                        buttonText.textContent = isEditing ? 'Değişiklikleri Kaydet' : 'Yeni Liste Oluştur';
+                        buttonText.textContent = isEditing ? 'Değişiklikleri Kaydet' : 'Kaydet';
                     }
                 }
             }
