@@ -110,13 +110,17 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        // Save to localStorage
-        localStorage.setItem('currentList', JSON.stringify(listData));
-        
-        // Clear editing data if we were editing
+        // If editing, maintain the existing QR code
         if (isEditing) {
+            const editingData = JSON.parse(localStorage.getItem('editingList'));
+            if (editingData && editingData.qrCode) {
+                listData.qrCode = editingData.qrCode;
+            }
             localStorage.removeItem('editingList');
         }
+
+        // Save to localStorage
+        localStorage.setItem('currentList', JSON.stringify(listData));
 
         // Redirect to list view
         window.location.href = 'list.html';

@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
         row.innerHTML = `
             <td>${item.content}</td>
             <td>${item.quantity}</td>
-            <td>${item.image ? 
+            <td class="image-cell">${item.image ? 
                 `<img src="${item.image}" class="image-preview" alt="Ürün resmi">` : 
                 '<div class="no-image">Resim yok</div>'
             }</td>
@@ -23,11 +23,21 @@ document.addEventListener('DOMContentLoaded', function() {
         listItemsContainer.appendChild(row);
     });
 
-    // Generate QR Code
-    const qr = qrcode(0, 'L');
-    qr.addData(JSON.stringify(listData));
-    qr.make();
-    document.getElementById('qrCode').innerHTML = qr.createImgTag(5);
+    // Generate QR Code if it doesn't exist
+    if (!listData.qrCode) {
+        const qr = qrcode(0, 'L');
+        qr.addData(JSON.stringify({
+            id: Date.now().toString(), // Unique ID for the list
+            title: listData.title,
+            items: listData.items
+        }));
+        qr.make();
+        listData.qrCode = qr.createImgTag(5);
+        localStorage.setItem('currentList', JSON.stringify(listData));
+    }
+    
+    // Display QR Code
+    document.getElementById('qrCode').innerHTML = listData.qrCode;
 
     // Edit button functionality
     document.getElementById('editButton').addEventListener('click', function() {
