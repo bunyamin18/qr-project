@@ -82,30 +82,54 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             try {
+                // Check if title is empty
+                const title = document.getElementById('listTitle').value.trim();
+                if (!title) {
+                    throw new Error('Liste başlığı boş olamaz');
+                }
+
+                // Check if there are items
+                const items = document.querySelectorAll('.form-row.item-row');
+                if (items.length === 0) {
+                    throw new Error('En az bir öğe eklemelisiniz');
+                }
+
                 // Generate a unique ID for the list if not editing
-                const listId = isEditing ? 
+                const listId = isEditing && localStorage.getItem('editingList') ? 
                     JSON.parse(localStorage.getItem('editingList')).id : 
                     Date.now().toString(36) + Math.random().toString(36).substr(2);
 
                 const listData = {
                     id: listId,
-                    title: document.getElementById('listTitle').value,
+                    title: title,
                     items: []
                 };
 
                 // Collect all items
-                document.querySelectorAll('.form-row.item-row').forEach(row => {
-                    const content = row.querySelector('.item-content').value;
-                    const quantity = row.querySelector('.item-quantity').value;
+                let hasError = false;
+                items.forEach((row, index) => {
+                    const content = row.querySelector('.item-content').value.trim();
+                    const quantity = row.querySelector('.item-quantity').value.trim();
+                    
+                    if (!content || !quantity) {
+                        hasError = true;
+                        throw new Error(`Sıra ${index + 1}: İçerik ve miktar alanları boş olamaz`);
+                    }
+
                     const storedImage = row.querySelector('.stored-image');
                     const imagePreview = row.querySelector('.image-preview');
                     
                     listData.items.push({
                         content: content,
                         quantity: quantity,
-                        image: storedImage ? storedImage.value : (imagePreview ? imagePreview.src : null)
+                        image: storedImage && storedImage.value ? storedImage.value : 
+                               (imagePreview ? imagePreview.src : null)
                     });
                 });
+
+                if (hasError) {
+                    throw new Error('Lütfen tüm alanları doldurun');
+                }
 
                 // Store the list data in localStorage
                 localStorage.setItem(`list_${listId}`, JSON.stringify(listData));
@@ -135,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.location.href = `list.html?id=${listId}&data=${encodedData}`;
             } catch (error) {
                 console.error('Error saving list:', error);
-                alert('Liste kaydedilirken bir hata oluştu: ' + error.message);
+                alert(error.message || 'Liste kaydedilirken bir hata oluştu');
                 
                 // Re-enable save button on error
                 if (saveButton) {
