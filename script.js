@@ -124,9 +124,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 <label for="item-content">İçerik:</label>
                 <input type="text" class="item-content" required>
             </div>
-            <div class="item-quantity-container">
-                <label for="item-quantity">Miktar:</label>
-                <input type="number" class="item-quantity" required>
+            <div class="item-value-container">
+                <label for="item-value">Miktar/Değer:</label>
+                <input type="text" class="item-value" required>
             </div>
             <div class="item-image-container">
                 <label for="item-image">Resim:</label>
@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (item) {
             newRow.querySelector('.item-content').value = item.content;
-            newRow.querySelector('.item-quantity').value = item.quantity;
+            newRow.querySelector('.item-value').value = item.value;
             if (item.image) {
                 newRow.querySelector('.stored-image').value = item.image;
                 const preview = newRow.querySelector('.item-image-container');
@@ -184,16 +184,16 @@ document.addEventListener('DOMContentLoaded', function() {
             // Öğeleri ekleme
             for (const row of items) {
                 const content = row.querySelector('.item-content')?.value?.trim();
-                const quantity = row.querySelector('.item-quantity')?.value?.trim();
+                const value = row.querySelector('.item-value')?.value?.trim();
                 const storedImage = row.querySelector('.stored-image')?.value || '';
                 
-                if (!content || !quantity) {
-                    throw new Error('Lütfen tüm içerik ve miktar alanlarını doldurun');
+                if (!content || !value) {
+                    throw new Error('Lütfen tüm içerik ve değer alanlarını doldurun');
                 }
 
                 listData.items.push({ 
                     content: content.substring(0, 50),
-                    quantity: quantity.substring(0, 10),
+                    value: value.substring(0, 10),
                     image: storedImage 
                 });
             }

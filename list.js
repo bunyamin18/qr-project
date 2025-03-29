@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const decodedString = decodeURIComponent(encodedData);
             listData = JSON.parse(decodedString);
-            console.log('URL'den veri alındı');
+            console.log('URL\'den veri alındı');
             
             // Veri yapısını kontrol et
             if (!isValidListData(listData)) {
@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
             localStorage.setItem('currentList', JSON.stringify(listData));
         } catch (error) {
             console.error('URL verisi işlenirken hata:', error);
-            console.log('LocalStorage'dan veri alınıyor...');
+            console.log('LocalStorage\'dan veri alınıyor...');
         }
     }
 
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const storedData = localStorage.getItem(`list_${listId}`);
             if (storedData) {
                 listData = JSON.parse(storedData);
-                console.log('LocalStorage'dan veri alındı');
+                console.log('LocalStorage\'dan veri alındı');
                 
                 // Veri yapısını kontrol et
                 if (!isValidListData(listData)) {
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 item &&
                 typeof item === 'object' &&
                 typeof item.content === 'string' &&
-                typeof item.quantity === 'string'
+                typeof item.value === 'string'
             )
         );
     }
@@ -107,9 +107,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     <span class="label">İçerik</span>
                     <div class="value">${escapeHtml(item.content)}</div>
                 </div>
-                <div class="quantity">
-                    <span class="label">Miktar</span>
-                    <div class="value">${escapeHtml(item.quantity)}</div>
+                <div class="value-container">
+                    <span class="label">Miktar/Değer</span>
+                    <div class="value">${escapeHtml(item.value)}</div>
                 </div>
                 <div class="image-container">
                     <span class="label">Resim</span>
@@ -131,12 +131,10 @@ document.addEventListener('DOMContentLoaded', function() {
             qrCodeImg.src = data.qrCode;
             qrCodeImg.style.display = 'block';
             qrError.style.display = 'none';
-            console.log('QR kod gösterildi');
         } else {
             qrCodeImg.style.display = 'none';
             qrError.style.display = 'block';
             qrError.textContent = 'QR kod oluşturulamadı';
-            console.log('QR kod bulunamadı');
         }
 
         // Düzenleme butonunu güncelle
