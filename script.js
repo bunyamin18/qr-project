@@ -23,6 +23,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add row event listener
     addRowButton.addEventListener('click', () => addNewRow());
 
+    // Delete row event delegation
+    itemsContainer.addEventListener('click', function(e) {
+        if (e.target.classList.contains('delete-row')) {
+            const row = e.target.closest('.form-row');
+            if (itemsContainer.children.length > 1) {
+                row.remove();
+            }
+        }
+    });
+
     // Image preview functionality
     itemsContainer.addEventListener('change', function(e) {
         if (e.target.classList.contains('item-image')) {
@@ -64,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
         };
 
         // Collect all items
-        document.querySelectorAll('.item-row').forEach(row => {
+        document.querySelectorAll('.form-row.item-row').forEach(row => {
             const content = row.querySelector('.item-content').value;
             const quantity = row.querySelector('.item-quantity').value;
             const storedImage = row.querySelector('.stored-image');
@@ -77,14 +87,13 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
 
-        // If editing, maintain the existing QR code
-        if (isEditing) {
-            const editingData = JSON.parse(localStorage.getItem('editingList'));
-            if (editingData && editingData.qrCode) {
-                listData.qrCode = editingData.qrCode;
-            }
-            localStorage.removeItem('editingList');
-        }
+        // Generate QR code with full URL
+        const qr = qrcode(0, 'L');
+        const currentUrl = window.location.href.split('?')[0];
+        const listUrl = currentUrl.replace('index.html', 'list.html');
+        qr.addData(listUrl);
+        qr.make();
+        listData.qrCode = qr.createDataURL();
 
         // Save to localStorage
         localStorage.setItem('currentList', JSON.stringify(listData));
@@ -95,24 +104,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function addNewRow(item = null) {
         const newRow = document.createElement('div');
-        newRow.className = 'form-group item-row';
+        newRow.className = 'form-row item-row';
         newRow.innerHTML = `
-            <div class="input-group">
-                <div class="input-field">
-                    <label>İçerik:</label>
-                    <input type="text" class="item-content" required value="${item ? item.content : ''}">
-                </div>
-                <div class="input-field">
-                    <label>Miktar:</label>
-                    <input type="text" class="item-quantity" required value="${item ? item.quantity : ''}">
-                </div>
-                <div class="input-field">
-                    <label>Resim:</label>
-                    <input type="file" class="item-image" accept="image/*">
-                    ${item && item.image ? `<img src="${item.image}" class="image-preview">` : ''}
-                    <input type="hidden" class="stored-image" value="${item && item.image ? item.image : ''}">
-                </div>
+            <div class="input-group content-field">
+                <label>İçerik:</label>
+                <input type="text" class="item-content" required value="${item ? item.content : ''}">
             </div>
+            <div class="input-group">
+                <label>Miktar:</label>
+                <input type="text" class="item-quantity" required value="${item ? item.quantity : ''}">
+            </div>
+            <div class="input-group">
+                <label>Resim:</label>
+                <input type="file" class="item-image" accept="image/*">
+                ${item && item.image ? `<img src="${item.image}" class="image-preview">` : ''}
+                <input type="hidden" class="stored-image" value="${item && item.image ? item.image : ''}">
+            </div>
+            <button type="button" class="delete-row">×</button>
         `;
         itemsContainer.appendChild(newRow);
     }

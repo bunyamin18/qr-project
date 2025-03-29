@@ -3,64 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste Görüntüleme</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+    <title>Liste Görüntüle</title>
     <style>
-        .no-image {
-            padding: 1rem;
-            background: #f5f5f5;
-            border-radius: 10px;
-            color: #666;
-            text-align: center;
-            font-style: italic;
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #00bcd4, #80deea);
+            font-family: 'Segoe UI', sans-serif;
         }
-        
-        .table-container {
+
+        .main-container {
+            width: 90%;
+            max-width: 800px;
+            margin: 20px auto;
+            background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #006064;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .list-row {
             background: white;
+            padding: 20px;
             border-radius: 15px;
-            padding: 2rem;
-            margin: 2rem 0;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+            align-items: center;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
         }
-        
-        #listTitleDisplay {
-            background: linear-gradient(135deg, #00acc1 0%, #0097a7 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            font-size: 2.5rem;
-            margin-bottom: 2rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 3px solid #b2ebf2;
+
+        .content {
+            flex: 2;
+        }
+
+        .quantity {
+            flex: 1;
+            text-align: center;
+        }
+
+        .image-container {
+            flex: 1;
+            text-align: center;
+        }
+
+        .item-image {
+            max-width: 150px;
+            border-radius: 8px;
+            border: 3px solid white;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .label {
+            color: #00838f;
+            font-weight: 500;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .value {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            color: white;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00bcd4, #0097a7);
+        }
+
+        .qr-container {
+            text-align: center;
+            margin-top: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .qr-code {
+            max-width: 200px;
+            margin: 0 auto;
+        }
+
+        .qr-label {
+            color: #00838f;
+            font-weight: 500;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="card">
-            <h1 id="listTitleDisplay"></h1>
-            
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>İçerik</th>
-                            <th>Miktar</th>
-                            <th>Resim</th>
-                        </tr>
-                    </thead>
-                    <tbody id="listItems">
-                    </tbody>
-                </table>
-            </div>
-
-            <div id="qrCode"></div>
-
-            <div class="buttons-container">
-                <button class="btn btn-warning" id="editButton">Düzenle</button>
-                <button class="btn btn-primary" onclick="window.location.href='index.html'">Yeni Liste</button>
-            </div>
+    <div class="main-container">
+        <h1 id="listTitle"></h1>
+        <div id="itemsList"></div>
+        <div class="qr-container">
+            <img id="qrCode" class="qr-code">
+            <div class="qr-label">QR Kodu</div>
+        </div>
+        <div class="buttons">
+            <button onclick="window.location.href='index.html?edit=true'" class="btn-primary">Düzenle</button>
+            <button onclick="window.location.href='index.html'" class="btn-primary">Yeni Liste</button>
         </div>
     </div>
     <script src="list.js"></script>

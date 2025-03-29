@@ -1,47 +1,37 @@
 document.addEventListener('DOMContentLoaded', function() {
     const listData = JSON.parse(localStorage.getItem('currentList'));
-    if (!listData) {
-        window.location.href = 'index.html';
-        return;
-    }
-
-    // Display list title
-    document.getElementById('listTitleDisplay').textContent = listData.title;
-
-    // Display items
-    const listItemsContainer = document.getElementById('listItems');
-    listData.items.forEach(item => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${item.content}</td>
-            <td>${item.quantity}</td>
-            <td class="image-cell">${item.image ? 
-                `<img src="${item.image}" class="image-preview" alt="Ürün resmi">` : 
-                '<div class="no-image">Resim yok</div>'
-            }</td>
-        `;
-        listItemsContainer.appendChild(row);
-    });
-
-    // Generate QR Code if it doesn't exist
-    if (!listData.qrCode) {
-        const qr = qrcode(0, 'L');
-        qr.addData(JSON.stringify({
-            id: Date.now().toString(), // Unique ID for the list
-            title: listData.title,
-            items: listData.items
-        }));
-        qr.make();
-        listData.qrCode = qr.createImgTag(5);
-        localStorage.setItem('currentList', JSON.stringify(listData));
-    }
     
-    // Display QR Code
-    document.getElementById('qrCode').innerHTML = listData.qrCode;
+    if (listData) {
+        // Set title
+        document.getElementById('listTitle').textContent = listData.title;
+        
+        // Display items
+        const itemsList = document.getElementById('itemsList');
+        listData.items.forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'list-row';
+            
+            row.innerHTML = `
+                <div class="content">
+                    <span class="label">İçerik</span>
+                    <div class="value">${item.content}</div>
+                </div>
+                <div class="quantity">
+                    <span class="label">Miktar</span>
+                    <div class="value">${item.quantity}</div>
+                </div>
+                <div class="image-container">
+                    <span class="label">Resim</span>
+                    ${item.image ? `<img src="${item.image}" class="item-image">` : '<div class="value">Resim yok</div>'}
+                </div>
+            `;
+            
+            itemsList.appendChild(row);
+        });
 
-    // Edit button functionality
-    document.getElementById('editButton').addEventListener('click', function() {
-        localStorage.setItem('editingList', JSON.stringify(listData));
-        window.location.href = 'index.html?edit=true';
-    });
+        // Display QR code
+        if (listData.qrCode) {
+            document.getElementById('qrCode').src = listData.qrCode;
+        }
+    }
 });
