@@ -7,15 +7,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const addRowButton = document.querySelector('.add-row-button');
     const saveButton = document.querySelector('.save-button');
     
-    // Initialize particles.js for background animation
+    // Initialize particles.js for background animation - data transfer effect
     if (window.particlesJS) {
         particlesJS('particles-js', {
             particles: {
-                number: { value: 80, density: { enable: true, value_area: 800 } },
-                color: { value: "#00bcd4" },
+                number: { value: 150, density: { enable: true, value_area: 800 } },
+                color: { value: ["#00bcd4", "#2196f3", "#03a9f4"] },
                 shape: { type: "circle" },
-                opacity: { value: 0.5, random: false },
-                size: { value: 3, random: true },
+                opacity: { value: 0.6, random: true },
+                size: { value: 2, random: true },
                 line_linked: {
                     enable: true,
                     distance: 150,
@@ -25,9 +25,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 move: {
                     enable: true,
-                    speed: 2,
-                    direction: "none",
-                    random: false,
+                    speed: 4,
+                    direction: "right",
+                    random: true,
                     straight: false,
                     out_mode: "out",
                     bounce: false
@@ -85,8 +85,8 @@ document.addEventListener('DOMContentLoaded', function() {
         itemRow.innerHTML = `
             <div class="item-container">
                 <div class="item-fields">
+                    <input type="text" class="form-control item-value" placeholder="Miktar/Değer" value="${value}" required>
                     <input type="text" class="form-control item-content" placeholder="Öğe Adı" value="${content}" required>
-                    <input type="text" class="form-control item-value" placeholder="Değer" value="${value}" required>
                 </div>
                 <button type="button" class="delete-button remove-item">Sil</button>
             </div>
@@ -168,9 +168,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 console.log("Saving list data:", listData);
                 
-                // Save the list
-                const savedList = await window.dataStorage.saveList(listData);
-                console.log("List saved:", savedList);
+                let savedList;
+                
+                // If we're editing an existing list, update it
+                if (editListId) {
+                    // Update the list with same ID
+                    listData.id = editListId;
+                    savedList = await window.dataStorage.updateList(listData);
+                    console.log("List updated:", savedList);
+                } else {
+                    // Save as a new list
+                    savedList = await window.dataStorage.saveList(listData);
+                    console.log("New list saved:", savedList);
+                }
                 
                 // Redirect to QR code page
                 window.location.href = `qr-generator.html?listId=${savedList.id}`;

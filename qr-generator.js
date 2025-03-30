@@ -1,14 +1,14 @@
 // QR Code Generator Script
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize particles.js for background animation
+    // Initialize particles.js for background animation - data transfer effect
     if (window.particlesJS) {
         particlesJS('particles-js', {
             particles: {
-                number: { value: 80, density: { enable: true, value_area: 800 } },
-                color: { value: "#00bcd4" },
+                number: { value: 150, density: { enable: true, value_area: 800 } },
+                color: { value: ["#00bcd4", "#2196f3", "#03a9f4"] },
                 shape: { type: "circle" },
-                opacity: { value: 0.5, random: false },
-                size: { value: 3, random: true },
+                opacity: { value: 0.6, random: true },
+                size: { value: 2, random: true },
                 line_linked: {
                     enable: true,
                     distance: 150,
@@ -18,9 +18,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 move: {
                     enable: true,
-                    speed: 2,
-                    direction: "none",
-                    random: false,
+                    speed: 4,
+                    direction: "right",
+                    random: true,
                     straight: false,
                     out_mode: "out",
                     bounce: false
@@ -43,8 +43,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const qrContainer = document.getElementById('qrContainer');
         const downloadButton = document.querySelector('.download-button');
         const backButton = document.querySelector('.back-button');
+        const editButton = document.querySelector('.edit-button');
+        const previewTitle = document.getElementById('preview-title');
+        const previewItems = document.getElementById('preview-items');
         
-        if (!qrContainer || !downloadButton || !backButton) {
+        if (!qrContainer || !downloadButton || !backButton || !editButton || !previewTitle || !previewItems) {
             throw new Error('Gerekli DOM elementleri bulunamadı');
         }
 
@@ -67,30 +70,72 @@ document.addEventListener('DOMContentLoaded', function() {
             throw new Error('Liste bulunamadı');
         }
 
+        // Liste önizlemesini göster
+        renderListPreview(listData);
+
         // QR kod içeriğini hazırla - kullanıcı bunu ziyaret edecek
         const qrContent = `https://okulprojesibunyamin.netlify.app/list.html?listId=${listId}`;
         
-        // QR Type set to 0 means automatic detection of QR version
-        // Error correction level 'L' is lowest (7%)
-        const qr = qrcode(0, 'L');
-        qr.addData(qrContent);
-        qr.make();
+        // QR kodu oluştur 
+        generateQRCode(qrContent);
 
-        // SVG QR code generation for better quality
-        const qrImageSvg = qr.createSvgTag(4);
-        qrContainer.innerHTML = qrImageSvg;
-        
-        // Style the SVG
-        const svgElement = qrContainer.querySelector('svg');
-        if (svgElement) {
-            svgElement.style.width = '100%';
-            svgElement.style.maxWidth = '300px';
-            svgElement.style.height = 'auto';
+        // Liste önizlemesini oluştur
+        function renderListPreview(list) {
+            // Başlığı göster
+            previewTitle.textContent = list.title;
+            
+            // Öğeleri temizle
+            previewItems.innerHTML = '';
+            
+            // Öğeleri göster
+            list.items.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'preview-item';
+                
+                itemElement.innerHTML = `
+                    <div class="preview-item-content">${escapeHtml(item.content)}</div>
+                    <div class="preview-item-value">${escapeHtml(item.value)}</div>
+                `;
+                
+                previewItems.appendChild(itemElement);
+            });
+        }
+
+        // QR kodu oluştur
+        function generateQRCode(content) {
+            try {
+                // QR Type set to 0 means automatic detection of QR version
+                // Error correction level 'L' is lowest (7%)
+                const qr = window.qrcode(0, 'L');
+                qr.addData(content);
+                qr.make();
+                
+                // SVG QR code generation for better quality
+                const qrImageSvg = qr.createSvgTag(4);
+                qrContainer.innerHTML = qrImageSvg;
+                
+                // Style the SVG
+                const svgElement = qrContainer.querySelector('svg');
+                if (svgElement) {
+                    svgElement.style.width = '100%';
+                    svgElement.style.maxWidth = '200px';
+                    svgElement.style.height = 'auto';
+                }
+            } catch (error) {
+                console.error('QR kod oluşturma hatası:', error);
+                qrContainer.innerHTML = '<p class="error">QR kod oluşturulamadı</p>';
+            }
         }
 
         // İndirme butonuna tıklama event listener'ı
         downloadButton.addEventListener('click', () => {
             // SVG'yi PNG'ye dönüştür ve indir
+            const svgElement = qrContainer.querySelector('svg');
+            if (!svgElement) {
+                alert('QR kod bulunamadı');
+                return;
+            }
+            
             const svgData = new XMLSerializer().serializeToString(svgElement);
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
@@ -111,6 +156,11 @@ document.addEventListener('DOMContentLoaded', function() {
             
             img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgData)));
         });
+        
+        // Düzenleme butonuna tıklama event listener'ı
+        editButton.addEventListener('click', () => {
+            window.location.href = `index.html?listId=${listId}`;
+        });
 
         // Geri butonu event listener'ı
         backButton.addEventListener('click', () => {
@@ -122,3 +172,13 @@ document.addEventListener('DOMContentLoaded', function() {
         alert(error.message || 'QR kod oluşturulurken bir hata oluştu');
     }
 });
+
+// HTML escape fonksiyonu
+function escapeHtml(unsafe) {
+    return String(unsafe)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
