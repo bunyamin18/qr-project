@@ -1,5 +1,3 @@
-import dataStorage from './services/dataStorage.js';
-
 // Gerekli elementleri sakla
 let titleInput;
 let itemsContainer;
