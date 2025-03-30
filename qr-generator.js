@@ -22,34 +22,37 @@ if (listId) {
 
         const qr = new QRCode(qrPreview, {
             text: `https://okulprojesibunyamin.netlify.app/list.html?listId=${currentListData.id}`,
-            width: 256,
-            height: 256,
+            width: 300,
+            height: 300,
             colorDark: "#000000",
             colorLight: "#ffffff",
             correctLevel: QRCode.CorrectLevel.H
         });
 
-        // Liste verisini göster
-        const titleElement = document.createElement('h2');
-        titleElement.textContent = currentListData.title;
-        titleElement.style.marginBottom = '20px';
-        qrPreview.appendChild(titleElement);
-
-        // Öğeleri göster
-        const itemsContainer = document.createElement('div');
-        itemsContainer.className = 'items-container';
-        currentListData.items.forEach(item => {
-            const itemRow = document.createElement('div');
-            itemRow.className = 'item-row';
+        // Liste önizlemesini göster
+        const listPreview = document.getElementById('listPreview');
+        if (listPreview) {
+            listPreview.innerHTML = '';
             
-            itemRow.innerHTML = `
-                <div class="item-content">${escapeHtml(item.content)}</div>
-                <div class="item-value">${escapeHtml(item.value)}</div>
-                ${item.image ? `<img src="${item.image}" class="item-image" alt="Öğe resmi">` : ''}
-            `;
-            itemsContainer.appendChild(itemRow);
-        });
-        qrPreview.appendChild(itemsContainer);
+            // Başlığı göster
+            const titleElement = document.createElement('h3');
+            titleElement.textContent = currentListData.title;
+            titleElement.style.marginBottom = '16px';
+            listPreview.appendChild(titleElement);
+
+            // Öğeleri göster
+            currentListData.items.forEach(item => {
+                const itemRow = document.createElement('div');
+                itemRow.className = 'list-item';
+                
+                itemRow.innerHTML = `
+                    <div class="list-item-content">${escapeHtml(item.content)}</div>
+                    <div class="list-item-value">${escapeHtml(item.value)}</div>
+                    ${item.image ? `<img src="${item.image}" class="list-item-image" alt="Öğe resmi">` : ''}
+                `;
+                listPreview.appendChild(itemRow);
+            });
+        }
 
     } catch (error) {
         console.error('Veri yükleme hatası:', error);
