@@ -527,35 +527,40 @@ document.addEventListener('DOMContentLoaded', function() {
             // QR kod için container'ı temizle
             qrContainer.innerHTML = '';
             
-            // QR kod div oluştur
-            const qrDiv = document.createElement('div');
-            qrDiv.id = 'qrcode';
-            qrDiv.style.margin = '0 auto';
-            qrDiv.style.background = 'white';
-            qrDiv.style.padding = '15px';
-            qrDiv.style.borderRadius = '8px';
-            qrDiv.style.boxShadow = '0 0 10px rgba(0,0,0,0.1)';
-            qrDiv.style.maxWidth = '100%';
-            qrDiv.style.width = '240px';
-            qrDiv.style.height = '240px';
-            qrDiv.style.display = 'flex';
-            qrDiv.style.alignItems = 'center';
-            qrDiv.style.justifyContent = 'center';
-            
-            qrContainer.appendChild(qrDiv);
-            
             try {
-                // SimpleQR kütüphanesini kullanarak QR kod oluştur - bu yöntem her zaman çalışır
-                if (typeof SimpleQR !== 'undefined') {
-                    console.log("SimpleQR kütüphanesi kullanılıyor");
-                    // QR kodu oluştur
-                    const qrImage = SimpleQR.displayQR(qrDiv, finalUrl, 200);
-                    
-                    // QR kod indirme butonu için gereken referansı kaydet
-                    qrDiv.dataset.qrUrl = finalUrl;
-                } else {
-                    throw new Error("QR kod kütüphanesi bulunamadı");
-                }
+                // Google Chart API kullanarak QR kod oluştur (en güvenilir yöntem)
+                const encodedUrl = encodeURIComponent(finalUrl);
+                const qrUrl = `https://chart.googleapis.com/chart?cht=qr&chl=${encodedUrl}&chs=200x200&chld=H|0`;
+                
+                // QR kod container oluştur
+                const qrDiv = document.createElement('div');
+                qrDiv.id = 'qrcode';
+                qrDiv.style.margin = '0 auto';
+                qrDiv.style.background = 'white';
+                qrDiv.style.padding = '15px';
+                qrDiv.style.borderRadius = '8px';
+                qrDiv.style.boxShadow = '0 0 10px rgba(0,0,0,0.1)';
+                qrDiv.style.maxWidth = '100%';
+                qrDiv.style.width = '240px';
+                qrDiv.style.height = '240px';
+                qrDiv.style.display = 'flex';
+                qrDiv.style.alignItems = 'center';
+                qrDiv.style.justifyContent = 'center';
+                
+                // QR kod resmi oluştur
+                const qrImg = document.createElement('img');
+                qrImg.src = qrUrl;
+                qrImg.alt = "QR Kod";
+                qrImg.style.maxWidth = '100%';
+                qrImg.style.display = 'block';
+                qrImg.style.margin = '0 auto';
+                
+                // QR kod resmine referansı kaydet (indirme için)
+                qrDiv.dataset.qrUrl = finalUrl;
+                
+                // QR kodu konteynere ekle
+                qrDiv.appendChild(qrImg);
+                qrContainer.appendChild(qrDiv);
                 
                 console.log("QR kod oluşturuldu");
                 
@@ -652,6 +657,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         return;
                     }
                     
+                    // Görüntünün yüklenmesini bekle
+                    if (!qrImg.complete) {
+                        alert('QR kod resmi hala yükleniyor, lütfen biraz bekleyip tekrar deneyin');
+                        return;
+                    }
+                    
                     // Canvas oluştur ve QR kodu çiz
                     const canvas = document.createElement('canvas');
                     const ctx = canvas.getContext('2d');
@@ -665,20 +676,33 @@ document.addEventListener('DOMContentLoaded', function() {
                     ctx.fillStyle = 'white';
                     ctx.fillRect(0, 0, canvas.width, canvas.height);
                     
-                    // QR kodu çiz
-                    ctx.drawImage(qrImg, borderSize, borderSize);
-                    
-                    // Liste başlığını ekle
-                    ctx.font = 'bold 16px Arial';
-                    ctx.fillStyle = 'black';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(listData.title || 'Liste', canvas.width / 2, canvas.height - 10);
-                    
-                    // İndir
-                    const link = document.createElement('a');
-                    link.href = canvas.toDataURL('image/png');
-                    link.download = `QR_${(listData.title || 'Liste').replace(/[^a-z0-9]/gi, '_')}.png`;
-                    link.click();
+                    // QR kodu çiz - resim yüklü olduğundan emin ol
+                    try {
+                        ctx.drawImage(qrImg, borderSize, borderSize);
+                        
+                        // Liste başlığını ekle
+                        ctx.font = 'bold 16px Arial';
+                        ctx.fillStyle = 'black';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(listData.title || 'Liste', canvas.width / 2, canvas.height - 10);
+                        
+                        // İndir
+                        const link = document.createElement('a');
+                        link.href = canvas.toDataURL('image/png');
+                        link.download = `QR_${(listData.title || 'Liste').replace(/[^a-z0-9]/gi, '_')}.png`;
+                        link.click();
+                    } catch (err) {
+                        console.error('QR kod çizme hatası:', err);
+                        
+                        // Hata durumunda alternatif indirme yöntemi - doğrudan resmi indir
+                        const link = document.createElement('a');
+                        
+                        // Eğer QR kod CORS hatası verirse doğrudan Google Charts API URL'sini kullan
+                        const encodedUrl = encodeURIComponent(qrCodeElement.dataset.qrUrl || finalUrl);
+                        link.href = `https://chart.googleapis.com/chart?cht=qr&chl=${encodedUrl}&chs=300x300&chld=H|0`;
+                        link.download = `QR_${(listData.title || 'Liste').replace(/[^a-z0-9]/gi, '_')}.png`;
+                        link.click();
+                    }
                 } catch (error) {
                     console.error('QR kod indirme hatası:', error);
                     alert('QR kod indirirken bir hata oluştu: ' + error.message);
