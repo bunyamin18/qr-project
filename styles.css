@@ -20,27 +20,54 @@
 body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    background: #f5f7fa;
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 20px;
+    position: relative;
+}
+
+/* Animated background */
+.tech-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background-color: #020024;
+}
+
+#particles-js {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: -1;
 }
 
 /* Ana container stil */
 .container {
     width: 100%;
-    max-width: 600px;
+    max-width: 800px;
     padding: 20px;
+    z-index: 10;
+    position: relative;
 }
 
 /* Merkezi kart stil */
 .center-card {
     background: white;
     padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border-radius: 15px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
     text-align: center;
+    transition: transform 0.3s ease;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .center-card:hover {
@@ -49,9 +76,10 @@ body {
 
 /* Başlık stil */
 h1 {
-    color: #2c3e50;
+    color: #006064;
     margin-bottom: 30px;
     font-size: 2rem;
+    text-shadow: 0px 2px 3px rgba(0,0,0,0.1);
 }
 
 /* Form grup stil */
@@ -63,8 +91,9 @@ h1 {
 label {
     display: block;
     margin-bottom: 8px;
-    color: #2c3e50;
+    color: #00838f;
     font-weight: 500;
+    text-align: left;
 }
 
 /* Input stil */
@@ -79,43 +108,49 @@ label {
 
 .form-control:focus {
     outline: none;
-    border-color: #3498db;
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    border-color: #00bcd4;
+    box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.2);
 }
 
-/* Form satırı stil */
-.form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr auto;
-    gap: 15px;
-    margin-bottom: 15px;
-    padding: 10px;
-    border: 1px solid #eee;
-    border-radius: 4px;
-    background: white;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    position: relative;
-}
-
-.item-content-container,
-.item-value-container,
-.item-image-container {
+/* Item container styles */
+.item-container {
     display: flex;
-    flex-direction: column;
+    gap: 10px;
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    align-items: center;
 }
 
-.item-image-container input[type="file"] {
-    margin-top: 5px;
+.item-fields {
+    display: flex;
+    gap: 10px;
+    flex: 1;
 }
 
-.image-preview {
-    width: 100px;
-    height: 100px;
-    object-fit: cover;
-    border-radius: 4px;
-    margin-top: 5px;
-    border: 3px solid white;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+.item-fields input {
+    width: 50%;
+}
+
+/* Delete button */
+.delete-button {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    height: 40px;
+    width: 60px;
+    font-size: 14px;
+}
+
+.delete-button:hover {
+    background-color: #d32f2f;
+    transform: scale(1.05);
 }
 
 /* Butonlar stil */
@@ -123,145 +158,102 @@ label {
     display: flex;
     justify-content: space-between;
     margin-top: 20px;
-    gap: 10px;
+    gap: 15px;
 }
 
 .add-row-button,
-.save-button,
-.back-button,
-.download-button {
-    background-color: #28a745;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
+.save-button {
+    padding: 12px 25px;
+    border-radius: 8px;
     font-size: 16px;
     cursor: pointer;
     transition: all 0.3s ease;
-    flex: 1;
-    min-width: 120px;
+    border: none;
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
-.add-row-button:hover,
-.save-button:hover,
-.back-button:hover,
-.download-button:hover {
-    background-color: #218838;
+.add-row-button {
+    background-color: #00bcd4;
+    color: white;
+    flex: 1;
+}
+
+.add-row-button:hover {
+    background-color: #00acc1;
     transform: translateY(-2px);
 }
 
-/* Silme butonu stil */
-.delete-row {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    font-size: 20px;
-    padding: 0 8px;
-    border-radius: 50%;
-    background-color: #dc3545;
+.save-button {
+    background-color: #009688;
+    color: white;
+    flex: 1;
+}
+
+.save-button:hover {
+    background-color: #00897b;
+    transform: translateY(-2px);
+}
+
+.back-button,
+.download-button {
+    background-color: #00bcd4;
     color: white;
     border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-size: 16px;
     cursor: pointer;
     transition: all 0.3s ease;
+    width: 100%;
+    max-width: 300px;
+    margin: 10px auto;
+    display: block;
 }
 
-.delete-row:hover {
-    background-color: #c82333;
-    transform: scale(1.1);
+.back-button:hover,
+.download-button:hover {
+    background-color: #00acc1;
+    transform: translateY(-2px);
 }
 
-/* Liste önizleme stil */
-.preview-container {
-    display: flex;
-    gap: 20px;
-    margin: 20px 0;
-}
-
-.list-preview {
-    flex: 1;
-    background: var(--card-background);
-    border-radius: 10px;
+/* QR container */
+#qrContainer {
+    margin: 30px auto;
+    background: white;
     padding: 20px;
-    box-shadow: var(--card-shadow);
-    max-width: 400px;
-}
-
-.list-preview h2 {
-    color: var(--text-color);
-    margin-bottom: 15px;
-    font-size: 1.5rem;
-}
-
-.preview-item {
-    display: grid;
-    grid-template-columns: 1fr 1fr auto;
-    gap: 10px;
-    padding: 10px;
-    border-bottom: 1px solid var(--border-color);
-    margin-bottom: 10px;
-}
-
-.preview-item:last-child {
-    border-bottom: none;
-}
-
-.preview-item .item-content,
-.preview-item .item-value {
-    color: var(--text-color);
-    font-size: 1rem;
-}
-
-.preview-item .item-image {
-    max-width: 50px;
-    max-height: 50px;
-    object-fit: cover;
-}
-
-.qr-container {
-    flex: 1;
+    border-radius: 10px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 300px;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 300px;
 }
 
-.qr-container canvas {
-    border: 2px solid #2c3e50;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.qr-container img {
-    max-width: 256px;
-    max-height: 256px;
-    border: 2px solid #3498db;
-    border-radius: 6px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-/* Liste öğesi stil */
+/* List items display */
 .list-item {
     display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-    padding: 10px;
-    background: rgba(255, 255, 255, 0.9);
+    padding: 15px;
+    background: #f9f9f9;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    margin-bottom: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    align-items: center;
+    justify-content: space-between;
 }
 
-/* Liste içeriği stil */
-.list-item-content {
-    flex: 1;
-    margin-right: 15px;
+.item-content {
     font-weight: 500;
+    color: #333;
+    flex: 1;
 }
 
-/* Liste değeri stil */
-.list-item-value {
+.item-value {
+    color: #00838f;
+    font-weight: 600;
     flex: 1;
     text-align: right;
-    color: var(--secondary-color);
 }
 
 /* Resim görüntüleme butonu stil */
@@ -269,150 +261,33 @@ label {
     background-color: #4CAF50;
     color: white;
     border: none;
-    padding: 8px 16px;
+    padding: 8px 12px;
     border-radius: 4px;
     cursor: pointer;
-    margin-left: 15px;
-    transition: background-color 0.3s;
+    font-size: 14px;
+    margin-left: 10px;
 }
 
 .view-image-button:hover {
-    background-color: #45a049;
+    background-color: #388E3C;
 }
 
-/* Resim önizleme stil */
-.image-preview {
-    max-width: 100px;
-    max-height: 100px;
-    object-fit: cover;
-    border-radius: 4px;
-    margin-top: 8px;
-}
-
-/* Resim konteyneri stil */
-.item-image-container {
-    margin-top: 8px;
-}
-
-/* Mobil uyumlu stil */
+/* Responsive styles */
 @media (max-width: 768px) {
-    body {
-        padding: 10px;
-    }
-
-    .container {
-        padding: 10px;
-    }
-
-    .form-row {
-        grid-template-columns: 1fr;
-    }
-
-    .list-item {
+    .item-fields {
         flex-direction: column;
-        align-items: flex-start;
-        text-align: left;
     }
-
-    .list-item-value {
-        text-align: left;
+    
+    .item-fields input {
+        width: 100%;
     }
-}
-
-/* Animasyonlar */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
+    
+    .button-container {
+        flex-direction: column;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    
+    .add-row-button, 
+    .save-button {
+        width: 100%;
     }
-}
-
-.center-card {
-    animation: fadeIn 0.6s ease-out;
-}
-
-/* Teknolojik arka plan efekti */
-@keyframes dataFlow {
-    0% {
-        transform: translateX(0) translateY(0);
-        opacity: 0;
-    }
-    50% {
-        opacity: 0.5;
-    }
-    100% {
-        transform: translateX(100vw) translateY(100vh);
-        opacity: 0;
-    }
-}
-
-.data-particles {
-    position: absolute;
-    width: 5px;
-    height: 5px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    animation: dataFlow 10s linear infinite;
-}
-
-/* Teknolojik kablo efekti */
-@keyframes cablePulse {
-    0% {
-        opacity: 0.1;
-    }
-    50% {
-        opacity: 0.3;
-    }
-    100% {
-        opacity: 0.1;
-    }
-}
-
-.cable {
-    position: absolute;
-    width: 2px;
-    height: 100vh;
-    background: rgba(255, 255, 255, 0.1);
-    animation: cablePulse 2s ease-in-out infinite;
-}
-
-/* Teknolojik arka plan öğelerini oluştur */
-.create-tech-background {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: -1;
-}
-
-.create-tech-background::before {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(45deg, #00bcd4 0%, #80deea 100%);
-    animation: gradientShift 20s ease-in-out infinite;
-}
-
-@keyframes gradientShift {
-    0% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0% 50%;
-    }
-}
-
-/* Hata Mesajları */
-.error-message {
-    color: #dc3545;
-    text-align: center;
-    margin-top: 1rem;
 }

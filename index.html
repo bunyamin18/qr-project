@@ -6,10 +6,7 @@
     <title>Yeni Liste Oluştur</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode-generator.min.js"></script>
-    <script type="module">
-        import dataStorage from './services/dataStorage.js';
-        import './script.js';
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particlesjs/2.2.3/particles.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -101,7 +98,7 @@
     </style>
 </head>
 <body>
-    <div class="create-tech-background"></div>
+    <div id="particles-js" class="tech-background"></div>
     <div class="container">
         <div class="center-card">
             <h1>Yeni Liste Oluştur</h1>
@@ -118,5 +115,13 @@
             </form>
         </div>
     </div>
+    
+    <!-- Import scripts as modules -->
+    <script type="module">
+        import dataStorage from './services/dataStorage.js';
+        // Make dataStorage available globally
+        window.dataStorage = dataStorage;
+    </script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>

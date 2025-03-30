@@ -7,6 +7,44 @@ document.addEventListener('DOMContentLoaded', function() {
     const addRowButton = document.querySelector('.add-row-button');
     const saveButton = document.querySelector('.save-button');
     
+    // Initialize particles.js for background animation
+    if (window.particlesJS) {
+        particlesJS('particles-js', {
+            particles: {
+                number: { value: 80, density: { enable: true, value_area: 800 } },
+                color: { value: "#00bcd4" },
+                shape: { type: "circle" },
+                opacity: { value: 0.5, random: false },
+                size: { value: 3, random: true },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: "#00bcd4",
+                    opacity: 0.4,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 2,
+                    direction: "none",
+                    random: false,
+                    straight: false,
+                    out_mode: "out",
+                    bounce: false
+                }
+            },
+            interactivity: {
+                detect_on: "canvas",
+                events: {
+                    onhover: { enable: true, mode: "grab" },
+                    onclick: { enable: true, mode: "push" },
+                    resize: true
+                }
+            },
+            retina_detect: true
+        });
+    }
+    
     // Initialize item count
     let itemCount = 0;
     
@@ -16,9 +54,9 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentListData = null;
     
     // If editing existing list, load its data
-    if (editListId) {
+    if (editListId && window.dataStorage) {
         try {
-            currentListData = dataStorage.getList(editListId);
+            currentListData = window.dataStorage.getList(editListId);
             if (currentListData) {
                 // Fill form with existing data
                 listTitleInput.value = currentListData.title;
@@ -45,16 +83,12 @@ document.addEventListener('DOMContentLoaded', function() {
         itemRow.id = `item-${itemCount}`;
         
         itemRow.innerHTML = `
-            <div class="row">
-                <div class="col">
+            <div class="item-container">
+                <div class="item-fields">
                     <input type="text" class="form-control item-content" placeholder="Öğe Adı" value="${content}" required>
-                </div>
-                <div class="col">
                     <input type="text" class="form-control item-value" placeholder="Değer" value="${value}" required>
                 </div>
-                <div class="col-auto">
-                    <button type="button" class="btn btn-danger remove-item">Sil</button>
-                </div>
+                <button type="button" class="delete-button remove-item">Sil</button>
             </div>
         `;
         
@@ -78,8 +112,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (listForm) {
         listForm.addEventListener('submit', async function(e) {
             e.preventDefault();
+            console.log("Form submitted");
             
             try {
+                if (!window.dataStorage) {
+                    throw new Error('Veri depolama servisi bulunamadı');
+                }
+                
                 // Get list title
                 const title = listTitleInput.value.trim();
                 if (!title) {
@@ -96,6 +135,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Collect items data
                 const items = [];
+                let hasValidItems = false;
+                
                 itemRows.forEach(row => {
                     const contentInput = row.querySelector('.item-content');
                     const valueInput = row.querySelector('.item-value');
@@ -109,11 +150,12 @@ document.addEventListener('DOMContentLoaded', function() {
                                 content: content,
                                 value: value
                             });
+                            hasValidItems = true;
                         }
                     }
                 });
                 
-                if (items.length === 0) {
+                if (!hasValidItems) {
                     alert('Lütfen en az bir geçerli öğe ekleyin');
                     return;
                 }
@@ -124,15 +166,18 @@ document.addEventListener('DOMContentLoaded', function() {
                     items: items
                 };
                 
+                console.log("Saving list data:", listData);
+                
                 // Save the list
-                const savedList = await dataStorage.saveList(listData);
+                const savedList = await window.dataStorage.saveList(listData);
+                console.log("List saved:", savedList);
                 
                 // Redirect to QR code page
                 window.location.href = `qr-generator.html?listId=${savedList.id}`;
                 
             } catch (error) {
                 console.error('Liste kaydetme hatası:', error);
-                alert('Liste kaydedilemedi');
+                alert('Liste kaydedilemedi: ' + error.message);
             }
         });
     }
