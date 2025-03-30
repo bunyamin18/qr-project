@@ -11,6 +11,10 @@
     <div class="create-tech-background"></div>
     <div class="container">
         <div class="center-card">
+            <div class="header-buttons">
+                <button class="new-list-button">Yeni Liste</button>
+                <button class="edit-button">Düzenle</button>
+            </div>
             <h1>QR Kod Oluştur</h1>
             <div class="qr-generator-container">
                 <div id="qrPreview" class="qr-preview"></div>
@@ -21,16 +25,40 @@
             </div>
         </div>
     </div>
-    <script>
-        // URL'den liste verisini al
-        const urlParams = new URLSearchParams(window.location.search);
-        const encodedData = urlParams.get('data');
-        let listData = null;
+    <script type="module">
+        import dataService from './services/dataService.js';
+        import qrService from './services/qrService.js';
 
-        if (encodedData) {
+        // URL'den liste ID'sini al
+        const urlParams = new URLSearchParams(window.location.search);
+        const listId = urlParams.get('listId');
+        let currentListData = null;
+
+        if (listId) {
             try {
-                const decodedString = decodeURIComponent(encodedData);
-                listData = JSON.parse(decodedString);
+                // Liste verisini al
+                currentListData = dataService.getList(listId);
+                
+                if (!currentListData) {
+                    throw new Error('Liste bulunamadı');
+                }
+
+                // QR kodu oluştur
+                qrService.createQR(currentListData.id).then(qrData => {
+                    if (qrData) {
+                        const qrPreview = document.getElementById('qrPreview');
+                        qrPreview.innerHTML = `
+                            <div class="qr-code-container">
+                                <img src="${qrData}" alt="QR Kod">
+                                <p class="qr-text">${currentListData.id}</p>
+                            </div>
+                        `;
+                    }
+                }).catch(error => {
+                    console.error('QR kod oluşturma hatası:', error);
+                    alert('QR kod oluşturulamadı');
+                });
+
             } catch (error) {
                 console.error('Veri yükleme hatası:', error);
                 alert('Liste verisi yüklenirken bir hata oluştu');
@@ -39,32 +67,37 @@
             }
         }
 
-        // QR kodu oluştur
-        if (listData) {
-            const qr = new QRCode(document.getElementById("qrPreview"), {
-                text: `https://okulprojesibunyamin.netlify.app/list.html?data=${encodeURIComponent(JSON.stringify(listData))}`,
-                width: 256,
-                height: 256,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
-        }
-
         // İndirme butonu event listener'ı
         document.getElementById('downloadQR').addEventListener('click', () => {
-            const qrElement = document.querySelector('.qr-preview canvas');
-            if (qrElement) {
-                const link = document.createElement('a');
-                link.download = `liste-qr-${listData.id}.png`;
-                link.href = qrElement.toDataURL("image/png");
-                link.click();
+            if (currentListData) {
+                qrService.createQR(currentListData.id).then(qrData => {
+                    if (qrData) {
+                        qrService.downloadQR(qrData, currentListData.id);
+                    }
+                }).catch(error => {
+                    console.error('QR kod indirme hatası:', error);
+                    alert('QR kod indirilemedi');
+                });
             }
         });
 
         // Listeye dön butonu event listener'ı
         document.getElementById('backToList').addEventListener('click', () => {
-            window.location.href = `list.html?data=${encodeURIComponent(JSON.stringify(listData))}`;
+            if (currentListData) {
+                window.location.href = `list.html?listId=${currentListData.id}`;
+            }
+        });
+
+        // Yeni liste oluşturma butonu event listener'ı
+        document.querySelector('.new-list-button').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+
+        // Düzenleme butonu event listener'ı
+        document.querySelector('.edit-button').addEventListener('click', () => {
+            if (currentListData) {
+                window.location.href = `index.html?listId=${currentListData.id}`;
+            }
         });
     </script>
 </body>

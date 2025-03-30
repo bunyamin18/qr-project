@@ -1,13 +1,76 @@
+import dataService from './services/dataService.js';
+import qrService from './services/qrService.js';
+
 // Gerekli elementleri sakla
 let titleInput;
 let itemsContainer;
 let currentListData;
 
+// Form gönderme fonksiyonu
+async function handleFormSubmit(event) {
+    event.preventDefault();
+
+    // Form verilerini al
+    const title = titleInput.value.trim();
+    const items = Array.from(itemsContainer.children)
+        .map(row => {
+            const content = row.querySelector('.item-content').value.trim();
+            const value = row.querySelector('.item-value').value.trim();
+            const imageInput = row.querySelector('.item-image');
+            let image = '';
+            
+            // Mevcut resmi al
+            const preview = row.querySelector('.image-preview');
+            if (preview && preview.src) {
+                image = preview.src;
+            }
+
+            return {
+                content,
+                value,
+                image
+            };
+        })
+        .filter(item => item.content || item.value || item.image); // Boş öğeleri filtrele
+
+    // Veri doğrulama
+    if (!title || items.length === 0) {
+        alert('Lütfen liste başlığı ve en az bir öğe girin');
+        return;
+    }
+
+    // Mevcut liste verisi varsa güncelle
+    if (currentListData) {
+        currentListData.title = title;
+        currentListData.items = items;
+    } else {
+        // Yeni liste oluştur
+        currentListData = {
+            id: generateUniqueID(),
+            title,
+            items
+        };
+    }
+
+    try {
+        // Veriyi sakla
+        const savedList = await dataService.saveList(currentListData);
+        
+        // QR kod sayfasına yönlendir
+        window.location.href = `qr-generator.html?listId=${savedList.id}`;
+    } catch (error) {
+        console.error('Veri kaydetme hatası:', error);
+        alert('Liste kaydedilirken bir hata oluştu');
+    }
+}
+
+// Benzersiz ID oluşturma fonksiyonu
+function generateUniqueID() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
 // Sayfa yüklendiğinde çalışacak fonksiyon
 document.addEventListener('DOMContentLoaded', function() {
-    // Teknolojik arka plan efektini oluştur
-    createTechBackground();
-
     // DOM elementlerini al
     titleInput = document.getElementById('listTitle');
     itemsContainer = document.getElementById('items');
@@ -26,15 +89,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // URL'den veri al
     const urlParams = new URLSearchParams(window.location.search);
-    const encodedData = urlParams.get('data');
+    const listId = urlParams.get('listId');
     
-    if (encodedData) {
+    if (listId) {
         try {
-            const decodedString = decodeURIComponent(encodedData);
-            currentListData = JSON.parse(decodedString);
+            // Liste verisini al
+            currentListData = dataService.getList(listId);
             
-            // Veriyi form'a yükle
             if (currentListData) {
+                // Veriyi form'a yükle
                 titleInput.value = currentListData.title || '';
                 
                 // Mevcut öğeleri ekle
@@ -54,42 +117,6 @@ document.addEventListener('DOMContentLoaded', function() {
         addItem();
     }
 });
-
-// Teknolojik arka plan efektini oluştur
-function createTechBackground() {
-    const techBackground = document.createElement('div');
-    techBackground.className = 'create-tech-background';
-    document.body.appendChild(techBackground);
-
-    // Rastgele veri parçacıkları oluştur
-    for (let i = 0; i < 50; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'data-particles';
-        
-        // Rastgele başlangıç pozisyonları
-        particle.style.left = Math.random() * 100 + 'vw';
-        particle.style.top = Math.random() * 100 + 'vh';
-        
-        // Rastgele animasyon süresi
-        particle.style.animationDuration = Math.random() * 5 + 5 + 's';
-        
-        techBackground.appendChild(particle);
-    }
-
-    // Rastgele kablo efektleri oluştur
-    for (let i = 0; i < 10; i++) {
-        const cable = document.createElement('div');
-        cable.className = 'cable';
-        
-        // Rastgele pozisyonlar
-        cable.style.left = Math.random() * 100 + 'vw';
-        
-        // Rastgele animasyon süresi
-        cable.style.animationDuration = Math.random() * 2 + 2 + 's';
-        
-        techBackground.appendChild(cable);
-    }
-}
 
 // Yeni öğe ekleme fonksiyonu
 function addItem() {
@@ -144,83 +171,24 @@ function createItemRow(content = '', value = '', image = '') {
             }
         });
     }
-    
+
     // Silme butonu event listener'ı ekle
     const deleteButton = row.querySelector('.delete-row');
     if (deleteButton) {
-        deleteButton.addEventListener('click', function() {
+        deleteButton.addEventListener('click', () => {
             row.remove();
         });
     }
-    
+
     return row;
 }
 
 // HTML escape fonksiyonu
 function escapeHtml(unsafe) {
-    if (typeof unsafe !== 'string') return unsafe;
     return unsafe
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
-}
-
-// Form gönderme fonksiyonu
-function handleFormSubmit(event) {
-    event.preventDefault();
-
-    // Form verilerini al
-    const title = titleInput.value.trim();
-    const items = Array.from(itemsContainer.children)
-        .map(row => {
-            const content = row.querySelector('.item-content').value.trim();
-            const value = row.querySelector('.item-value').value.trim();
-            const imageInput = row.querySelector('.item-image');
-            let image = '';
-            
-            // Mevcut resmi al
-            const preview = row.querySelector('.image-preview');
-            if (preview && preview.src) {
-                image = preview.src;
-            }
-
-            return {
-                content,
-                value,
-                image
-            };
-        })
-        .filter(item => item.content || item.value || item.image); // Boş öğeleri filtrele
-
-    // Veri doğrulama
-    if (!title || items.length === 0) {
-        alert('Lütfen liste başlığı ve en az bir öğe girin');
-        return;
-    }
-
-    // Mevcut liste verisi varsa güncelle
-    if (currentListData) {
-        currentListData.title = title;
-        currentListData.items = items;
-    } else {
-        // Yeni liste oluştur
-        currentListData = {
-            id: generateUniqueID(),
-            title,
-            items
-        };
-    }
-
-    // Veriyi URL formatında kodla
-    const encodedData = encodeURIComponent(JSON.stringify(currentListData));
-    
-    // QR kod sayfasına yönlendir
-    window.location.href = `qr-generator.html?data=${encodedData}`;
-}
-
-// Benzersiz ID oluşturma fonksiyonu
-function generateUniqueID() {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }

@@ -44,6 +44,27 @@
             background: #0056b3;
         }
 
+        .new-list-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-right: 10px;
+        }
+
+        .new-list-button:hover {
+            background: #0056b3;
+        }
+
+        .header-buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
         #qrError {
             display: none;
             color: #dc3545;
@@ -56,13 +77,16 @@
     <div class="create-tech-background"></div>
     <div class="container">
         <div class="center-card">
+            <div class="header-buttons">
+                <button class="new-list-button">Yeni Liste</button>
+                <button class="edit-button">Düzenle</button>
+            </div>
             <h1 id="listTitle"></h1>
             <div id="itemsList"></div>
             <div id="qrContainer"></div>
             <div id="qrError" style="display: none; color: #dc3545; text-align: center; margin-top: 1rem;"></div>
-            <button class="edit-button">Düzenle</button>
         </div>
     </div>
-    <script src="list.js"></script>
+    <script type="module" src="list.js"></script>
 </body>
 </html>
