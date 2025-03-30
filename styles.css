@@ -68,6 +68,7 @@ h1 {
     padding: 10px;
     border: 1px solid #eee;
     border-radius: 4px;
+    position: relative;
 }
 
 .item-content-container,
@@ -98,6 +99,10 @@ h1 {
     cursor: pointer;
     font-size: 18px;
     font-weight: bold;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    z-index: 1;
 }
 
 .delete-row:hover {
@@ -306,6 +311,8 @@ input[type="file"] {
     .delete-row {
         font-size: 16px;
         padding: 4px 8px;
+        top: 3px;
+        right: 3px;
     }
 
     h1 {
@@ -333,5 +340,7 @@ input[type="file"] {
 
     .delete-row {
         font-size: 14px;
+        top: 2px;
+        right: 2px;
     }
 }

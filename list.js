@@ -101,43 +101,21 @@ function displayListData(data) {
         row.className = 'list-row';
         
         row.innerHTML = `
-            <div class="content">
-                <span class="label">İçerik</span>
-                <div class="value">${escapeHtml(item.content)}</div>
-            </div>
-            <div class="value-container">
-                <span class="label">Miktar/Değer</span>
-                <div class="value">${escapeHtml(item.value)}</div>
-            </div>
-            <div class="image-container">
-                <span class="label">Resim</span>
-                ${item.image ? 
-                    `<div class="image-wrapper">
-                        <img src="${item.image}" class="item-image" alt="Ürün resmi" style="max-width: 100px; max-height: 100px; object-fit: cover;">
-                    </div>` : 
-                    '<div class="value">Resim yok</div>'
-                }
-            </div>
+            <div class="item-content">${escapeHtml(item.content)}</div>
+            <div class="item-value">${escapeHtml(item.value)}</div>
+            ${item.image ? `<img src="${item.image}" class="item-image" alt="Öğe resmi">` : ''}
         `;
-        
         itemsList.appendChild(row);
     });
 
     // QR kodu göster
     if (data.qrCode) {
-        const qrImg = document.createElement('img');
-        qrImg.src = data.qrCode;
-        qrImg.alt = 'QR Kod';
-        qrImg.style.maxWidth = '256px';
-        qrImg.style.maxHeight = '256px';
-        
-        qrContainer.innerHTML = '';
-        qrContainer.appendChild(qrImg);
-        qrError.style.display = 'none';
-    } else {
-        qrContainer.innerHTML = '';
-        qrError.style.display = 'block';
-        qrError.textContent = 'QR kod oluşturulamadı';
+        qrContainer.innerHTML = `
+            <div class="qr-code-container">
+                <img src="${data.qrCode}" alt="QR Kod">
+                <p class="qr-text">${data.id}</p>
+            </div>
+        `;
     }
 }
 
@@ -154,42 +132,32 @@ function escapeHtml(unsafe) {
 
 // QR kod oluşturma fonksiyonu
 async function createQRCode(listId) {
-    return new Promise((resolve, reject) => {
-        try {
-            // QR kod kütüphanesini kontrol et
-            if (typeof QRCode === 'undefined') {
-                console.error('QR kod kütüphanesi yüklenemedi');
-                reject(new Error('QR kod kütüphanesi yüklenemedi'));
-                return;
+    try {
+        // QR kod içeriğini daha kompakt hale getir
+        const compactData = {
+            id: listId,
+            v: 1 // Versiyon bilgisi
+        };
+        
+        // JSON verisini base64'e dönüştür
+        const jsonString = JSON.stringify(compactData);
+        const encoder = new TextEncoder();
+        const encoded = encoder.encode(jsonString);
+        const base64 = btoa(String.fromCharCode(...encoded));
+
+        // QR kod oluştur
+        const qr = await QRCode.toDataURL(base64, {
+            width: 256,
+            margin: 1,
+            color: {
+                dark: '#000000FF',
+                light: '#FFFFFFFF'
             }
+        });
 
-            // QR kod oluştur
-            const qrElement = document.createElement('div');
-            document.body.appendChild(qrElement);
-            
-            const qr = new QRCode(qrElement, {
-                text: `https://okulprojesibunyamin.netlify.app/list.html?data=${encodeURIComponent(JSON.stringify({id: listId}))}`,
-                width: 256,
-                height: 256,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
-
-            // QR kodu veri olarak al
-            const canvas = qrElement.querySelector('canvas');
-            if (canvas) {
-                const qrData = canvas.toDataURL();
-                document.body.removeChild(qrElement);
-                resolve(qrData);
-            } else {
-                document.body.removeChild(qrElement);
-                reject(new Error('QR kod oluşturulamadı'));
-            }
-
-        } catch (error) {
-            console.error('QR kod oluşturma hatası:', error);
-            reject(error);
-        }
-    });
+        return qr;
+    } catch (error) {
+        console.error('QR kod oluşturma hatası:', error);
+        return null;
+    }
 }
