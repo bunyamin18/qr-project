@@ -28,6 +28,7 @@ async function handleFormSubmit(event) {
                 // Mevcut resmi al
                 const preview = row.querySelector('.image-preview');
                 if (preview && preview.src) {
+                    // Resim URL'sini sakla
                     image = preview.src;
                 }
 
@@ -55,7 +56,6 @@ async function handleFormSubmit(event) {
         } else {
             // Yeni liste oluştur
             currentListData = {
-                id: dataStorage.generateUniqueID(),
                 title,
                 items
             };
@@ -101,7 +101,7 @@ function createItemRow(content = '', value = '', image = '') {
         <div class="item-image-container">
             <label>Resim</label>
             <input type="file" class="item-image" accept="image/*">
-            ${image ? `<img src="${image}" class="image-preview" alt="Öğe resmi">` : ''}
+            ${image ? `<button class="view-image-button">Resmi Görüntüle</button>` : ''}
         </div>
         <button type="button" class="delete-row">×</button>
     `;
@@ -114,18 +114,37 @@ function createItemRow(content = '', value = '', image = '') {
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const preview = row.querySelector('.image-preview');
-                    if (preview) {
-                        preview.src = e.target.result;
-                    } else {
-                        const img = document.createElement('img');
-                        img.className = 'image-preview';
-                        img.src = e.target.result;
-                        img.style.maxWidth = '100px';
-                        img.style.maxHeight = '100px';
-                        img.style.objectFit = 'cover';
-                        row.querySelector('.item-image-container').appendChild(img);
+                    // Resmi önizleme olarak göster
+                    const preview = document.createElement('img');
+                    preview.className = 'image-preview';
+                    preview.src = e.target.result;
+                    preview.style.maxWidth = '100px';
+                    preview.style.maxHeight = '100px';
+                    preview.style.objectFit = 'cover';
+                    
+                    // Resim görüntüleme butonunu ekle
+                    const viewButton = document.createElement('button');
+                    viewButton.className = 'view-image-button';
+                    viewButton.textContent = 'Resmi Görüntüle';
+                    
+                    // Mevcut önizleme varsa kaldır
+                    const existingPreview = row.querySelector('.image-preview');
+                    const existingButton = row.querySelector('.view-image-button');
+                    if (existingPreview) {
+                        existingPreview.remove();
                     }
+                    if (existingButton) {
+                        existingButton.remove();
+                    }
+                    
+                    // Yeni butonu ekle
+                    const imageContainer = row.querySelector('.item-image-container');
+                    imageContainer.appendChild(viewButton);
+                    
+                    // Butona tıklama event listener'ı ekle
+                    viewButton.addEventListener('click', () => {
+                        window.open(e.target.result, '_blank');
+                    });
                 };
                 reader.readAsDataURL(file);
             }
