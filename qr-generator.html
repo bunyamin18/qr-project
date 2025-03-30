@@ -13,6 +13,10 @@
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <!-- DataStorage servisi -->
     <script src="services/dataStorage.js"></script>
+    <!-- Önce script.js yükle (window.dataStorage tanımlanmalı) -->
+    <script src="script.js"></script>
+    <!-- Sonra QR Generator script -->
+    <script src="qr-generator.js"></script>
 </head>
 <body>
     <div id="particles-js" class="tech-background"></div>
@@ -38,8 +42,5 @@
             </div>
         </div>
     </div>
-    
-    <!-- Gerekli script dosyaları -->
-    <script src="qr-generator.js"></script>
 </body>
 </html>

@@ -1,7 +1,6 @@
 // QR Generator Script
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize particles.js for background animation
-    // Arka plan animasyonu script.js içinde genel olarak tanımlandı
+    console.log("QR-generator.js yüklendi");
     
     // DOM elements
     const listTitle = document.getElementById('listTitle');
@@ -11,6 +10,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const downloadButton = document.getElementById('downloadButton');
     const backButton = document.getElementById('backButton');
     const editButton = document.getElementById('editButton');
+    
+    // Window.dataStorage'ın varlığını kontrol et
+    if (!window.dataStorage) {
+        console.error("window.dataStorage bulunamadı! Lütfen script.js'in önce yüklendiğinden emin olun.");
+        showError("Veri depolama hatası! Lütfen sayfayı yenileyin.");
+        return;
+    } else {
+        console.log("window.dataStorage bulundu:", window.dataStorage);
+    }
     
     // Get list ID from URL
     const urlParams = new URLSearchParams(window.location.search);
@@ -22,8 +30,12 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
     
-    // Get list data
+    console.log("Liste ID:", listId);
+    
+    // Get list data using window.dataStorage
     const listData = window.dataStorage.getList(listId);
+    
+    console.log("Liste verisi:", listData);
     
     // Ensure we have list data
     if (!listData) {
@@ -100,12 +112,31 @@ document.addEventListener('DOMContentLoaded', function() {
                         imgElement.style.objectFit = 'contain';
                         imgElement.style.borderRadius = '10px';
                         
-                        // Add close on click
-                        modal.addEventListener('click', function() {
+                        // Create close button
+                        const closeButton = document.createElement('div');
+                        closeButton.style.position = 'absolute';
+                        closeButton.style.top = '20px';
+                        closeButton.style.right = '20px';
+                        closeButton.style.color = 'white';
+                        closeButton.style.fontSize = '30px';
+                        closeButton.style.cursor = 'pointer';
+                        closeButton.innerHTML = '&times;';
+                        closeButton.addEventListener('click', function() {
                             document.body.removeChild(modal);
                         });
                         
+                        // Add image and close button to modal
                         modal.appendChild(imgElement);
+                        modal.appendChild(closeButton);
+                        
+                        // Add click handler to close modal when clicking outside image
+                        modal.addEventListener('click', function(e) {
+                            if (e.target === modal) {
+                                document.body.removeChild(modal);
+                            }
+                        });
+                        
+                        // Add modal to body
                         document.body.appendChild(modal);
                     });
                 }
@@ -113,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 previewItems.appendChild(previewItem);
             });
         } else {
-            previewItems.innerHTML = '<p>Bu listede hiç öğe bulunmuyor.</p>';
+            previewItems.innerHTML = '<p>Bu listede öğe yok.</p>';
         }
     }
     
@@ -168,85 +199,89 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Function to setup button event listeners
     function setupButtonListeners(listData) {
-        // Back button
-        backButton.addEventListener('click', function() {
-            window.location.href = 'index.html';
-        });
+        // Back button - go to home page
+        if (backButton) {
+            backButton.addEventListener('click', function() {
+                window.location.href = 'index.html';
+            });
+        }
         
-        // Edit button
-        editButton.addEventListener('click', function() {
-            window.location.href = `index.html?listId=${listData.id}`;
-        });
+        // Edit button - go to edit page with list ID
+        if (editButton) {
+            editButton.addEventListener('click', function() {
+                window.location.href = `index.html?edit=${listData.id}`;
+            });
+        }
         
-        // Download button - QR kodunu JPG olarak indir
-        downloadButton.addEventListener('click', function() {
-            try {
-                const qrImg = qrContainer.querySelector('img');
-                if (!qrImg) {
-                    throw new Error('QR kod bulunamadı');
-                }
-                
-                // QR kod görüntüsünü bir Canvas'a çiz
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                
-                // Daha büyük ve beyaz kenarlıklı bir canvas oluştur
-                canvas.width = 300;
-                canvas.height = 300;
-                
-                // Beyaz arka plan çiz
-                ctx.fillStyle = 'white';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                // Görüntüyü canvas'a çiz
-                const img = new Image();
-                img.onload = function() {
-                    // QR kodu canvas'ın ortasına yerleştir
-                    const padding = 20;
-                    ctx.drawImage(img, padding, padding, canvas.width - (padding * 2), canvas.height - (padding * 2));
+        // Download button - download QR code as image
+        if (downloadButton) {
+            downloadButton.addEventListener('click', function() {
+                try {
+                    const qrImg = qrContainer.querySelector('img');
+                    if (!qrImg) {
+                        alert('QR kodu bulunamadı');
+                        return;
+                    }
                     
-                    // Canvas'ı indirilecek bağlantıya dönüştür
+                    // Create a canvas to draw the QR code with border
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    // Set canvas size to include white border
+                    const borderSize = 20; // White border around QR code
+                    canvas.width = qrImg.naturalWidth + (borderSize * 2);
+                    canvas.height = qrImg.naturalHeight + (borderSize * 2);
+                    
+                    // Fill with white background
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    // Draw QR code in the center
+                    ctx.drawImage(qrImg, borderSize, borderSize);
+                    
+                    // Add list title at the bottom
+                    ctx.font = 'bold 16px Arial';
+                    ctx.fillStyle = 'black';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(listData.title, canvas.width / 2, canvas.height - 6);
+                    
+                    // Convert to data URL and download
                     const link = document.createElement('a');
-                    link.download = `${listData.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_qr_kod.jpg`;
-                    
-                    // Canvas'ı yüksek kaliteli JPEG'e dönüştür
-                    link.href = canvas.toDataURL('image/jpeg', 1.0);
+                    link.href = canvas.toDataURL('image/png');
+                    link.download = `QR_${listData.title.replace(/[^a-z0-9]/gi, '_')}.png`;
                     link.click();
-                };
-                img.onerror = function() {
-                    throw new Error('QR kod görüntüsü yüklenemedi');
-                };
-                img.src = qrImg.src;
-                
-            } catch (error) {
-                console.error('Error downloading QR code:', error);
-                alert('QR kod indirilirken bir hata oluştu: ' + error.message);
-            }
-        });
+                } catch (error) {
+                    console.error('QR kod indirme hatası:', error);
+                    alert('QR kod indirirken bir hata oluştu: ' + error.message);
+                }
+            });
+        }
     }
     
     // Function to show error messages
     function showError(message) {
         if (listTitle) {
             listTitle.textContent = 'Hata';
-            listTitle.style.color = '#ff5757';
+            listTitle.style.color = 'red';
         }
         
         if (listPreview) {
-            previewItems.innerHTML = `<p class="error-message">${message}</p>`;
+            listPreview.style.display = 'none';
         }
         
         if (qrContainer) {
-            qrContainer.innerHTML = '';
+            qrContainer.innerHTML = `
+                <div class="error-container">
+                    <div class="error-icon">⚠️</div>
+                    <p class="error-message">${message}</p>
+                    <p>Lütfen ana sayfaya dönün ve tekrar deneyin.</p>
+                </div>
+            `;
         }
         
-        if (downloadButton) {
-            downloadButton.style.display = 'none';
-        }
-        
-        if (editButton) {
-            editButton.style.display = 'none';
-        }
+        // Only show back button when error occurs
+        if (downloadButton) downloadButton.style.display = 'none';
+        if (editButton) editButton.style.display = 'none';
     }
     
     // Function to escape HTML to prevent XSS
