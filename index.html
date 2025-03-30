@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yeni Liste Oluştur</title>
+    <title>QR Kod Oluştur</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode-generator.min.js"></script>
+    <script type="module">
+        import './script.js';
+    </script>
     <style>
         body {
             margin: 0;
@@ -56,70 +60,13 @@
             font-size: 16px;
         }
 
-        .items-container {
-            margin: 20px 0;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 15px;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr auto;
-            gap: 15px;
-            margin-bottom: 15px;
-            padding: 10px;
-            border: 1px solid #eee;
-            border-radius: 4px;
-            background: white;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-        }
-
-        .item-content-container,
-        .item-value-container,
-        .item-image-container {
+        .button-container {
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
+            margin-top: 20px;
         }
 
-        .item-image-container input[type="file"] {
-            margin-top: 5px;
-        }
-
-        .image-preview {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            border-radius: 4px;
-            margin-top: 5px;
-            border: 3px solid white;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .delete-row {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 18px;
-            font-weight: bold;
-            position: absolute;
-            right: -10px;
-            top: -10px;
-            width: 30px;
-            height: 30px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        .delete-row:hover {
-            background-color: #c82333;
-            transform: scale(1.1);
-        }
-
-        .add-row-button,
-        .save-button {
+        .generate-button {
             background-color: #28a745;
             color: white;
             border: none;
@@ -130,18 +77,9 @@
             transition: background-color 0.3s;
         }
 
-        .add-row-button:hover,
-        .save-button:hover {
+        .generate-button:hover {
             background-color: #218838;
             transform: translateY(-2px);
-        }
-
-        .save-button {
-            background-color: #007bff;
-        }
-
-        .save-button:hover {
-            background-color: #0056b3;
         }
 
         .qr-container {
@@ -155,56 +93,20 @@
             max-width: 256px;
             max-height: 256px;
         }
-
-        .create-tech-background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: linear-gradient(to bottom, #f5f5f5, #fff);
-            background-size: 100% 200px;
-            background-position: 0% 100%;
-            animation: move-background 10s infinite;
-        }
-
-        @keyframes move-background {
-            0% {
-                background-position: 0% 100%;
-            }
-            100% {
-                background-position: 0% 0%;
-            }
-        }
-
-        .button-container {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.0/build/qrcode.min.js"></script>
-    <script type="module">
-        import dataStorage from './services/dataStorage.js';
-        import './script.js';
-    </script>
 </head>
 <body>
-    <div class="create-tech-background"></div>
     <div class="container">
         <div class="center-card">
-            <h1>Yeni Liste Oluştur</h1>
-            <form id="listForm">
-                <div class="form-group">
-                    <label>Liste Başlığı</label>
-                    <input type="text" id="listTitle" class="form-control" required>
-                </div>
-                <div id="items"></div>
-                <div class="button-container">
-                    <button type="button" class="add-row-button">Yeni Öğe Ekle</button>
-                    <button type="submit" class="save-button">Kaydet</button>
-                </div>
-            </form>
+            <h1>QR Kod Oluştur</h1>
+            <div class="form-group">
+                <label>İçerik</label>
+                <input type="text" id="qrContent" class="form-control" placeholder="QR kodu için içerik girin">
+            </div>
+            <div class="button-container">
+                <button id="generateButton" class="generate-button">QR Kodu Oluştur</button>
+            </div>
+            <div id="qrContainer" class="qr-container"></div>
         </div>
     </div>
 </body>

@@ -18,33 +18,29 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    line-height: 1.6;
-    color: var(--text-color);
-    background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     min-height: 100vh;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 /* Ana container stil */
 .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
     width: 100%;
+    max-width: 600px;
+    padding: 20px;
 }
 
 /* Merkezi kart stil */
 .center-card {
-    background: var(--card-background);
-    border-radius: 15px;
+    background: white;
     padding: 30px;
-    box-shadow: var(--card-shadow);
-    margin-top: 20px;
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.3s ease;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    text-align: center;
 }
 
 .center-card:hover {
@@ -53,10 +49,9 @@ body {
 
 /* Başlık stil */
 h1 {
-    color: var(--secondary-color);
-    text-align: center;
+    color: #2c3e50;
     margin-bottom: 30px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 2rem;
 }
 
 /* Form grup stil */
@@ -68,7 +63,7 @@ h1 {
 label {
     display: block;
     margin-bottom: 8px;
-    color: var(--primary-color);
+    color: #2c3e50;
     font-weight: 500;
 }
 
@@ -76,15 +71,16 @@ label {
 .form-control {
     width: 100%;
     padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
     font-size: 16px;
-    transition: border-color 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 .form-control:focus {
     outline: none;
-    border-color: var(--secondary-color);
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
 }
 
 /* Form satırı stil */
@@ -197,6 +193,14 @@ button:hover {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+.qr-container img {
+    max-width: 256px;
+    max-height: 256px;
+    border: 2px solid #3498db;
+    border-radius: 6px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
 /* Liste öğesi stil */
 .list-item {
     display: flex;
@@ -305,12 +309,20 @@ button:hover {
 
 /* QR kod indirme butonu stil */
 .download-button {
-    background: #e74c3c;
-    margin-top: 20px;
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
 }
 
 .download-button:hover {
-    background: #c0392b;
+    background-color: #27ae60;
+    transform: translateY(-2px);
 }
 
 /* Geri butonu stil */
@@ -328,6 +340,23 @@ button:hover {
     display: flex;
     justify-content: space-between;
     margin-top: 20px;
+}
+
+.generate-button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.generate-button:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
 }
 
 /* Teknolojik arka plan efekti */
