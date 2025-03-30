@@ -19,20 +19,49 @@ document.addEventListener('DOMContentLoaded', function() {
     // Liste verisini al (önce encoded data, sonra localStorage)
     let listData = null;
     
+    // URL-safe Base64 decode fonksiyonu
+    function urlSafeBase64Decode(str) {
+        // URL güvenli Base64'ü standart Base64'e çevir
+        const base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+        try {
+            return decodeURIComponent(atob(base64));
+        } catch (e) {
+            console.error("Base64 decode hatası:", e);
+            return null;
+        }
+    }
+    
     // Önce URL'den gelen kodlanmış veriyi kontrol et
     if (encodedData) {
         try {
-            // Base64 decode
-            const decodedData = decodeURIComponent(atob(encodedData));
-            listData = JSON.parse(decodedData);
-            console.log("URL'den liste verisi çözüldü:", listData);
-            
-            // Çözülen veriyi aynı zamanda localStorage'a da kaydedelim
-            if (listData && listData.id) {
-                saveListToLocalStorage(listData);
+            // URL-safe Base64 decode
+            const decodedData = urlSafeBase64Decode(encodedData);
+            if (decodedData) {
+                listData = JSON.parse(decodedData);
+                console.log("URL'den liste verisi çözüldü:", listData);
+                
+                // Çözülen veriyi aynı zamanda localStorage'a da kaydedelim
+                if (listData && listData.id) {
+                    saveListToLocalStorage(listData);
+                }
+            } else {
+                throw new Error("Veri çözülemedi");
             }
         } catch (error) {
             console.error("URL'den gelen veri çözümlenemedi:", error);
+        }
+    }
+    
+    // Özel depolama alanından büyük veriyi kontrol et
+    if (!listData && listId) {
+        const specialData = localStorage.getItem(`list_data_${listId}`);
+        if (specialData) {
+            try {
+                listData = JSON.parse(specialData);
+                console.log("Özel depolama alanından büyük veri yüklendi");
+            } catch (e) {
+                console.error("Özel depolama verisi çözümlenemedi:", e);
+            }
         }
     }
     

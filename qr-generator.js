@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // her bir resim için maksimum boyutu sınırlayalım
             
             // Resim sıkıştırma için yardımcı fonksiyon
-            function compressImage(baseImage, maxImageSize = 2000) {
+            function compressImage(baseImage, maxImageSize = 1000) {
                 // Eğer resim yoksa veya çok küçükse direkt döndür
                 if (!baseImage || baseImage.length < maxImageSize) return baseImage;
                 
@@ -203,18 +203,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 const compressRatio = maxImageSize / baseImage.length;
                 console.log(`Resim sıkıştırılıyor. Orijinal: ${baseImage.length}, Hedef: ${maxImageSize}, Oran: ${compressRatio}`);
                 
-                // Resim bilgilerini kes (veri: kısmı hariç)
-                if (baseImage.indexOf('data:image') === 0) {
-                    // Base64 veri URI formatında, sadece temel bilgiyi alalım
-                    const format = baseImage.split(';')[0] + ';base64,'; // örn: data:image/jpeg;base64,
-                    const encodedData = baseImage.split(',')[1];
-                    
-                    // İlk 100 karakter ve son 100 karakter alınsın (çok büyük resimleri kısaltmak için)
-                    if (encodedData.length > 200) {
-                        const truncated = encodedData.substring(0, 100) + '...[kısaltıldı]...' + 
-                                         encodedData.substring(encodedData.length - 100);
-                        return `${format}${truncated}`;
+                try {
+                    // Resim bilgilerini kes (veri: kısmı hariç)
+                    if (baseImage.indexOf('data:image') === 0) {
+                        // Base64 veri URI formatında, sadece temel bilgiyi alalım
+                        const format = baseImage.split(';')[0] + ';base64,'; // örn: data:image/jpeg;base64,
+                        const encodedData = baseImage.split(',')[1];
+                        
+                        if (encodedData && encodedData.length > 100) {
+                            // Resmi kısaltalım (sınırlı boyuta)
+                            return format + encodedData.substring(0, maxImageSize);
+                        }
                     }
+                } catch (e) {
+                    console.error("Resim sıkıştırma hatası:", e);
                 }
                 
                 return baseImage;
@@ -240,23 +242,53 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
             };
             
-            // Liste verisini Base64 olarak kodla
-            const encodedData = btoa(encodeURIComponent(JSON.stringify(compressedListData)));
+            // Liste verisini URL-safe Base64 olarak kodla
+            const jsonData = JSON.stringify(compressedListData);
+            console.log("JSON veri boyutu:", jsonData.length);
+            
+            // URL-safe Base64 fonksiyonu (+ yerine -, / yerine _ ve = yok)
+            function urlSafeBase64Encode(str) {
+                return btoa(encodeURIComponent(str))
+                    .replace(/\+/g, '-')
+                    .replace(/\//g, '_')
+                    .replace(/=/g, '');
+            }
+            
+            const encodedData = urlSafeBase64Encode(jsonData);
             console.log("Encoded data length:", encodedData.length);
             
-            // Tam URL oluştur - list.html için (veri de dahil)
-            const listUrl = `${baseUrl}/list.html?data=${encodedData}`;
+            // Veri uzunluğuna göre QR kod URL stratejisi belirle
+            let finalUrl;
             
-            // Alternatif URL (ID ile)
-            const idUrl = `${baseUrl}/list.html?listId=${listData.id}`;
+            if (encodedData.length < 1000) {
+                // Direk veriyi URL'e ekle
+                finalUrl = `${baseUrl}/list.html?data=${encodedData}`;
+                console.log("Tam veri URL kullanılıyor.");
+            } else {
+                // Veri çok büyük, sadece ID kullan ve localStorage'a kaydet
+                finalUrl = `${baseUrl}/list.html?listId=${listData.id}`;
+                console.log("Veri çok büyük, sadece ID URL kullanılıyor.");
+                
+                // Büyük veriyi localStorage'a kaydet
+                try {
+                    localStorage.setItem(`list_data_${listData.id}`, jsonData);
+                    console.log("Büyük veri localStorage'a kaydedildi.");
+                } catch (e) {
+                    console.error("localStorage'a veri kaydedilemedi:", e);
+                }
+            }
             
-            // Log URL for debugging
-            console.log('Veri URL uzunluğu:', listUrl.length);
-            console.log('Alternatif URL (ID):', idUrl);
-            
-            // URL çok uzunsa sadece ID'yi kullan
-            const finalUrl = listUrl.length > 1500 ? idUrl : listUrl;
             console.log('Kullanılan URL:', finalUrl);
+            
+            // Basit URL kontrolü
+            try {
+                new URL(finalUrl);
+                console.log("URL geçerli format");
+            } catch (e) {
+                console.error("URL geçersiz format:", e);
+                finalUrl = `https://raw.githubusercontent.com/bunyamin18/qr-project/main/list.html?listId=${listData.id}`;
+                console.log("Düzeltilmiş URL:", finalUrl);
+            }
             
             // QR kod için container'ı temizle
             qrContainer.innerHTML = '';
