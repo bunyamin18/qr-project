@@ -1,5 +1,6 @@
 import dataService from './services/dataService.js';
 import qrService from './services/qrService.js';
+import QRCode from 'qrcodejs';
 
 // Gerekli elementleri sakla
 let titleElement;
@@ -34,22 +35,13 @@ function displayListData(data) {
     qrError.style.display = 'none';
 
     // QR kod oluştur
-    qrService.createQR(data.id).then(qrData => {
-        if (qrData) {
-            qrContainer.innerHTML = `
-                <div class="qr-code-container">
-                    <img src="${qrData}" alt="QR Kod">
-                    <p class="qr-text">${data.id}</p>
-                </div>
-            `;
-        } else {
-            qrError.style.display = 'block';
-            qrError.textContent = 'QR kod oluşturulamadı';
-        }
-    }).catch(error => {
-        console.error('QR kod oluşturma hatası:', error);
-        qrError.style.display = 'block';
-        qrError.textContent = 'QR kod oluşturulamadı';
+    const qr = new QRCode(qrContainer, {
+        text: `https://okulprojesibunyamin.netlify.app/list.html?listId=${data.id}`,
+        width: 256,
+        height: 256,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
     });
 }
 
@@ -83,14 +75,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
     try {
         // Liste verisini al
-        currentListData = dataService.getList(listId);
-        
-        if (!currentListData) {
-            throw new Error('Liste bulunamadı');
-        }
+        fetch(`https://okulprojesibunyamin.netlify.app/api/lists/${listId}`)
+        .then(response => response.json())
+        .then(data => {
+            currentListData = data;
+            
+            if (!currentListData) {
+                throw new Error('Liste bulunamadı');
+            }
 
-        // Veriyi göster
-        displayListData(currentListData);
+            // Veriyi göster
+            displayListData(currentListData);
+        })
+        .catch(error => {
+            console.error('Veri yükleme hatası:', error);
+            alert('Liste verisi yüklenirken bir hata oluştu');
+            window.location.href = 'index.html';
+        });
 
     } catch (error) {
         console.error('Veri yükleme hatası:', error);

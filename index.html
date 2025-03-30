@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yeni Liste Oluştur</title>
+    <title>Liste Oluştur</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.0/build/qrcode.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -183,20 +182,19 @@
     <div class="create-tech-background"></div>
     <div class="container">
         <div class="center-card">
-            <h1>Yeni Liste Oluştur</h1>
+            <h1>Liste Oluştur</h1>
             <form id="listForm">
                 <div class="form-group">
                     <label for="listTitle">Liste Başlığı</label>
-                    <input type="text" id="listTitle" required>
+                    <input type="text" id="listTitle" class="form-control" required>
                 </div>
-                <div id="items" class="items-container">
-                    <!-- Öğeler buraya eklenecek -->
-                </div>
+                <div id="items"></div>
                 <button type="button" class="add-row-button">Yeni Öğe Ekle</button>
                 <button type="submit" class="submit-button">Kaydet</button>
             </form>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.0/build/qrcode.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

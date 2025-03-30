@@ -1,13 +1,10 @@
-import dataService from './services/dataService.js';
-import qrService from './services/qrService.js';
-
 // Gerekli elementleri sakla
 let titleInput;
 let itemsContainer;
 let currentListData;
 
 // Form gönderme fonksiyonu
-async function handleFormSubmit(event) {
+function handleFormSubmit(event) {
     event.preventDefault();
 
     // Form verilerini al
@@ -53,11 +50,11 @@ async function handleFormSubmit(event) {
     }
 
     try {
-        // Veriyi sakla
-        const savedList = await dataService.saveList(currentListData);
+        // Veriyi URL formatında kodla
+        const encodedData = encodeURIComponent(JSON.stringify(currentListData));
         
         // QR kod sayfasına yönlendir
-        window.location.href = `qr-generator.html?listId=${savedList.id}`;
+        window.location.href = `qr-generator.html?listId=${currentListData.id}`;
     } catch (error) {
         console.error('Veri kaydetme hatası:', error);
         alert('Liste kaydedilirken bir hata oluştu');
@@ -68,55 +65,6 @@ async function handleFormSubmit(event) {
 function generateUniqueID() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
-
-// Sayfa yüklendiğinde çalışacak fonksiyon
-document.addEventListener('DOMContentLoaded', function() {
-    // DOM elementlerini al
-    titleInput = document.getElementById('listTitle');
-    itemsContainer = document.getElementById('items');
-    
-    // Form submit event listener'ı ekle
-    const form = document.getElementById('listForm');
-    if (form) {
-        form.addEventListener('submit', handleFormSubmit);
-    }
-
-    // Yeni öğe ekleme butonu event listener'ı ekle
-    const addItemButton = document.querySelector('.add-row-button');
-    if (addItemButton) {
-        addItemButton.addEventListener('click', addItem);
-    }
-
-    // URL'den veri al
-    const urlParams = new URLSearchParams(window.location.search);
-    const listId = urlParams.get('listId');
-    
-    if (listId) {
-        try {
-            // Liste verisini al
-            currentListData = dataService.getList(listId);
-            
-            if (currentListData) {
-                // Veriyi form'a yükle
-                titleInput.value = currentListData.title || '';
-                
-                // Mevcut öğeleri ekle
-                currentListData.items.forEach(item => {
-                    const row = createItemRow(item.content, item.value, item.image);
-                    itemsContainer.appendChild(row);
-                });
-            }
-        } catch (error) {
-            console.error('Veri yükleme hatası:', error);
-            alert('Liste verisi yüklenirken bir hata oluştu');
-        }
-    }
-
-    // İlk satırı ekle
-    if (itemsContainer.children.length === 0) {
-        addItem();
-    }
-});
 
 // Yeni öğe ekleme fonksiyonu
 function addItem() {
@@ -192,3 +140,60 @@ function escapeHtml(unsafe) {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
 }
+
+// Sayfa yüklendiğinde çalışacak fonksiyon
+document.addEventListener('DOMContentLoaded', function() {
+    // DOM elementlerini al
+    titleInput = document.getElementById('listTitle');
+    itemsContainer = document.getElementById('items');
+    
+    // Form submit event listener'ı ekle
+    const form = document.getElementById('listForm');
+    if (form) {
+        form.addEventListener('submit', handleFormSubmit);
+    }
+
+    // Yeni öğe ekleme butonu event listener'ı ekle
+    const addItemButton = document.querySelector('.add-row-button');
+    if (addItemButton) {
+        addItemButton.addEventListener('click', addItem);
+    }
+
+    // URL'den veri al
+    const urlParams = new URLSearchParams(window.location.search);
+    const listId = urlParams.get('listId');
+    
+    if (listId) {
+        try {
+            // Liste verisini al
+            fetch(`https://okulprojesibunyamin.netlify.app/api/lists/${listId}`)
+            .then(response => response.json())
+            .then(data => {
+                currentListData = data;
+                
+                if (currentListData) {
+                    // Veriyi form'a yükle
+                    titleInput.value = currentListData.title || '';
+                    
+                    // Mevcut öğeleri ekle
+                    currentListData.items.forEach(item => {
+                        const row = createItemRow(item.content, item.value, item.image);
+                        itemsContainer.appendChild(row);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Veri yükleme hatası:', error);
+                alert('Liste verisi yüklenirken bir hata oluştu');
+            });
+        } catch (error) {
+            console.error('Veri yükleme hatası:', error);
+            alert('Liste verisi yüklenirken bir hata oluştu');
+        }
+    }
+
+    // İlk satırı ekle
+    if (itemsContainer.children.length === 0) {
+        addItem();
+    }
+});
