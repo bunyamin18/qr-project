@@ -1,27 +1,55 @@
 import dataStorage from './services/dataStorage.js';
 
-// URL'den liste ID'sini al
-const urlParams = new URLSearchParams(window.location.search);
-const listId = urlParams.get('listId');
-let currentListData = null;
+// Gerekli elementleri sakla
+let qrCodeElement;
+let listPreview;
+let downloadButton;
+let backButton;
 
-if (listId) {
+// Liste verisini göster
+function displayListData(data) {
     try {
-        // Liste verisini al
-        currentListData = dataStorage.getList(listId);
-        
-        if (!currentListData) {
-            throw new Error('Liste bulunamadı');
+        // Başlığı göster
+        const titleElement = document.getElementById('listTitle');
+        if (titleElement) {
+            titleElement.textContent = data.title;
+        }
+
+        // Listeyi göster
+        const itemsContainer = document.getElementById('items');
+        if (itemsContainer) {
+            itemsContainer.innerHTML = '';
+            
+            data.items.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'list-item';
+                
+                // İçeriği ve değeri göster
+                itemElement.innerHTML = `
+                    <div class="item-content">${escapeHtml(item.content)}</div>
+                    <div class="item-value">${escapeHtml(item.value)}</div>
+                `;
+
+                // Resim varsa görüntüleme butonunu ekle
+                if (item.image) {
+                    const viewButton = document.createElement('button');
+                    viewButton.className = 'view-image-button';
+                    viewButton.textContent = 'Resmi Görüntüle';
+                    
+                    viewButton.addEventListener('click', () => {
+                        window.open(item.image, '_blank');
+                    });
+
+                    itemElement.appendChild(viewButton);
+                }
+
+                itemsContainer.appendChild(itemElement);
+            });
         }
 
         // QR kodu oluştur
-        const qrPreview = document.getElementById('qrPreview');
-        if (!qrPreview) {
-            throw new Error('QR kodu gösterimi için gerekli element bulunamadı');
-        }
-
-        const qr = new QRCode(qrPreview, {
-            text: `https://okulprojesibunyamin.netlify.app/list.html?listId=${currentListData.id}`,
+        const qr = new QRCode(qrCodeElement, {
+            text: `https://okulprojesibunyamin.netlify.app/list.html?listId=${data.id}`,
             width: 300,
             height: 300,
             colorDark: "#000000",
@@ -29,52 +57,85 @@ if (listId) {
             correctLevel: QRCode.CorrectLevel.H
         });
 
-        // Liste önizlemesini göster
-        const listPreview = document.getElementById('listPreview');
-        if (listPreview) {
-            listPreview.innerHTML = '';
-            
-            // Başlığı göster
-            const titleElement = document.createElement('h3');
-            titleElement.textContent = currentListData.title;
-            titleElement.style.marginBottom = '16px';
-            listPreview.appendChild(titleElement);
+        // İndirme butonu event listener'ı
+        downloadButton.addEventListener('click', () => {
+            const canvas = qrCodeElement.querySelector('canvas');
+            if (canvas) {
+                const link = document.createElement('a');
+                link.download = `${data.title.replace(/\s+/g, '_')}_qr_code.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }
+        });
 
-            // Öğeleri göster
-            currentListData.items.forEach(item => {
-                const itemRow = document.createElement('div');
-                itemRow.className = 'list-item';
-                
-                itemRow.innerHTML = `
-                    <div class="list-item-content">${escapeHtml(item.content)}</div>
-                    <div class="list-item-value">${escapeHtml(item.value)}</div>
-                    ${item.image ? `<img src="${item.image}" class="list-item-image" alt="Öğe resmi">` : ''}
-                `;
-                listPreview.appendChild(itemRow);
-            });
+        // Geri butonu event listener'ı
+        backButton.addEventListener('click', () => {
+            window.location.href = 'list.html?listId=' + data.id;
+        });
+
+    } catch (error) {
+        console.error('Liste gösterme hatası:', error);
+        alert('Liste gösterilemedi');
+    }
+}
+
+// Sayfa yüklendiğinde çalışacak fonksiyon
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        // DOM elementlerini al
+        qrCodeElement = document.getElementById('qrCode');
+        listPreview = document.getElementById('listPreview');
+        downloadButton = document.getElementById('downloadButton');
+        backButton = document.getElementById('backButton');
+        
+        if (!qrCodeElement || !listPreview || !downloadButton || !backButton) {
+            throw new Error('Gerekli DOM elementleri bulunamadı');
+        }
+
+        // URL'den veri al
+        const urlParams = new URLSearchParams(window.location.search);
+        const listId = urlParams.get('listId');
+        
+        if (listId) {
+            // Liste verisini al
+            const data = dataStorage.getList(listId);
+            
+            if (!data) {
+                throw new Error('Liste bulunamadı');
+            }
+
+            // Veriyi göster
+            displayListData(data);
+        } else {
+            throw new Error('Liste ID bulunamadı');
         }
 
     } catch (error) {
-        console.error('Veri yükleme hatası:', error);
-        alert(error.message || 'Liste verisi yüklenirken bir hata oluştu');
-        window.location.href = 'index.html';
+        console.error('Sayfa yükleme hatası:', error);
+        alert(error.message || 'Sayfa yüklenirken bir hata oluştu');
     }
+});
+
+// HTML escape fonksiyonu
+function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 // İndirme butonu event listener'ı
 document.getElementById('downloadQR').addEventListener('click', () => {
     try {
-        if (!currentListData) {
-            throw new Error('Liste verisi bulunamadı');
-        }
-
         const qrElement = document.querySelector('.qr-preview canvas');
         if (!qrElement) {
             throw new Error('QR kodu bulunamadı');
         }
 
         const link = document.createElement('a');
-        link.download = `liste-qr-${currentListData.id}.png`;
+        link.download = `liste-qr-${listId}.png`;
         link.href = qrElement.toDataURL("image/png");
         link.click();
 
@@ -87,11 +148,7 @@ document.getElementById('downloadQR').addEventListener('click', () => {
 // Listeye dön butonu event listener'ı
 document.getElementById('backToList').addEventListener('click', () => {
     try {
-        if (!currentListData) {
-            throw new Error('Liste verisi bulunamadı');
-        }
-
-        window.location.href = `list.html?listId=${currentListData.id}`;
+        window.location.href = `list.html?listId=${listId}`;
 
     } catch (error) {
         console.error('Listeye dönme hatası:', error);
@@ -112,24 +169,10 @@ document.querySelector('.new-list-button').addEventListener('click', () => {
 // Düzenleme butonu event listener'ı
 document.querySelector('.edit-button').addEventListener('click', () => {
     try {
-        if (!currentListData) {
-            throw new Error('Liste verisi bulunamadı');
-        }
-
-        window.location.href = `index.html?listId=${currentListData.id}`;
+        window.location.href = `index.html?listId=${listId}`;
 
     } catch (error) {
         console.error('Düzenleme hatası:', error);
         alert(error.message || 'Düzenleme sırasında bir hata oluştu');
     }
 });
-
-// HTML escape fonksiyonu
-function escapeHtml(unsafe) {
-    return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
