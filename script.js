@@ -28,7 +28,6 @@ async function handleFormSubmit(event) {
                 // Mevcut resmi al
                 const preview = row.querySelector('.image-preview');
                 if (preview && preview.src) {
-                    // Resim URL'sini sakla
                     image = preview.src;
                 }
 
@@ -92,11 +91,11 @@ function createItemRow(content = '', value = '', image = '') {
     row.innerHTML = `
         <div class="item-content-container">
             <label>İçerik</label>
-            <input type="text" class="item-content" value="${escapeHtml(content)}">
+            <input type="text" class="item-content" value="${escapeHtml(content)}" style="width: 100%;">
         </div>
         <div class="item-value-container">
             <label>Miktar/Değer</label>
-            <input type="text" class="item-value" value="${escapeHtml(value)}">
+            <input type="text" class="item-value" value="${escapeHtml(value)}" style="width: 100%;">
         </div>
         <div class="item-image-container">
             <label>Resim</label>
@@ -154,6 +153,12 @@ function createItemRow(content = '', value = '', image = '') {
     // Silme butonu event listener'ı ekle
     const deleteButton = row.querySelector('.delete-row');
     if (deleteButton) {
+        deleteButton.style.position = 'absolute';
+        deleteButton.style.top = '8px';
+        deleteButton.style.right = '8px';
+        deleteButton.style.fontSize = '20px';
+        deleteButton.style.padding = '0 8px';
+        deleteButton.style.borderRadius = '50%';
         deleteButton.addEventListener('click', () => {
             row.remove();
         });

@@ -178,6 +178,12 @@
                 background-position: 0% 0%;
             }
         }
+
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -191,8 +197,10 @@
                     <input type="text" id="listTitle" class="form-control" required>
                 </div>
                 <div id="items"></div>
-                <button type="button" class="add-row-button">Yeni Öğe Ekle</button>
-                <button type="submit" class="submit-button">Kaydet</button>
+                <div class="button-container">
+                    <button type="button" class="add-row-button">Yeni Öğe Ekle</button>
+                    <button type="submit" class="submit-button">Kaydet</button>
+                </div>
             </form>
         </div>
     </div>
