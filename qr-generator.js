@@ -1,4 +1,5 @@
 import dataStorage from './services/dataStorage.js';
+import QRCode from 'qrcode';
 
 // Gerekli elementleri sakla
 let qrContainer;
@@ -7,10 +8,10 @@ let backButton;
 let currentListData;
 
 // QR kodu oluştur
-function generateQRCode(listId) {
+async function generateQRCode(listId) {
     try {
         // Liste verisini al
-        currentListData = dataStorage.getList(listId);
+        currentListData = await dataStorage.getList(listId);
         if (!currentListData) {
             throw new Error('Liste bulunamadı');
         }
@@ -19,24 +20,32 @@ function generateQRCode(listId) {
         const qrContent = `https://okulprojesibunyamin.netlify.app/list.html?listId=${listId}`;
 
         // QR kodu oluştur
-        const qr = new QRCode(qrContainer, {
-            text: qrContent,
+        const qrData = await QRCode.toDataURL(qrContent, {
             width: 256,
             height: 256,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
+            margin: 1,
+            color: {
+                dark: '#000000',
+                light: '#ffffff'
+            },
+            errorCorrectionLevel: 'H'
         });
+
+        // QR kodu göster
+        const qrImage = document.createElement('img');
+        qrImage.src = qrData;
+        qrImage.style.maxWidth = '256px';
+        qrImage.style.maxHeight = '256px';
+        
+        qrContainer.innerHTML = '';
+        qrContainer.appendChild(qrImage);
 
         // İndirme butonuna tıklama event listener'ı
         downloadButton.addEventListener('click', () => {
-            const canvas = qrContainer.querySelector('img');
-            if (canvas) {
-                const link = document.createElement('a');
-                link.download = `liste_${listId}.png`;
-                link.href = canvas.src;
-                link.click();
-            }
+            const link = document.createElement('a');
+            link.download = `liste_${listId}.png`;
+            link.href = qrData;
+            link.click();
         });
 
     } catch (error) {
@@ -46,7 +55,7 @@ function generateQRCode(listId) {
 }
 
 // Sayfa yüklendiğinde çalışacak fonksiyon
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     try {
         // DOM elementlerini al
         qrContainer = document.getElementById('qrContainer');
@@ -66,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // QR kodu oluştur
-        generateQRCode(listId);
+        await generateQRCode(listId);
 
         // Geri butonu event listener'ı
         backButton.addEventListener('click', () => {

@@ -60,6 +60,16 @@ class DataStorage {
         }
     }
 
+    async getList(listId) {
+        try {
+            const lists = await this.getAllLists();
+            return lists.find(list => list.id === listId);
+        } catch (error) {
+            console.error('Liste alma hatası:', error);
+            throw error;
+        }
+    }
+
     async saveList(listData) {
         try {
             // Liste verisini doğrula
