@@ -1,10 +1,12 @@
+import dataStorage from './services/dataStorage.js';
+
 // Gerekli elementleri sakla
 let titleInput;
 let itemsContainer;
 let currentListData;
 
 // Form gönderme fonksiyonu
-function handleFormSubmit(event) {
+async function handleFormSubmit(event) {
     event.preventDefault();
 
     // Form verilerini al
@@ -50,11 +52,11 @@ function handleFormSubmit(event) {
     }
 
     try {
-        // Veriyi URL formatında kodla
-        const encodedData = encodeURIComponent(JSON.stringify(currentListData));
+        // Veriyi sakla
+        const savedList = dataStorage.saveList(currentListData);
         
         // QR kod sayfasına yönlendir
-        window.location.href = `qr-generator.html?listId=${currentListData.id}`;
+        window.location.href = `qr-generator.html?listId=${savedList.id}`;
     } catch (error) {
         console.error('Veri kaydetme hatası:', error);
         alert('Liste kaydedilirken bir hata oluştu');
@@ -166,26 +168,18 @@ document.addEventListener('DOMContentLoaded', function() {
     if (listId) {
         try {
             // Liste verisini al
-            fetch(`https://okulprojesibunyamin.netlify.app/api/lists/${listId}`)
-            .then(response => response.json())
-            .then(data => {
-                currentListData = data;
+            currentListData = dataStorage.getList(listId);
+            
+            if (currentListData) {
+                // Veriyi form'a yükle
+                titleInput.value = currentListData.title || '';
                 
-                if (currentListData) {
-                    // Veriyi form'a yükle
-                    titleInput.value = currentListData.title || '';
-                    
-                    // Mevcut öğeleri ekle
-                    currentListData.items.forEach(item => {
-                        const row = createItemRow(item.content, item.value, item.image);
-                        itemsContainer.appendChild(row);
-                    });
-                }
-            })
-            .catch(error => {
-                console.error('Veri yükleme hatası:', error);
-                alert('Liste verisi yüklenirken bir hata oluştu');
-            });
+                // Mevcut öğeleri ekle
+                currentListData.items.forEach(item => {
+                    const row = createItemRow(item.content, item.value, item.image);
+                    itemsContainer.appendChild(row);
+                });
+            }
         } catch (error) {
             console.error('Veri yükleme hatası:', error);
             alert('Liste verisi yüklenirken bir hata oluştu');

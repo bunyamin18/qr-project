@@ -196,8 +196,9 @@
             </form>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.0/build/qrcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="script.js"></script>
+    <script type="module">
+        import './services/dataStorage.js';
+        import './script.js';
+    </script>
 </body>
 </html>

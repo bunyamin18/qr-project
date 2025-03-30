@@ -1,3 +1,5 @@
+import dataStorage from './services/dataStorage.js';
+
 // Gerekli elementleri sakla
 let titleElement;
 let itemsList;
@@ -71,23 +73,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     try {
         // Liste verisini al
-        fetch(`https://okulprojesibunyamin.netlify.app/api/lists/${listId}`)
-        .then(response => response.json())
-        .then(data => {
-            currentListData = data;
-            
-            if (!currentListData) {
-                throw new Error('Liste bulunamadı');
-            }
+        currentListData = dataStorage.getList(listId);
+        
+        if (!currentListData) {
+            throw new Error('Liste bulunamadı');
+        }
 
-            // Veriyi göster
-            displayListData(currentListData);
-        })
-        .catch(error => {
-            console.error('Veri yükleme hatası:', error);
-            alert('Liste verisi yüklenirken bir hata oluştu');
-            window.location.href = 'index.html';
-        });
+        // Veriyi göster
+        displayListData(currentListData);
 
     } catch (error) {
         console.error('Veri yükleme hatası:', error);

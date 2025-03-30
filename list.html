@@ -88,8 +88,9 @@
             <div id="qrError" style="display: none; color: #dc3545; text-align: center; margin-top: 1rem;"></div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.0/build/qrcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="list.js"></script>
+    <script type="module">
+        import './services/dataStorage.js';
+        import './list.js';
+    </script>
 </body>
 </html>
