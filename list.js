@@ -67,6 +67,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Düzenleme butonu event listener'ı ekle
     editButton.onclick = () => {
+        // Mevcut veriyi sakla
+        const encodedData = encodeURIComponent(JSON.stringify(listData));
         window.location.href = `index.html?data=${encodedData}`;
     };
 });

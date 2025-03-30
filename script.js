@@ -131,59 +131,57 @@ function escapeHtml(unsafe) {
 // Form gönderme fonksiyonu
 function handleFormSubmit(event) {
     event.preventDefault();
-    
-    try {
-        // Başlık kontrolü
-        const title = titleInput.value.trim();
-        if (!title) {
-            throw new Error('Liste başlığı boş olamaz');
-        }
 
-        // Öğeler kontrolü
-        const rows = Array.from(itemsContainer.children);
-        if (!rows.length) {
-            throw new Error('En az bir öğe eklemelisiniz');
-        }
-
-        // Liste ID'si
-        let listId = currentListData?.id;
-        if (!listId) {
-            listId = Date.now().toString(36) + Math.random().toString(36).substr(2);
-        }
-
-        // Liste verisi oluşturma
-        const listData = {
-            id: listId,
-            title: title,
-            items: []
-        };
-
-        // Öğeleri ekleme
-        for (const row of rows) {
-            const content = row.querySelector('.item-content')?.value?.trim();
-            const value = row.querySelector('.item-value')?.value?.trim();
+    // Form verilerini al
+    const title = titleInput.value.trim();
+    const items = Array.from(itemsContainer.children)
+        .map(row => {
+            const content = row.querySelector('.item-content').value.trim();
+            const value = row.querySelector('.item-value').value.trim();
             const imageInput = row.querySelector('.item-image');
-            const image = imageInput?.files[0];
+            let image = '';
             
-            if (!content || !value) {
-                throw new Error('Lütfen tüm içerik ve değer alanlarını doldurun');
+            // Mevcut resmi al
+            const preview = row.querySelector('.image-preview');
+            if (preview && preview.src) {
+                image = preview.src;
             }
 
-            listData.items.push({ 
-                content: content.substring(0, 50),
-                value: value.substring(0, 10),
-                image: image ? URL.createObjectURL(image) : ''
-            });
-        }
+            return {
+                content,
+                value,
+                image
+            };
+        })
+        .filter(item => item.content || item.value || item.image); // Boş öğeleri filtrele
 
-        // Veriyi URL parametresine dönüştür
-        const encodedData = encodeURIComponent(JSON.stringify(listData));
-        
-        // Sayfaya yönlendir
-        window.location.href = `list.html?data=${encodedData}`;
-
-    } catch (error) {
-        console.error('Form gönderme hatası:', error);
-        alert(error.message);
+    // Veri doğrulama
+    if (!title || items.length === 0) {
+        alert('Lütfen liste başlığı ve en az bir öğe girin');
+        return;
     }
+
+    // Mevcut liste verisi varsa güncelle
+    if (currentListData) {
+        currentListData.title = title;
+        currentListData.items = items;
+    } else {
+        // Yeni liste oluştur
+        currentListData = {
+            id: generateUniqueID(),
+            title,
+            items
+        };
+    }
+
+    // Veriyi URL formatında kodla
+    const encodedData = encodeURIComponent(JSON.stringify(currentListData));
+    
+    // Liste sayfasına yönlendir
+    window.location.href = `list.html?data=${encodedData}`;
+}
+
+// Benzersiz ID oluşturma fonksiyonu
+function generateUniqueID() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
