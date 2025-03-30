@@ -5,8 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Kod</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- QR kod kütüphanesi -->
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/particlesjs/2.2.3/particles.min.js"></script>
+    <!-- Particles.js için gerekli script -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <!-- Font Awesome ikon kütüphanesi -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
     <div id="particles-js" class="tech-background"></div>
@@ -26,12 +30,8 @@
         </div>
     </div>
 
-    <!-- Import scripts as modules -->
-    <script type="module">
-        import dataStorage from './services/dataStorage.js';
-        // Make dataStorage available globally
-        window.dataStorage = dataStorage;
-    </script>
-    <script type="module" src="qr-generator.js"></script>
+    <!-- Gerekli script dosyaları -->
+    <script src="services/dataStorage.js"></script>
+    <script src="qr-generator.js"></script>
 </body>
 </html>

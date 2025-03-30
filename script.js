@@ -2,30 +2,29 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Form element references
     const listForm = document.getElementById('listForm');
-    const listTitleInput = document.getElementById('listTitle');
-    const itemsContainer = document.getElementById('items');
-    const addRowButton = document.querySelector('.add-row-button');
-    const saveButton = document.querySelector('.save-button');
+    const listTitleInput = document.getElementById('title');
+    const itemsContainer = document.getElementById('itemsContainer');
+    const addItemButton = document.getElementById('addItemButton');
     
-    // Initialize particles.js for background animation - data transfer effect
+    // Initialize particles.js for background animation - sci-fi data transfer effect
     if (window.particlesJS) {
         particlesJS('particles-js', {
             particles: {
-                number: { value: 150, density: { enable: true, value_area: 800 } },
-                color: { value: ["#00bcd4", "#2196f3", "#03a9f4"] },
+                number: { value: 180, density: { enable: true, value_area: 800 } },
+                color: { value: ["#00f5ff", "#6e36df", "#2be8d9"] },
                 shape: { type: "circle" },
                 opacity: { value: 0.6, random: true },
                 size: { value: 2, random: true },
                 line_linked: {
                     enable: true,
                     distance: 150,
-                    color: "#00bcd4",
+                    color: "#00f5ff",
                     opacity: 0.4,
                     width: 1
                 },
                 move: {
                     enable: true,
-                    speed: 4,
+                    speed: 6,
                     direction: "right",
                     random: true,
                     straight: false,
@@ -47,63 +46,64 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize item count
     let itemCount = 0;
-    
-    // Check if we're in edit mode (URL has listId parameter)
-    const urlParams = new URLSearchParams(window.location.search);
-    const editListId = urlParams.get('listId');
     let currentListData = null;
     
-    // If editing existing list, load its data
-    if (editListId && window.dataStorage) {
-        try {
-            currentListData = window.dataStorage.getList(editListId);
+    // Check if we're in edit mode (URL has listId parameter)
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const listId = urlParams.get('listId');
+        
+        if (listId && window.dataStorage) {
+            // We're in edit mode - get list data
+            currentListData = window.dataStorage.getList(listId);
+            
             if (currentListData) {
                 // Fill form with existing data
                 listTitleInput.value = currentListData.title;
+                
+                // Clear existing items
+                itemsContainer.innerHTML = '';
                 
                 // Add existing items
                 currentListData.items.forEach(item => {
                     addNewItemRow(item.content, item.value, item.image);
                 });
             }
-        } catch (error) {
-            console.error('Liste yükleme hatası:', error);
+        } else {
+            // We're in create mode - add a blank item
+            addNewItemRow();
         }
-    } else {
-        // Add one empty item row by default for new lists
+    } catch (error) {
+        console.error('Error checking edit mode:', error);
+        // Default to create mode with one blank item
         addNewItemRow();
     }
     
     // Add new item row
     function addNewItemRow(content = '', value = '', image = '') {
-        itemCount++;
-        
         const itemRow = document.createElement('div');
-        itemRow.className = 'form-group item-row';
-        itemRow.id = `item-${itemCount}`;
+        itemRow.className = 'item-container';
         
         itemRow.innerHTML = `
-            <div class="item-container">
-                <div class="item-fields">
-                    <input type="text" class="form-control item-value" placeholder="Miktar/Değer" value="${value}" required>
-                    <input type="text" class="form-control item-content" placeholder="Öğe Adı" value="${content}" required>
-                </div>
-                <div class="image-container">
-                    <label class="image-upload-label">
-                        <i class="fas fa-image"></i>
-                        <input type="file" class="image-input" accept="image/*" style="display: none;">
-                    </label>
-                    <div class="image-preview">
-                        ${image ? `<div class="thumbnail-container"><img src="${image}" class="thumbnail" /><button type="button" class="remove-image-button">×</button></div>` : ''}
-                    </div>
-                </div>
-                <button type="button" class="delete-button remove-item">Sil</button>
+            <div class="item-fields">
+                <input type="text" class="form-control item-value" placeholder="Miktar/Değer" value="${value}">
+                <input type="text" class="form-control item-content" placeholder="Öğe Adı" value="${content}">
             </div>
+            <div class="image-container">
+                <label class="image-upload-label">
+                    <i class="fas fa-image"></i>
+                    <input type="file" class="image-input" accept="image/*" style="display: none;">
+                </label>
+                <div class="image-preview">
+                    ${image ? `<div class="thumbnail-container"><img src="${image}" class="thumbnail" /><button type="button" class="remove-image-button">×</button></div>` : ''}
+                </div>
+            </div>
+            <button type="button" class="delete-button">Sil</button>
         `;
         
-        // Add remove functionality to the item
-        const removeButton = itemRow.querySelector('.remove-item');
-        removeButton.addEventListener('click', function() {
+        // Add event listener to remove button
+        const removeButton = itemRow.querySelector('.delete-button');
+        removeButton.addEventListener('click', () => {
             itemRow.remove();
         });
         
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const reader = new FileReader();
                 
                 reader.onload = function(event) {
-                    // Önizleme resmi oluştur
+                    // Create preview image
                     imagePreview.innerHTML = `
                         <div class="thumbnail-container">
                             <img src="${event.target.result}" class="thumbnail" />
@@ -125,7 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                     `;
                     
-                    // Resim kaldırma butonu olayı
+                    // Add remove button event
                     const newRemoveButton = imagePreview.querySelector('.remove-image-button');
                     newRemoveButton.addEventListener('click', function() {
                         imagePreview.innerHTML = '';
@@ -147,97 +147,91 @@ document.addEventListener('DOMContentLoaded', function() {
         itemsContainer.appendChild(itemRow);
     }
     
-    // Add Row Button Functionality
-    if (addRowButton) {
-        addRowButton.addEventListener('click', function() {
-            addNewItemRow();
-        });
-    }
+    // Add event listeners
+    addItemButton.addEventListener('click', () => {
+        addNewItemRow();
+    });
     
-    // Form Submit Functionality
-    if (listForm) {
-        listForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            console.log("Form submitted");
-            
-            try {
-                if (!window.dataStorage) {
-                    throw new Error('Veri depolama servisi bulunamadı');
-                }
-                
-                // Get list title
-                const title = listTitleInput.value.trim();
-                if (!title) {
-                    alert('Lütfen liste başlığı girin');
-                    return;
-                }
-                
-                // Get all items
-                const itemRows = document.querySelectorAll('.item-row');
-                if (itemRows.length === 0) {
-                    alert('En az bir öğe ekleyin');
-                    return;
-                }
-                
-                // Collect items data
-                const items = [];
-                let hasValidItems = false;
-                
-                itemRows.forEach(row => {
-                    const contentInput = row.querySelector('.item-content');
-                    const valueInput = row.querySelector('.item-value');
-                    const imagePreview = row.querySelector('.image-preview');
-                    
-                    if (contentInput && valueInput) {
-                        const content = contentInput.value.trim();
-                        const value = valueInput.value.trim();
-                        const image = imagePreview.querySelector('img') ? imagePreview.querySelector('img').src : '';
-                        
-                        if (content && value) {
-                            items.push({
-                                content: content,
-                                value: value,
-                                image: image
-                            });
-                            hasValidItems = true;
-                        }
-                    }
-                });
-                
-                if (!hasValidItems) {
-                    alert('Lütfen en az bir geçerli öğe ekleyin');
-                    return;
-                }
-                
-                // Prepare list data
-                const listData = {
-                    title: title,
-                    items: items
-                };
-                
-                console.log("Saving list data:", listData);
-                
-                let savedList;
-                
-                // If we're editing an existing list, update it
-                if (editListId) {
-                    // Update the list with same ID
-                    listData.id = editListId;
-                    savedList = await window.dataStorage.updateList(listData);
-                    console.log("List updated:", savedList);
-                } else {
-                    // Save as a new list
-                    savedList = await window.dataStorage.saveList(listData);
-                    console.log("New list saved:", savedList);
-                }
-                
-                // Redirect to QR code page
-                window.location.href = `qr-generator.html?listId=${savedList.id}`;
-                
-            } catch (error) {
-                console.error('Liste kaydetme hatası:', error);
-                alert('Liste kaydedilemedi: ' + error.message);
+    // Form submission handler
+    listForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        try {
+            // Validate title
+            const title = listTitleInput.value.trim();
+            if (!title) {
+                alert('Lütfen liste başlığı girin');
+                return;
             }
-        });
-    }
+            
+            // Get all item rows
+            const itemRows = document.querySelectorAll('.item-container');
+            if (itemRows.length === 0) {
+                alert('Lütfen en az bir öğe ekleyin');
+                return;
+            }
+            
+            // Prepare items array
+            const items = [];
+            let hasValidItems = false;
+            
+            // Process each item row
+            itemRows.forEach(row => {
+                const contentInput = row.querySelector('.item-content');
+                const valueInput = row.querySelector('.item-value');
+                const imagePreview = row.querySelector('.image-preview img');
+                
+                if (contentInput && valueInput) {
+                    const content = contentInput.value.trim();
+                    const value = valueInput.value.trim();
+                    const image = imagePreview ? imagePreview.src : '';
+                    
+                    if (content) {
+                        items.push({
+                            content: content,
+                            value: value,
+                            image: image
+                        });
+                        hasValidItems = true;
+                    }
+                }
+            });
+            
+            if (!hasValidItems) {
+                alert('Lütfen en az bir öğeye isim girin');
+                return;
+            }
+            
+            // Prepare list data object
+            const listData = {
+                title: title,
+                items: items
+            };
+            
+            let savedList;
+            
+            // Save/update the list
+            if (currentListData && currentListData.id) {
+                // Update existing list
+                listData.id = currentListData.id;
+                savedList = await window.dataStorage.updateList(listData);
+                alert('Liste başarıyla güncellendi!');
+            } else {
+                // Create new list
+                savedList = await window.dataStorage.saveList(listData);
+                alert('Liste başarıyla oluşturuldu!');
+            }
+            
+            if (savedList && savedList.id) {
+                // Redirect to QR code generator page
+                window.location.href = `qr-generator.html?listId=${savedList.id}`;
+            } else {
+                throw new Error('Liste kaydedilirken bir hata oluştu');
+            }
+            
+        } catch (error) {
+            console.error('Form submission error:', error);
+            alert('Bir hata oluştu: ' + error.message);
+        }
+    });
 });

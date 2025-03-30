@@ -73,9 +73,12 @@ document.addEventListener('DOMContentLoaded', function() {
         // Liste önizlemesini göster
         renderListPreview(listData);
 
-        // Uygulama URL'sini oluştur - Doğru URL oluşturmak önemli
-        const baseUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+        // Mutlak URL oluşturma - doğru URL oluşturmak önemli
+        const fullUrl = window.location.href;
+        const baseUrl = fullUrl.substring(0, fullUrl.lastIndexOf('/') + 1);
         const appUrl = baseUrl + "list.html?listId=" + listId;
+        
+        console.log("QR kod için oluşturulan URL:", appUrl);
         
         // QR kodu oluştur 
         generateQRCode(appUrl);

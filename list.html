@@ -5,9 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste Görüntüle</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- Particles.js için gerekli script -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <!-- Font Awesome ikon kütüphanesi -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
-    <div class="create-tech-background"></div>
+    <div class="tech-background" id="particles-js"></div>
     <div class="container">
         <div class="center-card">
             <h1 id="listTitle"></h1>
@@ -18,9 +22,9 @@
             </div>
         </div>
     </div>
-    <script type="module">
-        import dataStorage from './services/dataStorage.js';
-        import './list.js';
-    </script>
+
+    <!-- JavaScript dosyaları -->
+    <script src="services/dataStorage.js"></script>
+    <script src="list.js"></script>
 </body>
 </html>
