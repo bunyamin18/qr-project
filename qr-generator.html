@@ -5,16 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Kod Oluşturucu</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- QR kod kütüphanesi -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+    
+    <!-- Önce QR kod kütüphanesi yükle -->
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    
     <!-- Particles.js için gerekli script -->
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    
     <!-- Font Awesome ikon kütüphanesi -->
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-    <!-- DataStorage servisi -->
-    <script src="services/dataStorage.js"></script>
-    <!-- Önce script.js yükle (window.dataStorage tanımlanmalı) -->
+    
+    <!-- İlk script.js yükle (window.dataStorage için) -->
     <script src="script.js"></script>
+    
     <!-- Sonra QR Generator script -->
     <script src="qr-generator.js"></script>
 </head>

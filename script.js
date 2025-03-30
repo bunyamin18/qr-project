@@ -269,210 +269,274 @@ document.addEventListener('DOMContentLoaded', function() {
     // Global olarak da erişilebilir yap
     window.dataStorage = dataStorage;
     
-    // Arka plan animasyonu için - karmaşık, detaylı ve parlak mavi çizgiler/noktalar
+    // Teknolojik devre tarzı arka plan animasyonu
     if (window.particlesJS) {
-        // Koyu lacivert arka plan ekle
-        const techBg = document.querySelector('.tech-background');
-        if (techBg) {
-            techBg.style.background = 'radial-gradient(circle at center, #0a112e 0%, #03061a 100%)';
+        // Canvas oluştur
+        const canvasEl = document.createElement('canvas');
+        const bgElement = document.getElementById('particles-js');
+        
+        if (!bgElement) {
+            console.error("particles-js elementi bulunamadı");
+            return;
         }
         
-        // Canvas oluştur ve detaylı ağ yapısı çiz
-        const canvasElement = document.createElement('canvas');
-        canvasElement.id = 'network-canvas';
-        canvasElement.style.position = 'absolute';
-        canvasElement.style.top = '0';
-        canvasElement.style.left = '0';
-        canvasElement.style.width = '100%';
-        canvasElement.style.height = '100%';
-        canvasElement.style.zIndex = '0';
-        document.getElementById('particles-js').appendChild(canvasElement);
+        // Koyu lacivert arka plan ekle
+        bgElement.style.background = 'radial-gradient(circle at center, #061638 0%, #02071A 100%)';
+        
+        canvasEl.style.position = 'absolute';
+        canvasEl.style.top = '0';
+        canvasEl.style.left = '0';
+        canvasEl.style.width = '100%';
+        canvasEl.style.height = '100%';
+        canvasEl.style.zIndex = '0';
+        canvasEl.style.opacity = '0.8';
+        
+        bgElement.appendChild(canvasEl);
         
         // Canvas boyutunu ayarla
-        const resizeCanvas = () => {
-            canvasElement.width = window.innerWidth;
-            canvasElement.height = window.innerHeight;
-            drawComplexNetwork();
-        };
+        function resizeCanvas() {
+            canvasEl.width = window.innerWidth;
+            canvasEl.height = window.innerHeight;
+        }
         
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
         
-        // Karmaşık ağ yapısı çizimi
-        function drawComplexNetwork() {
-            const ctx = canvasElement.getContext('2d');
-            ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+        const ctx = canvasEl.getContext('2d');
+        
+        // Devre çizgileri oluştur - gönderilen resme benzer şekilde
+        const circuits = [];
+        const centerX = canvasEl.width / 2;
+        const centerY = canvasEl.height / 2;
+        
+        // Merkezdeki ışık efekti
+        function drawCenterGlow() {
+            const radius = 80 + Math.sin(Date.now() / 1000) * 10;
+            const gradient = ctx.createRadialGradient(
+                centerX, centerY, 0,
+                centerX, centerY, radius
+            );
             
-            // Merkez nokta - ekranın merkezinde
-            const centerX = canvasElement.width / 2;
-            const centerY = canvasElement.height / 2;
+            gradient.addColorStop(0, 'rgba(0, 150, 255, 0.6)');
+            gradient.addColorStop(0.5, 'rgba(0, 100, 255, 0.3)');
+            gradient.addColorStop(1, 'rgba(0, 50, 255, 0)');
             
-            // Noktalar ve bağlantılar için parametreler
-            const points = [];
-            const maxPoints = 150;
-            
-            // Ana noktalar ekle
-            for (let i = 0; i < maxPoints; i++) {
-                // Asimetrik dağılım
-                let angle, distance;
-                
-                if (i === 0) {
-                    // Merkez nokta
-                    angle = 0;
-                    distance = 0;
-                } else {
-                    // Ağırlıklı olarak merkez etrafında yoğunlaşma
-                    angle = Math.random() * Math.PI * 2;
-                    
-                    // Merkeze daha yakın noktalar daha fazla olsun
-                    const randomFactor = Math.pow(Math.random(), 1.5);
-                    distance = (canvasElement.width / 3) * randomFactor;
-                }
-                
-                const x = centerX + Math.cos(angle) * distance;
-                const y = centerY + Math.sin(angle) * distance;
-                
-                // Farklı boyutlarda noktalar oluştur
-                points.push({
-                    x: x,
-                    y: y,
-                    size: i === 0 ? 2 : 0.5 + Math.random() * 1.5,
-                    connections: [],
-                    brightness: 0.3 + Math.random() * 0.7 // Parlaklık değişkeni
-                });
-            }
-            
-            // Bağlantıları oluştur
-            for (let i = 0; i < points.length; i++) {
-                // Merkez noktayı diğer noktalara bağla
-                if (i === 0) {
-                    // Merkez noktayı bazı noktalara bağla
-                    for (let j = 1; j < points.length; j++) {
-                        if (Math.random() < 0.3) { // %30 olasılıkla bağlantı oluştur
-                            points[i].connections.push(j);
-                            points[j].connections.push(i);
-                        }
-                    }
-                } else {
-                    // Diğer noktaları birbirine bağla - karmaşık ağ yapısı oluştur
-                    for (let j = i + 1; j < points.length; j++) {
-                        const dx = points[i].x - points[j].x;
-                        const dy = points[i].y - points[j].y;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
-                        
-                        // Yakın noktaları birbirine bağla
-                        if (distance < 150 && Math.random() < 0.1) {
-                            points[i].connections.push(j);
-                            points[j].connections.push(i);
-                        }
-                    }
-                }
-            }
-            
-            // Bağlantıları çiz
-            for (let i = 0; i < points.length; i++) {
-                const point = points[i];
-                
-                for (let j = 0; j < point.connections.length; j++) {
-                    const connectedPoint = points[point.connections[j]];
-                    
-                    // Merkeze olan uzaklığa göre çizgi rengi/transparanlığı
-                    const dx1 = point.x - centerX;
-                    const dy1 = point.y - centerY;
-                    const dx2 = connectedPoint.x - centerX;
-                    const dy2 = connectedPoint.y - centerY;
-                    
-                    const distanceFromCenter1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
-                    const distanceFromCenter2 = Math.sqrt(dx2 * dx2 + dy2 * dy2);
-                    
-                    const averageDistance = (distanceFromCenter1 + distanceFromCenter2) / 2;
-                    const maxDistance = Math.sqrt(centerX * centerX + centerY * centerY);
-                    
-                    // Merkeze yakın çizgiler daha parlak
-                    const opacity = Math.max(0.05, 0.4 * (1 - averageDistance / maxDistance));
-                    
-                    // Rastgele mavi ton
-                    const blueIntensity = 180 + Math.floor(Math.random() * 75);
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(point.x, point.y);
-                    ctx.lineTo(connectedPoint.x, connectedPoint.y);
-                    ctx.strokeStyle = `rgba(0, ${blueIntensity}, 255, ${opacity})`;
-                    ctx.lineWidth = 0.8;
-                    ctx.stroke();
-                }
-            }
-            
-            // Noktaları çiz
-            for (let i = 0; i < points.length; i++) {
-                const point = points[i];
-                
-                // Merkez noktayı daha parlak ve büyük yap
-                if (i === 0) {
-                    ctx.beginPath();
-                    ctx.arc(point.x, point.y, point.size * 2, 0, Math.PI * 2);
-                    ctx.fillStyle = '#00ffff';
-                    ctx.shadowBlur = 10;
-                    ctx.shadowColor = '#00ffff';
-                    ctx.fill();
-                    ctx.shadowBlur = 0;
-                } else {
-                    // Bağlantısı olan noktalar daha parlak
-                    const brightness = point.connections.length > 0 ? 1 : 0.5;
-                    
-                    // Merkeze yakın noktalar daha parlak
-                    const dx = point.x - centerX;
-                    const dy = point.y - centerY;
-                    const distanceFromCenter = Math.sqrt(dx * dx + dy * dy);
-                    const maxDistance = Math.sqrt(centerX * centerX + centerY * centerY);
-                    
-                    // Bağlantı sayısı ve merkeze yakınlık parlaklığı etkiler
-                    const intensityFactor = 1 - (distanceFromCenter / maxDistance);
-                    const brightnessValue = Math.min(1, (brightness + intensityFactor) * point.brightness);
-                    
-                    // Glow efekti
-                    const hasGlow = point.connections.length > 1 && Math.random() > 0.6;
-                    
-                    if (hasGlow) {
-                        ctx.shadowBlur = 4 + Math.random() * 4;
-                        ctx.shadowColor = '#00c8ff';
-                    }
-                    
-                    ctx.beginPath();
-                    ctx.arc(point.x, point.y, point.size, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(0, ${150 + Math.floor(brightnessValue * 105)}, 255, ${0.3 + brightnessValue * 0.7})`;
-                    ctx.fill();
-                    
-                    ctx.shadowBlur = 0;
-                }
-            }
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.fillStyle = gradient;
+            ctx.fill();
         }
         
-        // Sabit çizgiler çiz
-        drawComplexNetwork();
+        // Devre çizgisi oluştur
+        function createCircuit() {
+            // Devre başlangıç noktası - kenarlardan başlat
+            let startX, startY;
+            const side = Math.floor(Math.random() * 4); // 0: üst, 1: sağ, 2: alt, 3: sol
+            
+            switch(side) {
+                case 0: // Üst
+                    startX = Math.random() * canvasEl.width;
+                    startY = 0;
+                    break;
+                case 1: // Sağ
+                    startX = canvasEl.width;
+                    startY = Math.random() * canvasEl.height;
+                    break;
+                case 2: // Alt
+                    startX = Math.random() * canvasEl.width;
+                    startY = canvasEl.height;
+                    break;
+                case 3: // Sol
+                    startX = 0;
+                    startY = Math.random() * canvasEl.height;
+                    break;
+            }
+            
+            // Devre noktaları
+            const points = [{x: startX, y: startY}];
+            let currentX = startX;
+            let currentY = startY;
+            
+            // Merkeze doğru ilerleyen dönemeçli yol
+            const steps = 3 + Math.floor(Math.random() * 4); // 3-6 dönemeç
+            
+            for (let i = 0; i < steps; i++) {
+                // Merkeze doğru yönelim
+                const towardsCenter = i >= steps - 2; // Son 2 adımda merkeze doğru
+                
+                let nextX, nextY;
+                
+                if (towardsCenter) {
+                    // Son düzlükte merkeze doğru yönlendir
+                    const angle = Math.atan2(centerY - currentY, centerX - currentX);
+                    const distance = Math.hypot(centerX - currentX, centerY - currentY);
+                    const stepDistance = distance * (0.4 + Math.random() * 0.4); // %40-%80 arasında yaklaş
+                    
+                    nextX = currentX + Math.cos(angle) * stepDistance;
+                    nextY = currentY + Math.sin(angle) * stepDistance;
+                } else {
+                    // 90 derecelik dönüşler - devre tarzı
+                    const horizontal = Math.random() > 0.5;
+                    
+                    if (horizontal) {
+                        nextX = currentX + (Math.random() > 0.5 ? 1 : -1) * (50 + Math.random() * 150);
+                        nextY = currentY;
+                    } else {
+                        nextX = currentX;
+                        nextY = currentY + (Math.random() > 0.5 ? 1 : -1) * (50 + Math.random() * 150);
+                    }
+                }
+                
+                // Sınırları aşmayacak şekilde ayarla
+                nextX = Math.max(0, Math.min(canvasEl.width, nextX));
+                nextY = Math.max(0, Math.min(canvasEl.height, nextY));
+                
+                points.push({x: nextX, y: nextY});
+                currentX = nextX;
+                currentY = nextY;
+            }
+            
+            // Son nokta olarak merkezi ekle
+            const finalPoint = {
+                x: centerX + (Math.random() - 0.5) * 80, // Tam merkez yerine biraz çevresinde
+                y: centerY + (Math.random() - 0.5) * 80
+            };
+            points.push(finalPoint);
+            
+            return {
+                points: points,
+                width: 1 + Math.random() * 1.5, // Çizgi kalınlığı
+                color: `rgba(0, ${150 + Math.floor(Math.random() * 100)}, 255, 0.8)`, // Mavi tonları
+                energy: {
+                    position: 0, // 0-1 arası, enerji parçacığının konumu
+                    speed: 0.001 + Math.random() * 0.002, // Hareket hızı
+                    size: 2 + Math.random() * 3, // Enerji parçacığı boyutu
+                    active: false, // Enerji akıyor mu
+                    delay: Math.random() * 5000 // Başlama gecikmesi
+                }
+            };
+        }
         
-        // Arka plandaki hareketli parçacıklar için particles.js ayarları
+        // Başlangıçta devreleri oluştur
+        for (let i = 0; i < 25; i++) {
+            circuits.push(createCircuit());
+        }
+        
+        // Devre çizgilerini çiz
+        function drawCircuits() {
+            ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
+            
+            // Merkezdeki glow efektini çiz
+            drawCenterGlow();
+            
+            // Her devreyi çiz
+            circuits.forEach(circuit => {
+                const { points, width, color, energy } = circuit;
+                
+                // Devrenin kendisini çiz
+                ctx.beginPath();
+                ctx.moveTo(points[0].x, points[0].y);
+                
+                for (let i = 1; i < points.length; i++) {
+                    ctx.lineTo(points[i].x, points[i].y);
+                }
+                
+                ctx.strokeStyle = color;
+                ctx.lineWidth = width;
+                ctx.stroke();
+                
+                // Devrenin uç noktalarını çiz (nodelar)
+                points.forEach((point, idx) => {
+                    // Başlangıç, son ve dönüş noktalarında node'lar
+                    if (idx === 0 || idx === points.length - 1 || idx % 2 === 0) {
+                        ctx.beginPath();
+                        ctx.arc(point.x, point.y, width + 1, 0, Math.PI * 2);
+                        ctx.fillStyle = color;
+                        ctx.fill();
+                    }
+                });
+                
+                // Enerji akışını çiz
+                if (Date.now() > energy.delay) {
+                    energy.active = true;
+                }
+                
+                if (energy.active) {
+                    // Enerji akışı pozisyonunu güncelle
+                    energy.position += energy.speed;
+                    
+                    // Enerji akışı tamamlandı mı?
+                    if (energy.position >= 1) {
+                        energy.position = 0; // Başa dön
+                        energy.delay = Date.now() + Math.random() * 5000; // Yeni gecikme
+                        energy.active = false;
+                    } else {
+                        // Enerji parçacığı pozisyonunu hesapla
+                        const segmentCount = points.length - 1;
+                        const totalPosition = energy.position * segmentCount;
+                        const segmentIndex = Math.floor(totalPosition);
+                        const segmentPosition = totalPosition - segmentIndex;
+                        
+                        if (segmentIndex < segmentCount) {
+                            const p1 = points[segmentIndex];
+                            const p2 = points[segmentIndex + 1];
+                            
+                            const energyX = p1.x + (p2.x - p1.x) * segmentPosition;
+                            const energyY = p1.y + (p2.y - p1.y) * segmentPosition;
+                            
+                            // Enerji parçacığını çiz
+                            const glow = ctx.createRadialGradient(
+                                energyX, energyY, 0,
+                                energyX, energyY, energy.size * 4
+                            );
+                            
+                            glow.addColorStop(0, 'rgba(0, 240, 255, 0.8)');
+                            glow.addColorStop(0.5, 'rgba(0, 180, 255, 0.4)');
+                            glow.addColorStop(1, 'rgba(0, 100, 255, 0)');
+                            
+                            ctx.beginPath();
+                            ctx.arc(energyX, energyY, energy.size * 4, 0, Math.PI * 2);
+                            ctx.fillStyle = glow;
+                            ctx.fill();
+                            
+                            // Parçacık merkezi
+                            ctx.beginPath();
+                            ctx.arc(energyX, energyY, energy.size, 0, Math.PI * 2);
+                            ctx.fillStyle = 'rgba(180, 240, 255, 0.9)';
+                            ctx.fill();
+                        }
+                    }
+                }
+            });
+            
+            requestAnimationFrame(drawCircuits);
+        }
+        
+        // Animasyonu başlat
+        drawCircuits();
+        
+        // Arka plan parçacıkları için particles.js ayarları
         particlesJS('particles-js', {
             particles: {
                 number: {
-                    value: 70,
+                    value: 30,
                     density: {
                         enable: true,
                         value_area: 800
                     }
                 },
                 color: {
-                    value: "#00a8ff"
+                    value: "#0080ff"
                 },
                 shape: {
                     type: "circle"
                 },
                 opacity: {
-                    value: 0.5,
+                    value: 0.3,
                     random: true,
                     anim: {
                         enable: true,
-                        speed: 0.8,
+                        speed: 0.5,
                         opacity_min: 0.1,
                         sync: false
                     }
@@ -490,20 +554,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 line_linked: {
                     enable: true,
                     distance: 120,
-                    color: "#00a8ff",
-                    opacity: 0.3,
+                    color: "#0080ff",
+                    opacity: 0.2,
                     width: 1
                 },
                 move: {
                     enable: true,
-                    speed: 1.2,
+                    speed: 0.8,
                     direction: "none",
                     random: true,
                     straight: false,
                     out_mode: "out",
                     bounce: false,
                     attract: {
-                        enable: true,
+                        enable: false,
                         rotateX: 600,
                         rotateY: 1200
                     }
@@ -530,43 +594,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     },
                     push: {
-                        particles_nb: 3
+                        particles_nb: 2
                     }
                 }
             },
             retina_detect: true
         });
-        
-        // Enerji dalgası efekti - merkeze yeni nokta eklendiğinde dışa doğru yayılan halka
-        let radiusOffset = 0;
-        function drawEnergyWave() {
-            const ctx = canvasElement.getContext('2d');
-            
-            // Dalgaların merkezi
-            const centerX = canvasElement.width / 2;
-            const centerY = canvasElement.height / 2;
-            
-            // Dalga hareketi
-            radiusOffset += 1;
-            if (radiusOffset > 150) radiusOffset = 0;
-            
-            // İç içe halkalar
-            for (let i = 0; i < 3; i++) {
-                const radius = 50 + (i * 60) + radiusOffset;
-                const opacity = Math.max(0, 0.4 - (radius / 300));
-                
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-                ctx.strokeStyle = `rgba(0, 200, 255, ${opacity})`;
-                ctx.lineWidth = 1;
-                ctx.stroke();
-            }
-            
-            requestAnimationFrame(drawEnergyWave);
-        }
-        
-        // Enerji dalgalarını başlat
-        drawEnergyWave();
     }
     
     // Initialize item count
@@ -763,8 +796,16 @@ document.addEventListener('DOMContentLoaded', function() {
             
             if (savedList && savedList.id) {
                 // Redirect to QR code generator page
-                console.log("QR kod sayfasına yönlendiriliyor");
-                window.location.href = `qr-generator.html?listId=${savedList.id}`;
+                console.log("QR kod sayfasına yönlendiriliyor, liste ID:", savedList.id);
+                
+                // Liste ID'sini hem URL'de hem localStorage'da saklayalım (ek güvence)
+                localStorage.setItem('currentQRListId', savedList.id);
+                
+                // Tam bir URL ile yönlendirme yapalım
+                const qrPageUrl = new URL('qr-generator.html', window.location.href);
+                qrPageUrl.searchParams.append('listId', savedList.id);
+                
+                window.location.href = qrPageUrl.toString();
             } else {
                 throw new Error('Liste kaydedilirken bir hata oluştu');
             }
