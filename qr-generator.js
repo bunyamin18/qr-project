@@ -1,42 +1,7 @@
 // QR Generator Script
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize particles.js for background animation
-    if (window.particlesJS) {
-        particlesJS('particles-js', {
-            particles: {
-                number: { value: 180, density: { enable: true, value_area: 800 } },
-                color: { value: ["#00f5ff", "#6e36df", "#2be8d9"] },
-                shape: { type: "circle" },
-                opacity: { value: 0.6, random: true },
-                size: { value: 2, random: true },
-                line_linked: {
-                    enable: true,
-                    distance: 150,
-                    color: "#00f5ff",
-                    opacity: 0.4,
-                    width: 1
-                },
-                move: {
-                    enable: true,
-                    speed: 6,
-                    direction: "right",
-                    random: true,
-                    straight: false,
-                    out_mode: "out",
-                    bounce: false
-                }
-            },
-            interactivity: {
-                detect_on: "canvas",
-                events: {
-                    onhover: { enable: true, mode: "grab" },
-                    onclick: { enable: true, mode: "push" },
-                    resize: true
-                }
-            },
-            retina_detect: true
-        });
-    }
+    // Arka plan animasyonu script.js içinde genel olarak tanımlandı
     
     // DOM elements
     const listTitle = document.getElementById('listTitle');
@@ -155,9 +120,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to generate QR Code
     function generateQRCode(listData) {
         try {
-            // Use the current base URL to ensure the QR code works in all environments
-            const basePath = window.location.href.split('/').slice(0, -1).join('/');
-            const listUrl = `${basePath}/list.html?listId=${listData.id}`;
+            // QR kod için tam URL oluştur
+            const currentUrl = window.location.href;
+            // Protocol ve domain kısmını al (http://example.com)
+            const urlParts = currentUrl.split('/');
+            const protocol = urlParts[0];
+            const domain = urlParts[2];
+            const baseUrl = protocol + '//' + domain;
+            
+            // Tam URL oluştur
+            const listUrl = `${baseUrl}/list.html?listId=${listData.id}`;
             
             // Log URL for debugging
             console.log('Generated URL for QR code:', listUrl);
@@ -165,12 +137,27 @@ document.addEventListener('DOMContentLoaded', function() {
             // Create QR Code using qrcode-generator library
             qrContainer.innerHTML = '';
             
-            const qr = qrcode(0, 'L');
+            // QR kod ayarlarını güncelle - daha yüksek hata düzeltme düzeyi ve daha büyük boyut
+            const qr = qrcode(4, 'H'); // 0->4 (daha yüksek versiyon) ve L->H (daha iyi hata düzeltme)
             qr.addData(listUrl);
             qr.make();
             
-            const qrImage = qr.createImgTag(5);
+            // Daha büyük ve net QR kod oluştur
+            const qrImage = qr.createImgTag(10, 0); // Daha büyük piksel boyutu (5->10)
             qrContainer.innerHTML = qrImage;
+            
+            // QR kodunu daha büyük ve okunabilir yap
+            const qrImg = qrContainer.querySelector('img');
+            if (qrImg) {
+                qrImg.style.width = '260px';
+                qrImg.style.height = '260px';
+                qrImg.style.display = 'block';
+                qrImg.style.margin = '0 auto';
+                qrImg.style.border = '10px solid white'; // Beyaz kenarlık ekle
+                qrImg.style.backgroundColor = 'white'; // Beyaz arka plan ekle
+                qrImg.style.borderRadius = '8px';
+                qrImg.style.boxShadow = '0 0 10px rgba(0,0,0,0.1)';
+            }
             
             // Add info text
             const infoText = document.createElement('p');
@@ -196,36 +183,45 @@ document.addEventListener('DOMContentLoaded', function() {
             window.location.href = `index.html?listId=${listData.id}`;
         });
         
-        // Download button
+        // Download button - QR kodunu JPG olarak indir
         downloadButton.addEventListener('click', function() {
             try {
-                // Get QR code image
                 const qrImg = qrContainer.querySelector('img');
-                
                 if (!qrImg) {
-                    throw new Error('QR kod resmi bulunamadı');
+                    throw new Error('QR kod bulunamadı');
                 }
                 
-                // Create a canvas element
+                // QR kod görüntüsünü bir Canvas'a çiz
                 const canvas = document.createElement('canvas');
-                const context = canvas.getContext('2d');
+                const ctx = canvas.getContext('2d');
                 
-                // Set canvas dimensions
-                canvas.width = qrImg.width;
-                canvas.height = qrImg.height;
+                // Daha büyük ve beyaz kenarlıklı bir canvas oluştur
+                canvas.width = 300;
+                canvas.height = 300;
                 
-                // Draw QR code to canvas
-                context.drawImage(qrImg, 0, 0);
+                // Beyaz arka plan çiz
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
                 
-                // Create a temporary link element
-                const link = document.createElement('a');
-                link.download = `${listData.title}_QR.png`;
-                link.href = canvas.toDataURL('image/png');
-                
-                // Trigger download
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+                // Görüntüyü canvas'a çiz
+                const img = new Image();
+                img.onload = function() {
+                    // QR kodu canvas'ın ortasına yerleştir
+                    const padding = 20;
+                    ctx.drawImage(img, padding, padding, canvas.width - (padding * 2), canvas.height - (padding * 2));
+                    
+                    // Canvas'ı indirilecek bağlantıya dönüştür
+                    const link = document.createElement('a');
+                    link.download = `${listData.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_qr_kod.jpg`;
+                    
+                    // Canvas'ı yüksek kaliteli JPEG'e dönüştür
+                    link.href = canvas.toDataURL('image/jpeg', 1.0);
+                    link.click();
+                };
+                img.onerror = function() {
+                    throw new Error('QR kod görüntüsü yüklenemedi');
+                };
+                img.src = qrImg.src;
                 
             } catch (error) {
                 console.error('Error downloading QR code:', error);
@@ -236,33 +232,36 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Function to show error messages
     function showError(message) {
-        // Display error for title
         if (listTitle) {
             listTitle.textContent = 'Hata';
+            listTitle.style.color = '#ff5757';
         }
         
-        // Display error for preview
-        if (previewItems) {
+        if (listPreview) {
             previewItems.innerHTML = `<p class="error-message">${message}</p>`;
         }
         
-        // Display error for QR code
         if (qrContainer) {
-            qrContainer.innerHTML = `<p class="error-message">${message}</p>`;
+            qrContainer.innerHTML = '';
         }
         
-        // Log error
-        console.error('QR Generator Error:', message);
+        if (downloadButton) {
+            downloadButton.style.display = 'none';
+        }
+        
+        if (editButton) {
+            editButton.style.display = 'none';
+        }
     }
     
     // Function to escape HTML to prevent XSS
     function escapeHtml(str) {
         if (!str) return '';
         return str
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
     }
 });
