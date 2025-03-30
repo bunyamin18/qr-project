@@ -1,51 +1,48 @@
 import dataStorage from './services/dataStorage.js';
 
 // Gerekli elementleri sakla
-let titleElement;
-let itemsList;
-let qrContainer;
-let qrError;
-let editButton;
-let newListButton;
+let listTitle;
+let itemsContainer;
 let currentListData;
 
 // Liste verisini göster
 function displayListData(data) {
     try {
         // Başlığı göster
-        titleElement.textContent = data.title;
+        listTitle.textContent = data.title;
+
+        // Listeyi göster
+        itemsContainer.innerHTML = '';
         
-        // Öğeleri göster
-        itemsList.innerHTML = '';
         data.items.forEach(item => {
-            const row = document.createElement('div');
-            row.className = 'list-row';
+            const itemElement = document.createElement('div');
+            itemElement.className = 'list-item';
             
-            row.innerHTML = `
+            // İçeriği ve değeri göster
+            itemElement.innerHTML = `
                 <div class="item-content">${escapeHtml(item.content)}</div>
                 <div class="item-value">${escapeHtml(item.value)}</div>
-                ${item.image ? `<img src="${item.image}" class="item-image" alt="Öğe resmi">` : ''}
             `;
-            itemsList.appendChild(row);
+
+            // Resim varsa görüntüleme butonunu ekle
+            if (item.image) {
+                const viewButton = document.createElement('button');
+                viewButton.className = 'view-image-button';
+                viewButton.textContent = 'Resmi Görüntüle';
+                
+                viewButton.addEventListener('click', () => {
+                    window.open(item.image, '_blank');
+                });
+
+                itemElement.appendChild(viewButton);
+            }
+
+            itemsContainer.appendChild(itemElement);
         });
 
-        // QR kodu göster
-        qrContainer.innerHTML = '';
-        qrError.style.display = 'none';
-
-        // QR kod oluştur
-        const qr = new QRCode(qrContainer, {
-            text: `https://okulprojesibunyamin.netlify.app/list.html?listId=${data.id}`,
-            width: 256,
-            height: 256,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
-        });
     } catch (error) {
-        console.error('Veri gösterme hatası:', error);
-        qrError.style.display = 'block';
-        qrError.textContent = 'Liste verisi gösterilirken bir hata oluştu';
+        console.error('Liste gösterme hatası:', error);
+        alert('Liste gösterilemedi');
     }
 }
 
@@ -53,59 +50,50 @@ function displayListData(data) {
 document.addEventListener('DOMContentLoaded', function() {
     try {
         // DOM elementlerini al
-        titleElement = document.getElementById('listTitle');
-        itemsList = document.getElementById('itemsList');
-        qrContainer = document.getElementById('qrContainer');
-        qrError = document.getElementById('qrError');
-        editButton = document.querySelector('.edit-button');
-        newListButton = document.querySelector('.new-list-button');
-
-        if (!titleElement || !itemsList || !qrContainer || !qrError || !editButton || !newListButton) {
+        listTitle = document.getElementById('listTitle');
+        itemsContainer = document.getElementById('items');
+        
+        if (!listTitle || !itemsContainer) {
             throw new Error('Gerekli DOM elementleri bulunamadı');
         }
 
-        // URL'den liste ID'sini al
+        // URL'den veri al
         const urlParams = new URLSearchParams(window.location.search);
         const listId = urlParams.get('listId');
+        
+        if (listId) {
+            // Liste verisini al
+            currentListData = dataStorage.getList(listId);
+            
+            if (!currentListData) {
+                throw new Error('Liste bulunamadı');
+            }
 
-        if (!listId) {
+            // Veriyi göster
+            displayListData(currentListData);
+        } else {
             throw new Error('Liste ID bulunamadı');
         }
 
-        // Liste verisini al
-        currentListData = dataStorage.getList(listId);
-        
-        if (!currentListData) {
-            throw new Error('Liste bulunamadı');
+        // Düzenleme butonu event listener'ı
+        const editButton = document.querySelector('.edit-button');
+        if (editButton) {
+            editButton.addEventListener('click', () => {
+                window.location.href = `index.html?listId=${listId}`;
+            });
         }
 
-        // Veriyi göster
-        displayListData(currentListData);
-
-        // Düzenleme butonu event listener'ı ekle
-        editButton.onclick = () => {
-            try {
-                window.location.href = `index.html?listId=${currentListData.id}`;
-            } catch (error) {
-                console.error('Düzenleme butonu hatası:', error);
-                alert('Düzenleme sırasında bir hata oluştu');
-            }
-        };
-
-        // Yeni liste oluşturma butonu event listener'ı ekle
-        newListButton.onclick = () => {
-            try {
+        // Geri butonu event listener'ı
+        const backButton = document.querySelector('.back-button');
+        if (backButton) {
+            backButton.addEventListener('click', () => {
                 window.location.href = 'index.html';
-            } catch (error) {
-                console.error('Yeni liste butonu hatası:', error);
-                alert('Yeni liste oluşturulurken bir hata oluştu');
-            }
-        };
+            });
+        }
 
     } catch (error) {
         console.error('Sayfa yükleme hatası:', error);
         alert(error.message || 'Sayfa yüklenirken bir hata oluştu');
-        window.location.href = 'index.html';
     }
 });
 

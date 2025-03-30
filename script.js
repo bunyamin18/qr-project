@@ -10,12 +10,6 @@ async function handleFormSubmit(event) {
     event.preventDefault();
 
     try {
-        // Depolama kullanımını kontrol et
-        const storageUsage = dataStorage.checkStorageUsage();
-        if (storageUsage.percentage > 90) {
-            throw new Error('Depolama alanı neredeyse dolu. Lütfen bazı listeleri silin');
-        }
-
         // Form verilerini al
         const title = titleInput.value.trim();
         const items = Array.from(itemsContainer.children)
@@ -72,11 +66,6 @@ async function handleFormSubmit(event) {
     }
 }
 
-// Benzersiz ID oluşturma fonksiyonu
-function generateUniqueID() {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
-}
-
 // Yeni öğe ekleme fonksiyonu
 function addItem() {
     const row = createItemRow();
@@ -100,7 +89,6 @@ function createItemRow(content = '', value = '', image = '') {
         <div class="item-image-container">
             <label>Resim</label>
             <input type="file" class="item-image" accept="image/*">
-            ${image ? `<button class="view-image-button">Resmi Görüntüle</button>` : ''}
         </div>
         <button type="button" class="delete-row">×</button>
     `;
@@ -121,29 +109,15 @@ function createItemRow(content = '', value = '', image = '') {
                     preview.style.maxHeight = '100px';
                     preview.style.objectFit = 'cover';
                     
-                    // Resim görüntüleme butonunu ekle
-                    const viewButton = document.createElement('button');
-                    viewButton.className = 'view-image-button';
-                    viewButton.textContent = 'Resmi Görüntüle';
-                    
                     // Mevcut önizleme varsa kaldır
                     const existingPreview = row.querySelector('.image-preview');
-                    const existingButton = row.querySelector('.view-image-button');
                     if (existingPreview) {
                         existingPreview.remove();
                     }
-                    if (existingButton) {
-                        existingButton.remove();
-                    }
                     
-                    // Yeni butonu ekle
+                    // Yeni önizlemeyi ekle
                     const imageContainer = row.querySelector('.item-image-container');
-                    imageContainer.appendChild(viewButton);
-                    
-                    // Butona tıklama event listener'ı ekle
-                    viewButton.addEventListener('click', () => {
-                        window.open(e.target.result, '_blank');
-                    });
+                    imageContainer.appendChild(preview);
                 };
                 reader.readAsDataURL(file);
             }

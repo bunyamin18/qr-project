@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste Görüntüleme</title>
+    <title>Liste Görüntüle</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.0/build/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -12,14 +12,12 @@
     <div class="create-tech-background"></div>
     <div class="container">
         <div class="center-card">
-            <div class="header-buttons">
-                <button class="new-list-button">Yeni Liste</button>
-                <button class="edit-button">Düzenle</button>
-            </div>
             <h1 id="listTitle"></h1>
-            <div id="itemsList"></div>
-            <div id="qrContainer"></div>
-            <div id="qrError" style="display: none; color: #dc3545; text-align: center; margin-top: 1rem;"></div>
+            <div id="items"></div>
+            <div class="button-container">
+                <button class="edit-button">Düzenle</button>
+                <button class="back-button">Geri</button>
+            </div>
         </div>
     </div>
     <script type="module">
