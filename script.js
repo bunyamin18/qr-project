@@ -6,41 +6,180 @@ document.addEventListener('DOMContentLoaded', function() {
     const itemsContainer = document.getElementById('itemsContainer');
     const addItemButton = document.getElementById('addItemButton');
     
-    // Initialize particles.js for background animation - cable-style effect
+    // Initialize dataStorage if not already available
+    if (!window.dataStorage) {
+        window.dataStorage = {
+            async saveList(listData) {
+                try {
+                    // Liste ID'si oluştur
+                    const listId = Date.now().toString();
+                    
+                    // Liste verisini hazırla
+                    const list = {
+                        id: listId,
+                        title: listData.title,
+                        items: listData.items
+                    };
+        
+                    // Veriyi localStorage'a kaydet
+                    const lists = JSON.parse(localStorage.getItem('lists') || '[]');
+                    lists.push(list);
+                    localStorage.setItem('lists', JSON.stringify(lists));
+        
+                    return list;
+                } catch (error) {
+                    console.error('Liste kaydetme hatası:', error);
+                    throw error;
+                }
+            },
+        
+            updateList(listData) {
+                try {
+                    const lists = JSON.parse(localStorage.getItem('lists') || '[]');
+                    const index = lists.findIndex(list => list.id === listData.id);
+                    
+                    if (index !== -1) {
+                        lists[index] = listData;
+                        localStorage.setItem('lists', JSON.stringify(lists));
+                        return listData;
+                    } else {
+                        throw new Error('Liste bulunamadı');
+                    }
+                } catch (error) {
+                    console.error('Liste güncelleme hatası:', error);
+                    throw error;
+                }
+            },
+        
+            getList(listId) {
+                try {
+                    const lists = JSON.parse(localStorage.getItem('lists') || '[]');
+                    return lists.find(list => list.id === listId);
+                } catch (error) {
+                    console.error('Liste alma hatası:', error);
+                    throw error;
+                }
+            },
+        
+            getAllLists() {
+                try {
+                    return JSON.parse(localStorage.getItem('lists') || '[]');
+                } catch (error) {
+                    console.error('Listeler alma hatası:', error);
+                    throw error;
+                }
+            }
+        };
+    }
+    
+    // Initialize particles.js for background animation - sabit labirent çizgiler ve üzerinde hareket eden mavi ışık efekti
     if (window.particlesJS) {
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        
+        // Sabit çizgileri oluşturan yapı
+        const canvasEl = document.createElement('canvas');
+        canvasEl.width = width;
+        canvasEl.height = height;
+        canvasEl.style.position = 'absolute';
+        canvasEl.style.top = '0';
+        canvasEl.style.left = '0';
+        canvasEl.style.pointerEvents = 'none';
+        document.getElementById('particles-js').appendChild(canvasEl);
+        
+        const ctx = canvasEl.getContext('2d');
+        
+        // Labirent benzeri çizgiler oluştur
+        function drawMazeLines() {
+            ctx.strokeStyle = '#2a2a5a';
+            ctx.lineWidth = 1;
+            
+            // Yatay çizgiler
+            for (let i = 0; i < 12; i++) {
+                const y = height * (i / 12);
+                ctx.beginPath();
+                if (i % 3 === 0) {
+                    // Tam çizgi
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(width, y);
+                } else {
+                    // Kesikli çizgi
+                    for (let x = 0; x < width; x += 100) {
+                        const segmentLength = 30 + Math.random() * 70;
+                        ctx.moveTo(x, y);
+                        ctx.lineTo(Math.min(x + segmentLength, width), y);
+                    }
+                }
+                ctx.stroke();
+            }
+            
+            // Dikey çizgiler
+            for (let i = 0; i < 15; i++) {
+                const x = width * (i / 15);
+                ctx.beginPath();
+                if (i % 4 === 0) {
+                    // Tam çizgi
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, height);
+                } else {
+                    // Kesikli çizgi
+                    for (let y = 0; y < height; y += 80) {
+                        const segmentLength = 20 + Math.random() * 60;
+                        ctx.moveTo(x, y);
+                        ctx.lineTo(x, Math.min(y + segmentLength, height));
+                    }
+                }
+                ctx.stroke();
+            }
+            
+            // Çapraz bağlantılar
+            ctx.strokeStyle = '#2a2a5a';
+            for (let i = 0; i < 30; i++) {
+                const x1 = Math.random() * width;
+                const y1 = Math.random() * height;
+                const x2 = x1 + (Math.random() - 0.5) * 200;
+                const y2 = y1 + (Math.random() - 0.5) * 200;
+                
+                ctx.beginPath();
+                ctx.moveTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+            }
+        }
+        
+        drawMazeLines();
+        
+        // Hareket eden ışıklar için particles.js
         particlesJS('particles-js', {
             particles: {
-                number: { value: 70, density: { enable: true, value_area: 800 } },
-                color: { value: ["#00f5ff", "#6e36df", "#2be8d9"] },
-                shape: { type: "line" },
-                opacity: { value: 0.7, random: false },
-                size: { value: 2, random: true },
+                number: { value: 30, density: { enable: true, value_area: 800 } },
+                color: { value: ["#00f5ff", "#0080ff", "#0040ff"] },
+                shape: { type: "circle" },
+                opacity: { value: 0.8, random: false },
+                size: { value: 3, random: true },
                 line_linked: {
-                    enable: true,
-                    distance: 200,
-                    color: "#00f5ff",
-                    opacity: 0.5,
-                    width: 2
+                    enable: false
                 },
                 move: {
                     enable: true,
-                    speed: 3,
+                    speed: 2,
                     direction: "none",
                     random: false,
                     straight: false,
                     out_mode: "bounce",
-                    attract: { enable: true, rotateX: 600, rotateY: 1200 }
+                    bounce: true,
+                    attract: { enable: false }
                 }
             },
             interactivity: {
                 detect_on: "canvas",
                 events: {
-                    onhover: { enable: true, mode: "repulse" },
+                    onhover: { enable: true, mode: "grab" },
                     onclick: { enable: true, mode: "push" },
                     resize: true
                 },
                 modes: {
-                    repulse: { distance: 100, duration: 0.4 }
+                    grab: { distance: 100, line_linked: { opacity: 0.8 } }
                 }
             },
             retina_detect: true
