@@ -51,8 +51,18 @@ class DataStorage {
                 lists.push(listData);
             }
 
+            // Veriyi kaydet
             localStorage.setItem(this.storageKey, JSON.stringify(lists));
-            return listData;
+            
+            // Kaydedilen veriyi doğrula
+            const savedLists = this.getAllLists();
+            const savedList = savedLists.find(list => list.id === listData.id);
+            
+            if (!savedList) {
+                throw new Error('Liste kaydedilemedi');
+            }
+
+            return savedList;
         } catch (error) {
             console.error('Veri kaydetme hatası:', error);
             throw new Error('Liste kaydedilirken bir hata oluştu');
