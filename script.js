@@ -53,7 +53,7 @@ async function handleFormSubmit(event) {
 
     try {
         // Veriyi sakla
-        const savedList = dataStorage.saveList(currentListData);
+        const savedList = await dataStorage.saveList(currentListData);
         
         // QR kod sayfasına yönlendir
         window.location.href = `qr-generator.html?listId=${savedList.id}`;

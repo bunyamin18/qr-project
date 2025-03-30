@@ -56,33 +56,53 @@ if (listId) {
 
 // İndirme butonu event listener'ı
 document.getElementById('downloadQR').addEventListener('click', () => {
-    if (currentListData) {
-        const qrElement = document.querySelector('.qr-preview canvas');
-        if (qrElement) {
-            const link = document.createElement('a');
-            link.download = `liste-qr-${currentListData.id}.png`;
-            link.href = qrElement.toDataURL("image/png");
-            link.click();
+    try {
+        if (currentListData) {
+            const qrElement = document.querySelector('.qr-preview canvas');
+            if (qrElement) {
+                const link = document.createElement('a');
+                link.download = `liste-qr-${currentListData.id}.png`;
+                link.href = qrElement.toDataURL("image/png");
+                link.click();
+            }
         }
+    } catch (error) {
+        console.error('QR kodu indirme hatası:', error);
+        alert('QR kodu indirilirken bir hata oluştu');
     }
 });
 
 // Listeye dön butonu event listener'ı
 document.getElementById('backToList').addEventListener('click', () => {
-    if (currentListData) {
-        window.location.href = `list.html?listId=${currentListData.id}`;
+    try {
+        if (currentListData) {
+            window.location.href = `list.html?listId=${currentListData.id}`;
+        }
+    } catch (error) {
+        console.error('Listeye dönme hatası:', error);
+        alert('Listeye dönme sırasında bir hata oluştu');
     }
 });
 
 // Yeni liste oluşturma butonu event listener'ı
 document.querySelector('.new-list-button').addEventListener('click', () => {
-    window.location.href = 'index.html';
+    try {
+        window.location.href = 'index.html';
+    } catch (error) {
+        console.error('Yeni liste hatası:', error);
+        alert('Yeni liste oluşturulurken bir hata oluştu');
+    }
 });
 
 // Düzenleme butonu event listener'ı
 document.querySelector('.edit-button').addEventListener('click', () => {
-    if (currentListData) {
-        window.location.href = `index.html?listId=${currentListData.id}`;
+    try {
+        if (currentListData) {
+            window.location.href = `index.html?listId=${currentListData.id}`;
+        }
+    } catch (error) {
+        console.error('Düzenleme hatası:', error);
+        alert('Düzenleme sırasında bir hata oluştu');
     }
 });
 
