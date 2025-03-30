@@ -1,67 +1,42 @@
 import dataStorage from './services/dataStorage.js';
-import QRCode from 'qrcode';
 
-// DOM elementleri
-const qrContainer = document.getElementById('qrContainer');
-const downloadButton = document.getElementById('downloadQR');
-const backButton = document.getElementById('backToList');
-const listContent = document.createElement('div');
-listContent.className = 'list-content';
-qrContainer.parentNode.insertBefore(listContent, qrContainer);
+// Gerekli elementleri sakla
+let qrContainer;
+let downloadButton;
+let backButton;
+let currentListData;
 
 // QR kodu oluştur
-async function generateQRCode(listId) {
+function generateQRCode(listId) {
     try {
         // Liste verisini al
-        const listData = await dataStorage.getList(listId);
-        if (!listData) {
+        currentListData = dataStorage.getList(listId);
+        if (!currentListData) {
             throw new Error('Liste bulunamadı');
         }
-
-        // Liste içeriğini göster
-        listContent.innerHTML = `
-            <h2>${listData.title}</h2>
-            <div class="items-container">
-                ${listData.items.map(item => `
-                    <div class="item">
-                        <div class="item-content">${item.content}</div>
-                        <div class="item-value">${item.value || ''}</div>
-                        ${item.image ? `<img src="${item.image}" class="item-image" alt="Resim">` : ''}
-                    </div>
-                `).join('')}
-            </div>
-        `;
 
         // QR kod içeriğini hazırla
         const qrContent = `https://okulprojesibunyamin.netlify.app/list.html?listId=${listId}`;
 
         // QR kodu oluştur
-        const qrData = await QRCode.toDataURL(qrContent, {
+        const qr = new QRCode(qrContainer, {
+            text: qrContent,
             width: 256,
             height: 256,
-            margin: 1,
-            color: {
-                dark: '#000000',
-                light: '#ffffff'
-            },
-            errorCorrectionLevel: 'H'
+            colorDark: '#000000',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
         });
-
-        // QR kodu göster
-        const qrImage = document.createElement('img');
-        qrImage.src = qrData;
-        qrImage.style.maxWidth = '256px';
-        qrImage.style.maxHeight = '256px';
-        
-        qrContainer.innerHTML = '';
-        qrContainer.appendChild(qrImage);
 
         // İndirme butonuna tıklama event listener'ı
         downloadButton.addEventListener('click', () => {
-            const link = document.createElement('a');
-            link.download = `liste_${listId}.png`;
-            link.href = qrData;
-            link.click();
+            const canvas = qrContainer.querySelector('img');
+            if (canvas) {
+                const link = document.createElement('a');
+                link.download = `liste_${listId}.png`;
+                link.href = canvas.src;
+                link.click();
+            }
         });
 
     } catch (error) {
@@ -71,8 +46,17 @@ async function generateQRCode(listId) {
 }
 
 // Sayfa yüklendiğinde çalışacak fonksiyon
-document.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', function() {
     try {
+        // DOM elementlerini al
+        qrContainer = document.getElementById('qrContainer');
+        downloadButton = document.querySelector('.download-button');
+        backButton = document.querySelector('.back-button');
+        
+        if (!qrContainer || !downloadButton || !backButton) {
+            throw new Error('Gerekli DOM elementleri bulunamadı');
+        }
+
         // URL'den liste ID'sini al
         const urlParams = new URLSearchParams(window.location.search);
         const listId = urlParams.get('listId');
@@ -82,11 +66,11 @@ document.addEventListener('DOMContentLoaded', async function() {
         }
 
         // QR kodu oluştur
-        await generateQRCode(listId);
+        generateQRCode(listId);
 
         // Geri butonu event listener'ı
         backButton.addEventListener('click', () => {
-            window.location.href = 'index.html';
+            window.location.href = 'list.html?listId=' + listId;
         });
 
     } catch (error) {

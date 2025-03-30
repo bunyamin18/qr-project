@@ -1,10 +1,9 @@
 import dataStorage from './services/dataStorage.js';
 
-// DOM elementleri
-const form = document.getElementById('listForm');
-const titleInput = document.getElementById('listTitle');
-const itemsContainer = document.getElementById('items');
-const addRowButton = document.getElementById('addRow');
+// Gerekli elementleri sakla
+let titleInput;
+let itemsContainer;
+let currentListData;
 
 // Form gönderme fonksiyonu
 async function handleFormSubmit(event) {
@@ -52,8 +51,8 @@ async function handleFormSubmit(event) {
         // Veriyi sakla
         const savedList = await dataStorage.saveList(listData);
         
-        // Liste önizleme sayfasına yönlendir
-        window.location.href = `list-preview.html?listId=${savedList.id}`;
+        // QR kod sayfasına yönlendir
+        window.location.href = `qr-generator.html?listId=${savedList.id}`;
 
     } catch (error) {
         console.error('Form gönderme hatası:', error);
@@ -101,6 +100,7 @@ function createItemRow(content = '', value = '', image = '') {
                     preview.src = e.target.result;
                     preview.style.maxWidth = '100px';
                     preview.style.maxHeight = '100px';
+                    preview.style.objectFit = 'cover';
                     
                     // Mevcut önizlemeyi temizle
                     const existingPreview = row.querySelector('.image-preview');
@@ -140,18 +140,52 @@ function escapeHtml(unsafe) {
 // Sayfa yüklendiğinde çalışacak fonksiyon
 document.addEventListener('DOMContentLoaded', function() {
     try {
-        // Form gönderme event listener'ı
+        // DOM elementlerini al
+        titleInput = document.getElementById('listTitle');
+        itemsContainer = document.getElementById('items');
+        
+        if (!titleInput || !itemsContainer) {
+            throw new Error('Gerekli DOM elementleri bulunamadı');
+        }
+
+        // URL'den veri al
+        const urlParams = new URLSearchParams(window.location.search);
+        const listId = urlParams.get('listId');
+        
+        if (listId) {
+            // Liste verisini al
+            currentListData = dataStorage.getList(listId);
+            
+            if (!currentListData) {
+                throw new Error('Liste bulunamadı');
+            }
+
+            // Veriyi form'a yükle
+            titleInput.value = currentListData.title || '';
+            
+            // Mevcut öğeleri ekle
+            currentListData.items.forEach(item => {
+                const row = createItemRow(item.content, item.value, item.image);
+                itemsContainer.appendChild(row);
+            });
+        }
+
+        // İlk satırı ekle
+        if (itemsContainer.children.length === 0) {
+            addItem();
+        }
+
+        // Form submit event listener'ı ekle
+        const form = document.getElementById('listForm');
         if (form) {
             form.addEventListener('submit', handleFormSubmit);
         }
 
-        // Yeni öğe ekleme butonu event listener'ı
-        if (addRowButton) {
-            addRowButton.addEventListener('click', addItem);
+        // Yeni öğe ekleme butonu event listener'ı ekle
+        const addItemButton = document.querySelector('.add-row-button');
+        if (addItemButton) {
+            addItemButton.addEventListener('click', addItem);
         }
-
-        // Başlangıçta bir öğe ekle
-        addItem();
 
     } catch (error) {
         console.error('Sayfa yükleme hatası:', error);

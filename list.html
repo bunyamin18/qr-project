@@ -5,18 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste Görüntüle</title>
     <link rel="stylesheet" href="styles.css">
-    <script type="module" src="list.js"></script>
 </head>
 <body>
+    <div class="create-tech-background"></div>
     <div class="container">
-        <div class="card">
+        <div class="center-card">
             <h1 id="listTitle"></h1>
-            <div id="listContent" class="list-content"></div>
-            <div id="qrContainer" class="qr-container"></div>
+            <div id="items"></div>
             <div class="button-container">
-                <button type="button" class="btn btn-secondary" id="backToList">Geri</button>
+                <button class="edit-button">Düzenle</button>
+                <button class="back-button">Geri</button>
             </div>
         </div>
     </div>
+    <script type="module">
+        import dataStorage from './services/dataStorage.js';
+        import './list.js';
+    </script>
 </body>
 </html>
