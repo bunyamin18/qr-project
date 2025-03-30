@@ -1,14 +1,14 @@
 /* Genel stil */
 :root {
-    --primary-color: #2c3e50;
-    --secondary-color: #3498db;
-    --accent-color: #e74c3c;
-    --background-color: #f5f6fa;
-    --text-color: #2c3e50;
+    --primary-color: #6c5ce7;
+    --secondary-color: #a29bfe;
+    --accent-color: #fd79a8;
+    --background-color: #f5f7fa;
+    --text-color: #2d3436;
     --card-background: #ffffff;
-    --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    --gradient-start: #1a237e;
-    --gradient-end: #0d47a1;
+    --card-shadow: 0 10px 30px rgba(108, 92, 231, 0.1);
+    --gradient-start: #6c5ce7;
+    --gradient-end: #a29bfe;
 }
 
 * {
@@ -19,7 +19,7 @@
 
 body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     background: #f5f7fa;
     min-height: 100vh;
     display: flex;
@@ -27,6 +27,7 @@ body {
     align-items: center;
     padding: 20px;
     position: relative;
+    color: var(--text-color);
 }
 
 /* Animated background */
@@ -37,7 +38,7 @@ body {
     width: 100%;
     height: 100%;
     z-index: -1;
-    background-color: #020024;
+    background-color: #fbfaff;
 }
 
 #particles-js {
@@ -61,31 +62,34 @@ body {
 /* Merkezi kart stil */
 .center-card {
     background: rgba(255, 255, 255, 0.95);
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    padding: 35px;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(108, 92, 231, 0.15);
     text-align: center;
-    transition: transform 0.3s ease;
+    transition: all 0.3s ease;
     backdrop-filter: blur(5px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(162, 155, 254, 0.2);
 }
 
 .center-card:hover {
     transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(108, 92, 231, 0.2);
 }
 
 /* Başlık stil */
 h1 {
-    color: #006064;
+    color: var(--primary-color);
     margin-bottom: 30px;
-    font-size: 2rem;
-    text-shadow: 0px 2px 3px rgba(0,0,0,0.1);
+    font-size: 2.2rem;
+    font-weight: 700;
+    text-shadow: 0px 2px 3px rgba(0,0,0,0.05);
 }
 
 h2 {
-    color: #00838f;
+    color: var(--primary-color);
     margin-bottom: 15px;
-    font-size: 1.5rem;
+    font-size: 1.6rem;
+    font-weight: 600;
 }
 
 /* Form grup stil */
@@ -97,7 +101,7 @@ h2 {
 label {
     display: block;
     margin-bottom: 8px;
-    color: #00838f;
+    color: var(--primary-color);
     font-weight: 500;
     text-align: left;
 }
@@ -105,29 +109,37 @@ label {
 /* Input stil */
 .form-control {
     width: 100%;
-    padding: 12px;
+    padding: 14px;
     border: 2px solid #e0e0e0;
-    border-radius: 6px;
+    border-radius: 10px;
     font-size: 16px;
     transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.9);
 }
 
 .form-control:focus {
     outline: none;
-    border-color: #00bcd4;
-    box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.2);
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 0 3px rgba(162, 155, 254, 0.2);
 }
 
 /* Item container styles */
 .item-container {
     display: flex;
     gap: 10px;
-    background: #f9f9f9;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    background: #f8f6ff;
+    padding: 18px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(108, 92, 231, 0.08);
     margin-bottom: 15px;
     align-items: center;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(162, 155, 254, 0.1);
+}
+
+.item-container:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(108, 92, 231, 0.12);
 }
 
 .item-fields {
@@ -142,20 +154,21 @@ label {
 
 /* Delete button */
 .delete-button {
-    background-color: #f44336;
+    background-color: #ff7675;
     color: white;
     border: none;
     padding: 10px;
-    border-radius: 5px;
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s ease;
     height: 40px;
     width: 60px;
     font-size: 14px;
+    font-weight: 500;
 }
 
 .delete-button:hover {
-    background-color: #d32f2f;
+    background-color: #e84393;
     transform: scale(1.05);
 }
 
@@ -163,97 +176,120 @@ label {
 .button-container {
     display: flex;
     justify-content: space-between;
-    margin-top: 20px;
+    margin-top: 25px;
     gap: 15px;
 }
 
 .add-row-button,
-.save-button {
-    padding: 12px 25px;
-    border-radius: 8px;
+.save-button,
+.back-button,
+.download-button,
+.edit-button {
+    padding: 14px 25px;
+    border-radius: 12px;
     font-size: 16px;
     cursor: pointer;
     transition: all 0.3s ease;
     border: none;
     font-weight: 600;
     letter-spacing: 0.5px;
+    box-shadow: 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .add-row-button {
-    background-color: #00bcd4;
+    background-color: var(--secondary-color);
     color: white;
     flex: 1;
 }
 
 .add-row-button:hover {
-    background-color: #00acc1;
+    background-color: var(--primary-color);
     transform: translateY(-2px);
+    box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
 }
 
 .save-button {
-    background-color: #009688;
+    background-color: var(--primary-color);
     color: white;
     flex: 1;
 }
 
 .save-button:hover {
-    background-color: #00897b;
+    background-color: #5d4aeb;
     transform: translateY(-2px);
+    box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
 }
 
-.back-button,
-.download-button,
-.edit-button {
-    background-color: #00bcd4;
+.back-button {
+    background-color: #74b9ff;
     color: white;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 8px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.3s ease;
     margin: 10px 5px;
     flex: 1;
 }
 
+.back-button:hover {
+    background-color: #0984e3;
+    transform: translateY(-2px);
+    box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+}
+
+.download-button {
+    background-color: #55efc4;
+    color: #2d3436;
+    margin: 10px 5px;
+    flex: 1;
+}
+
+.download-button:hover {
+    background-color: #00b894;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
+}
+
 .edit-button {
-    background-color: #3f51b5;
+    background-color: #a29bfe;
+    color: white;
+    margin: 10px 5px;
+    flex: 1;
 }
 
 .edit-button:hover {
-    background-color: #303f9f;
+    background-color: #6c5ce7;
     transform: translateY(-2px);
-}
-
-.back-button:hover,
-.download-button:hover {
-    background-color: #00acc1;
-    transform: translateY(-2px);
+    box-shadow: 0 7px 14px rgba(50, 50, 93, 0.1), 0 3px 6px rgba(0, 0, 0, 0.08);
 }
 
 /* QR container */
 #qrContainer {
-    margin: 20px auto;
+    margin: 25px auto;
     background: white;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(108, 92, 231, 0.15);
     width: 100%;
-    max-width: 200px;
+    max-width: 220px;
     display: flex;
     justify-content: center;
     align-items: center;
+    border: 1px solid rgba(162, 155, 254, 0.2);
 }
 
 /* List items display */
 .list-item {
     display: flex;
     padding: 15px;
-    background: #f9f9f9;
-    border-radius: 8px;
+    background: #f8f6ff;
+    border-radius: 12px;
     margin-bottom: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 2px 8px rgba(108, 92, 231, 0.06);
     align-items: center;
+    transition: all 0.2s ease;
+}
+
+.list-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(108, 92, 231, 0.1);
 }
 
 .item-content {
@@ -263,31 +299,56 @@ label {
 }
 
 .item-value {
-    color: #00838f;
+    color: var(--primary-color);
     font-weight: 600;
     flex: 1;
 }
 
 /* Preview items */
 #list-preview {
-    margin-bottom: 20px;
-    background: #f0f8ff;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    margin-bottom: 25px;
+    background: #f8f6ff;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(108, 92, 231, 0.1);
     text-align: left;
+    border: 1px solid rgba(162, 155, 254, 0.2);
 }
 
 .preview-items {
-    max-height: 200px;
+    max-height: 220px;
     overflow-y: auto;
+    padding-right: 5px;
+}
+
+.preview-items::-webkit-scrollbar {
+    width: 6px;
+}
+
+.preview-items::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.preview-items::-webkit-scrollbar-thumb {
+    background: #d0cdf7;
+    border-radius: 10px;
+}
+
+.preview-items::-webkit-scrollbar-thumb:hover {
+    background: #a29bfe;
 }
 
 .preview-item {
     display: flex;
-    padding: 10px;
-    border-bottom: 1px solid #e0e0e0;
+    padding: 12px;
+    border-bottom: 1px solid rgba(162, 155, 254, 0.15);
     align-items: center;
+    transition: all 0.2s ease;
+}
+
+.preview-item:hover {
+    background: rgba(162, 155, 254, 0.05);
 }
 
 .preview-item:last-child {
@@ -296,30 +357,14 @@ label {
 
 .preview-item-value {
     flex: 0 0 120px;
-    font-weight: 500;
-    color: #00838f;
-    margin-right: 10px;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-right: 15px;
 }
 
 .preview-item-content {
     flex: 1;
-    color: #333;
-}
-
-/* Resim görüntüleme butonu stil */
-.view-image-button {
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 14px;
-    margin-left: 10px;
-}
-
-.view-image-button:hover {
-    background-color: #388E3C;
+    color: #2d3436;
 }
 
 /* Responsive styles */
@@ -337,7 +382,10 @@ label {
     }
     
     .add-row-button, 
-    .save-button {
+    .save-button,
+    .edit-button,
+    .download-button,
+    .back-button {
         width: 100%;
     }
 }

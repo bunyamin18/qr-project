@@ -5,14 +5,14 @@ document.addEventListener('DOMContentLoaded', function() {
         particlesJS('particles-js', {
             particles: {
                 number: { value: 150, density: { enable: true, value_area: 800 } },
-                color: { value: ["#00bcd4", "#2196f3", "#03a9f4"] },
+                color: { value: ["#6c5ce7", "#a29bfe", "#74b9ff"] },
                 shape: { type: "circle" },
                 opacity: { value: 0.6, random: true },
                 size: { value: 2, random: true },
                 line_linked: {
                     enable: true,
                     distance: 150,
-                    color: "#00bcd4",
+                    color: "#a29bfe",
                     opacity: 0.4,
                     width: 1
                 },
@@ -73,8 +73,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Liste önizlemesini göster
         renderListPreview(listData);
 
-        // QR kod içeriğini hazırla - kullanıcı bunu ziyaret edecek
-        const qrContent = `https://okulprojesibunyamin.netlify.app/list.html?listId=${listId}`;
+        // QR kod içeriğini hazırla - JSON içeriğini QR koduna gömüyoruz
+        // Bu şekilde internet olmadan da liste verisi doğrudan QR kodundan okunabilir
+        const qrContent = JSON.stringify(listData);
         
         // QR kodu oluştur 
         generateQRCode(qrContent);
@@ -93,8 +94,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 itemElement.className = 'preview-item';
                 
                 itemElement.innerHTML = `
-                    <div class="preview-item-content">${escapeHtml(item.content)}</div>
                     <div class="preview-item-value">${escapeHtml(item.value)}</div>
+                    <div class="preview-item-content">${escapeHtml(item.content)}</div>
                 `;
                 
                 previewItems.appendChild(itemElement);
@@ -105,8 +106,8 @@ document.addEventListener('DOMContentLoaded', function() {
         function generateQRCode(content) {
             try {
                 // QR Type set to 0 means automatic detection of QR version
-                // Error correction level 'L' is lowest (7%)
-                const qr = window.qrcode(0, 'L');
+                // Error correction level 'M' is medium (15%) - veriler daha büyük olabileceği için hata düzeltme seviyesini artırdık
+                const qr = window.qrcode(0, 'M');
                 qr.addData(content);
                 qr.make();
                 
