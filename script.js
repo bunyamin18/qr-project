@@ -10,6 +10,12 @@ async function handleFormSubmit(event) {
     event.preventDefault();
 
     try {
+        // Depolama kullanımını kontrol et
+        const storageUsage = dataStorage.checkStorageUsage();
+        if (storageUsage.percentage > 90) {
+            throw new Error('Depolama alanı neredeyse dolu. Lütfen bazı listeleri silin');
+        }
+
         // Form verilerini al
         const title = titleInput.value.trim();
         const items = Array.from(itemsContainer.children)
