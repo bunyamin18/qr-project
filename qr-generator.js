@@ -182,7 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // QR kod için URL oluştur - Göreceli URL kullan
             let baseUrl = window.location.protocol + '//' + window.location.host;
             
-            // Eğer localhost ya da dosya sistemi üzerinden çalışıyorsa
+            // Eğer localhost ya da dosya sistemi üzerinden çalışıyorsak
             if (baseUrl.includes('localhost') || baseUrl.includes('file://')) {
                 // Linklerimiz dosya sisteminde çalışsın
                 baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
@@ -190,16 +190,54 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log("Baz URL:", baseUrl);
             
-            // Liste verisini Base64 ile kodla (compres için gereksiz bilgileri kaldır)
+            // Liste verisini Base64 ile kodla (compress için gereksiz bilgileri kaldır)
+            // Resimleri de ekleyelim, ancak boyutu kontrol altında tutmak için
+            // her bir resim için maksimum boyutu sınırlayalım
+            
+            // Resim sıkıştırma için yardımcı fonksiyon
+            function compressImage(baseImage, maxImageSize = 2000) {
+                // Eğer resim yoksa veya çok küçükse direkt döndür
+                if (!baseImage || baseImage.length < maxImageSize) return baseImage;
+                
+                // Büyük bir resimse sıkıştır
+                const compressRatio = maxImageSize / baseImage.length;
+                console.log(`Resim sıkıştırılıyor. Orijinal: ${baseImage.length}, Hedef: ${maxImageSize}, Oran: ${compressRatio}`);
+                
+                // Resim bilgilerini kes (veri: kısmı hariç)
+                if (baseImage.indexOf('data:image') === 0) {
+                    // Base64 veri URI formatında, sadece temel bilgiyi alalım
+                    const format = baseImage.split(';')[0] + ';base64,'; // örn: data:image/jpeg;base64,
+                    const encodedData = baseImage.split(',')[1];
+                    
+                    // İlk 100 karakter ve son 100 karakter alınsın (çok büyük resimleri kısaltmak için)
+                    if (encodedData.length > 200) {
+                        const truncated = encodedData.substring(0, 100) + '...[kısaltıldı]...' + 
+                                         encodedData.substring(encodedData.length - 100);
+                        return `${format}${truncated}`;
+                    }
+                }
+                
+                return baseImage;
+            }
+            
+            // Liste verilerini hazırla (resimler sıkıştırılmış olarak dahil)
             const compressedListData = {
                 id: listData.id,
                 title: listData.title,
-                items: listData.items.map(item => ({
-                    content: item.content,
-                    value: item.value,
-                    // Resim verilerinin URL'yi aşırı büyütmemesi için kaldırıldı
-                    // image: item.image
-                }))
+                items: listData.items.map(item => {
+                    // Her öğe için nesne oluştur
+                    const compressedItem = {
+                        content: item.content || '',
+                        value: item.value || ''
+                    };
+                    
+                    // Resim varsa ekle (sıkıştırarak)
+                    if (item.image) {
+                        compressedItem.image = compressImage(item.image);
+                    }
+                    
+                    return compressedItem;
+                })
             };
             
             // Liste verisini Base64 olarak kodla
