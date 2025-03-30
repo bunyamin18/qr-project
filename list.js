@@ -55,7 +55,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }).catch(error => {
             console.error('QR kod oluşturma hatası:', error);
-            alert('QR kod oluşturulamadı');
+            qrError.style.display = 'block';
+            qrError.textContent = 'QR kod oluşturulamadı';
         });
 
     } catch (error) {

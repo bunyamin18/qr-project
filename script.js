@@ -5,6 +5,9 @@ let currentListData;
 
 // Sayfa yüklendiğinde çalışacak fonksiyon
 document.addEventListener('DOMContentLoaded', function() {
+    // Teknolojik arka plan efektini oluştur
+    createTechBackground();
+
     // DOM elementlerini al
     titleInput = document.getElementById('listTitle');
     itemsContainer = document.getElementById('items');
@@ -51,6 +54,42 @@ document.addEventListener('DOMContentLoaded', function() {
         addItem();
     }
 });
+
+// Teknolojik arka plan efektini oluştur
+function createTechBackground() {
+    const techBackground = document.createElement('div');
+    techBackground.className = 'create-tech-background';
+    document.body.appendChild(techBackground);
+
+    // Rastgele veri parçacıkları oluştur
+    for (let i = 0; i < 50; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'data-particles';
+        
+        // Rastgele başlangıç pozisyonları
+        particle.style.left = Math.random() * 100 + 'vw';
+        particle.style.top = Math.random() * 100 + 'vh';
+        
+        // Rastgele animasyon süresi
+        particle.style.animationDuration = Math.random() * 5 + 5 + 's';
+        
+        techBackground.appendChild(particle);
+    }
+
+    // Rastgele kablo efektleri oluştur
+    for (let i = 0; i < 10; i++) {
+        const cable = document.createElement('div');
+        cable.className = 'cable';
+        
+        // Rastgele pozisyonlar
+        cable.style.left = Math.random() * 100 + 'vw';
+        
+        // Rastgele animasyon süresi
+        cable.style.animationDuration = Math.random() * 2 + 2 + 's';
+        
+        techBackground.appendChild(cable);
+    }
+}
 
 // Yeni öğe ekleme fonksiyonu
 function addItem() {
