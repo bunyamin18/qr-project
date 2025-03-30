@@ -25,6 +25,25 @@ const dataStorage = {
         }
     },
 
+    // Liste verisini güncelle
+    updateList(listData) {
+        try {
+            const lists = JSON.parse(localStorage.getItem('lists') || '[]');
+            const index = lists.findIndex(list => list.id === listData.id);
+            
+            if (index !== -1) {
+                lists[index] = listData;
+                localStorage.setItem('lists', JSON.stringify(lists));
+                return listData;
+            } else {
+                throw new Error('Liste bulunamadı');
+            }
+        } catch (error) {
+            console.error('Liste güncelleme hatası:', error);
+            throw error;
+        }
+    },
+
     // Liste verisini al
     getList(listId) {
         try {
@@ -47,4 +66,5 @@ const dataStorage = {
     }
 };
 
-export default dataStorage;
+// Global olarak erişilebilir yap
+window.dataStorage = dataStorage;

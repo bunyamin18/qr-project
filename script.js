@@ -6,38 +6,41 @@ document.addEventListener('DOMContentLoaded', function() {
     const itemsContainer = document.getElementById('itemsContainer');
     const addItemButton = document.getElementById('addItemButton');
     
-    // Initialize particles.js for background animation - sci-fi data transfer effect
+    // Initialize particles.js for background animation - cable-style effect
     if (window.particlesJS) {
         particlesJS('particles-js', {
             particles: {
-                number: { value: 180, density: { enable: true, value_area: 800 } },
+                number: { value: 70, density: { enable: true, value_area: 800 } },
                 color: { value: ["#00f5ff", "#6e36df", "#2be8d9"] },
-                shape: { type: "circle" },
-                opacity: { value: 0.6, random: true },
+                shape: { type: "line" },
+                opacity: { value: 0.7, random: false },
                 size: { value: 2, random: true },
                 line_linked: {
                     enable: true,
-                    distance: 150,
+                    distance: 200,
                     color: "#00f5ff",
-                    opacity: 0.4,
-                    width: 1
+                    opacity: 0.5,
+                    width: 2
                 },
                 move: {
                     enable: true,
-                    speed: 6,
-                    direction: "right",
-                    random: true,
+                    speed: 3,
+                    direction: "none",
+                    random: false,
                     straight: false,
-                    out_mode: "out",
-                    bounce: false
+                    out_mode: "bounce",
+                    attract: { enable: true, rotateX: 600, rotateY: 1200 }
                 }
             },
             interactivity: {
                 detect_on: "canvas",
                 events: {
-                    onhover: { enable: true, mode: "grab" },
+                    onhover: { enable: true, mode: "repulse" },
                     onclick: { enable: true, mode: "push" },
                     resize: true
+                },
+                modes: {
+                    repulse: { distance: 100, duration: 0.4 }
                 }
             },
             retina_detect: true
