@@ -45,7 +45,6 @@ async function handleFormSubmit(event) {
         } else {
             // Yeni liste oluştur
             currentListData = {
-                id: generateUniqueID(),
                 title,
                 items
             };

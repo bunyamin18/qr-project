@@ -19,7 +19,7 @@ class DataStorage {
                 this.initializeStorage();
                 return [];
             }
-            return JSON.parse(lists);
+            return JSON.parse(lists) || [];
         } catch (error) {
             console.error('Veri okuma hatası:', error);
             this.initializeStorage();
@@ -36,6 +36,10 @@ class DataStorage {
             }
 
             const lists = this.getAllLists();
+            if (!Array.isArray(lists)) {
+                throw new Error('Geçersiz liste verisi');
+            }
+
             const existingIndex = lists.findIndex(list => list.id === listData.id);
             
             if (existingIndex !== -1) {
@@ -56,6 +60,9 @@ class DataStorage {
     getList(listId) {
         try {
             const lists = this.getAllLists();
+            if (!Array.isArray(lists)) {
+                throw new Error('Geçersiz liste verisi');
+            }
             return lists.find(list => list.id === listId);
         } catch (error) {
             console.error('Veri okuma hatası:', error);
@@ -67,6 +74,9 @@ class DataStorage {
     deleteList(listId) {
         try {
             const lists = this.getAllLists();
+            if (!Array.isArray(lists)) {
+                throw new Error('Geçersiz liste verisi');
+            }
             const updatedLists = lists.filter(list => list.id !== listId);
             localStorage.setItem(this.storageKey, JSON.stringify(updatedLists));
         } catch (error) {
