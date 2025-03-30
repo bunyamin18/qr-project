@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Liste Görüntüleyici</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #0f1636;
+            color: #fff;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #4f8fef;
+            text-shadow: 0 0 10px rgba(79, 143, 239, 0.5);
+        }
+        
+        .list-items {
+            list-style-type: none;
+            margin-bottom: 30px;
+        }
+        
+        .list-item {
+            background-color: rgba(30, 41, 82, 0.8);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .item-content {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+        
+        .item-value {
+            background-color: #223169;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 16px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+        
+        .item-image {
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .item-image img {
+            max-width: 100%;
+            border-radius: 6px;
+            border: 1px solid #4f8fef;
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .button {
+            background-color: #4f8fef;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .back-button {
+            background-color: #374785;
+        }
+        
+        .edit-button {
+            background-color: #5a4a9c;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .loading-item, .error-message {
+            text-align: center;
+            padding: 20px;
+            color: #ccc;
+            font-style: italic;
+        }
+        
+        .error-container {
+            background-color: rgba(168, 17, 17, 0.2);
+            border: 1px solid #FF5252;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px auto;
+            text-align: center;
+            max-width: 90%;
+        }
+        
+        .error-icon {
+            margin-bottom: 10px;
+        }
+        
+        .error-message {
+            font-size: 18px;
+            color: #FF5252;
+            margin-bottom: 10px;
+        }
+        
+        /* Particles arka plan */
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-js"></div>
+    
+    <div class="container">
+        <header>
+            <h1 id="listTitle">Liste Yükleniyor...</h1>
+        </header>
+        
+        <ul id="listItems" class="list-items">
+            <li class="loading-item">Liste verileri yükleniyor...</li>
+        </ul>
+        
+        <div class="button-container">
+            <a href="#" id="backButton" class="button back-button">Ana Sayfaya Dön</a>
+            <a href="#" id="editButton" class="button edit-button">Listeyi Düzenle</a>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("QR görüntüleyici yüklendi");
+            
+            // DOM elemanlarını tanımlama
+            const listTitle = document.getElementById('listTitle');
+            const listItems = document.getElementById('listItems');
+            const backButton = document.getElementById('backButton');
+            const editButton = document.getElementById('editButton');
+            
+            // URL parametrelerini al
+            let listData = null;
+            
+            // URL'den veri parametresini al
+            const urlParams = new URLSearchParams(window.location.search);
+            const dataParam = urlParams.get('data');
+            
+            if (dataParam) {
+                try {
+                    // URL parametresinden veriyi çöz
+                    listData = JSON.parse(decodeURIComponent(dataParam));
+                    console.log("Liste verisi başarıyla çözüldü:", listData);
+                    
+                    // Liste verilerini göster
+                    displayList(listData);
+                } catch (error) {
+                    console.error("Veri çözümlenirken hata oluştu:", error);
+                    showError("Liste verisi çözümlenemedi. Lütfen geçerli bir QR kod okutun.");
+                }
+            } else {
+                showError("Liste verisi bulunamadı. Lütfen geçerli bir QR kod okutun.");
+            }
+            
+            // Butonların event listener'larını ayarla
+            backButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                // Kullanıcıya ana sayfaya dönmek istediğinden emin olup olmadığını sor
+                if (confirm('Ana sayfaya dönmek istediğinizden emin misiniz?')) {
+                    window.close(); // Tarayıcı penceresini kapat
+                }
+            });
+            
+            // Düzenleme butonu için kullanıcıyı uyar
+            editButton.addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('Bu liste sadece görüntüleme modunda açılmıştır. Düzenlemek için QR kodu oluşturan cihazda açın.');
+            });
+            
+            // Particles.js arka planını başlat
+            initParticles();
+            
+            // Liste gösterme fonksiyonu
+            function displayList(data) {
+                // Liste başlığını ayarla
+                listTitle.textContent = data.title || 'İsimsiz Liste';
+                
+                // Liste öğelerini temizle
+                listItems.innerHTML = '';
+                
+                if (!data.items || data.items.length === 0) {
+                    listItems.innerHTML = '<li class="loading-item">Listede öğe bulunamadı</li>';
+                    return;
+                }
+                
+                // Liste öğelerini oluştur
+                data.items.forEach(item => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'list-item';
+                    
+                    // İçerik
+                    if (item.content) {
+                        const contentDiv = document.createElement('div');
+                        contentDiv.className = 'item-content';
+                        contentDiv.textContent = item.content;
+                        listItem.appendChild(contentDiv);
+                    }
+                    
+                    // Değer
+                    if (item.value) {
+                        const valueDiv = document.createElement('div');
+                        valueDiv.className = 'item-value';
+                        valueDiv.textContent = item.value;
+                        listItem.appendChild(valueDiv);
+                    }
+                    
+                    // Resim (varsa)
+                    if (item.image) {
+                        const imageDiv = document.createElement('div');
+                        imageDiv.className = 'item-image';
+                        const img = document.createElement('img');
+                        img.src = item.image;
+                        img.alt = item.content || 'Liste öğesi';
+                        img.loading = 'lazy';
+                        
+                        // Görüntü yükleme hatası durumunda
+                        img.onerror = function() {
+                            console.log("Resim yüklenemedi");
+                            this.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAFcUlEQVR4nO2dW4hVVRjHf3PODKY5djHHmryQI5YmZEUkGRU9FEEvgtJDRBCUdH2JpIcouujl8qCUD1EGUQTR7QEzqCCTJKGHvMyoUKk5M3mrufXxsM7MODqes89e55y91trn/8Ben7P2+vb/u9bea62111oghBBCCCGEEEIIIYQQQgghhBCChpqA9zsSeABoaynNwLXAcKAB6AK+A74CfgS+d+RDKQQxhEmnAfOAfqATaAU6gE7gc+Bz4D/HfpUGW6aseqAF2Aj8DfQn1HbgJaARGFKUDyHQ1zmkGXgGeATDyXYgsAt4B3gH+NWyfaFiw5ARwArgYaChgHa6gHeB14GfCmhPJIPXkLHAG8BiYFgB7fQCO4C1wA8FtBM1g33KugHYBvxBcWYA9AIbgK3ATwW1GS2DaUNqgFeB5S79iYHBmDIHWAXc69CP0PCdQzqAVcAUT/aFP7xMyRnApJzfOQRcAJqAkcB0oCbndzuAJcBR4EyO74nC6QQ257Qp64ENwAyM0zcBs4GXgUM5298HZEm3IvFpyDxgJ/n/iW3A/BTtDwPWAL057PQDuzAfCiFwPcpqBB4DluL+GPA2YAFwLO0X+oEfgFHAWEx+ydLWY5jEMp6mw1DnaogRkK/hfm9xAtgCLMJ+AhiNucKZtf1+YFUBvkeNy7HnQ7gX4wCmg91WgK2RmLyrLH6cBpYV4H+UuDLkCE4FOZCxzSGYXeG1GdvYhbmBKWpwZchIwwpgNjAceAhoyNhGM3BeRn/AjLIey+hHVLgcZZ0B5gK3AIeB5THbvxa4HJMc0nAzcGGGdmPB5TXkPLAiRb06zNOkd2VsuxHoKcKhWAjhSt1EzPZImi2OTRkdCIIQDKnHrCUm0eniuVQQgiEAy4BTCY9PBJ504Fvl8b0echlme+N54AXMvqwrW9/DbA/b4CTwy6XbSuLTkBbMVsl+4BXcmgFmM+4rzM1QG3RjprjK4tOQ7fjddF6CyRttGdrcVpwrceFjDYnlT2QssAa4jHRrCZjRlZWTwsOQEGgGnsMcoGUx5VeK3FQMmlANGYK5hbIAM5taISVXS9mGQDGG1GM21+7CnJaaDowlO4eAVy37FinWmqGYO6kG+jCbZYdaykngHeBd4GtLf47V9qZnP3AT5kjnQkubUVCUIdX0Yc61uDo9NWCOgz7APDaUhMYMX5qVwBw1GjJYmjP89iHgC8zZ99WYKa3M6d3HQ/QtUFxW5fkQEyzmkYGTv6c9+hMsRb+mew/wLOaIfpDDoCXAsx59CZqiDTkHbMJUkzHXQXsfY5aDHqYiTbCN7U+HNgLrgdMZ642lQr87RRoyx3Fbm4EtGetWAd9X6mD/Y1eN8OfAHcArpB+BVWLqcBuuL/jYbUgf9r+N24p5WvStjPVC5JRPQw77MuQEcB/p1pR6zOOlWYLInNhlP7A4aQDh+0rdV5iBRdLrMAfUEPEPrYaYMwW7eWgNZoQSyIjEpiFNlg1fUICdWwuwtRtL53W7CWspagXmxJVNQ5ot2+3HnGMpgibgSsu294LdUZcrtmMmD7bSaMMQW/Rk9KUaW2/JfoJlQ2olZR+mjtVTlg3Jtgv8d4Z6NQ5tW6HZliH3UNJ9Rxt0YqqItjI4A0JliGUbEsON0iiGbGJwJ7FjxxZTFJBLKtmQNq9ehM9hTGX41K/eqzDC1pB+XxUNqeG8Vy9CZx/m5eYDnv040MMo7DZZEzDFACrPKsyDFdtv/wRDI/kL26uX5QjwMuWu0X4t+X6EYD7wJJZfnwv1OgEcBa7BZP0uTCXPJkxGj4FYzKrH/D7l9QnrVDXtmClrM3YbCpnRGtIKO4QQQgghhBBCCCGEEEIIIUSQ/A931XpALJRO6wAAAABJRU5ErkJggg==';
+                            this.alt = 'Resim yüklenemedi';
+                        };
+                        
+                        imageDiv.appendChild(img);
+                        listItem.appendChild(imageDiv);
+                    } else if (item.imagePlaceholder) {
+                        // Yer tutucu resim göster
+                        const imageDiv = document.createElement('div');
+                        imageDiv.className = 'item-image';
+                        const placeholderImg = document.createElement('img');
+                        placeholderImg.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAFcUlEQVR4nO2dW4hVVRjHf3PODKY5djHHmryQI5YmZEUkGRU9FEEvgtJDRBCUdH2JpIcouujl8qCUD1EGUQTR7QEzqCCTJKGHvMyoUKk5M3mrufXxsM7MODqes89e55y91vrn/8Den7P2+vb/u9bea62911oghBBCCCGEEEIIIYQQQgghhBCChpqA9zsSeABoaynNwLXAcKAB6AK+A74CfgS+d+RDKQQxhEmnAfOAfqATaAU6gE7gc+Bz4D/HfpUGW6aseqAF2Aj8DfQn1HbgJaARGFKUDyHQ1zmkGXgGeATDyXYgsAt4B3gH+NWyfaFiw5ARwArgYaChgHa6gHeB14GfCmhPJIPXkLHAG8BiYFgB7fQCO4C1wA8FtBM1g33KugHYBvxBcWYA9AIbgK3ATwW1GS2DaUNqgFeB5S79iYHBmDIHWAXc69CP0PCdQzqAVcAUT/aFP7xMyRnApJzfOQRcAJqAkcB0oCbndzuAJcBR4EyO74nC6QQ257Qp64ENwAyM0zcBs4GXgUM5298HZEm3IvFpyDxgJ/n/iW3A/BTtDwPWAL057PQDuzAfCiFwPcpqBB4DluL+GPA2YAFwLO0X+oEfgFHAWEx+ydLWY5jEMp6mw1DnaogRkK/hfm9xAtgCLMJ+AhiNucKZtf1+YFUBvkeNy7HnQ7gX4wCmg91WgK2RmLyrLH6cBpYV4H+UuDLkCE4FOZCxzSGYXeG1GdvYhbmBKWpwZchIwwpgNjAceAhoyNhGM3BeRn/AjLIey+hHVLgcZZ0B5gK3AIeB5THbvxa4HJMc0nAzcGGGdmPB5TXkPLAiRb06zNOkd2VsuxHoKcKhWAjhSt1EzPZImi2OTRkdCIIQDKnHrCUm0eniuVQQgiEAy4BTCY9PBJ504Fvl8b0echlme+N54AXMvqwrW9/DbA/b4CTwy6XbSuLTkBbMVsl+4BXcmgFmM+4rzM1QG3RjprjK4tOQ7fjddF6CyRttGdrcVpwrceFjDYnlT2QssAa4jHRrCZjRlZWTwsOQEGgGnsMcoGUx5VeK3FQMmlANGYK5hbIAM5taISVXS9mGQDGG1GM21+7CnJaaDowlO4eAVy37FinWmqGYO6kG+jCbZYdaykngHeBd4GtLf47V9qZnP3AT5kjnQkubUVCUIdX0Yc61uDo9NWCOgz7APDaUhMYMX5qVwBw1GjJYmjP89iHgC8zZ99WYKa3M6d3HQ/QtUFxW5fkQEyzmkYGTv6c9+hMsRb+mew/wLOaIfpDDoCXAsx59CZqiDTkHbMJUkzHXQXsfY5aDHqYiTbCN7U+HNgLrgdMZ642lQr87RRoyx3Fbm4EtGetWAd9X6mD/Y1eN8OfAHcArpB+BVWLqcBuuL/jYbUgf9r+N24p5WvStjPVC5JRPQw77MuQEcB/p1pR6zOOlWYLInNhlP7A4aQDh+0rdV5iBRdLrMAfUEPEPrYaYMwW7eWgNZoQSyIjEpiFNlg1fUICdWwuwtRtL53W7CWspagXmxJVNQ5ot2+3HnGMpgibgSsu294LdUZcrtmMmD7bSaMMQW/Rk9KUaW2/JfoJlQ2olZR+mjtVTlg3Jtgv8d4Z6NQ5tW6HZliH3UNJ9Rxt0YqqItjI4A0JliGUbEsON0iiGbGJwJ7FjxxZTFJBLKtmQNq9ehM9hTGX41K/eqzDC1pB+XxUNqeG8Vy9CZx/m5eYDnv040MMo7DZZEzDFACrPKsyDFdtv/wRDI/kL26uX5QjwMuWu0X4t+X6EYD7wJJZfnwv1OgEcBa7BZP0uTCXPJkxGj4FYzKrH/D7l9QnrVDXtmClrM3YbCpnRGtIKO4QQQgghhBBCCCGEEEIIIUSQ/A931XpALJRO6wAAAABJRU5ErkJggg==';
+                        placeholderImg.alt = 'Resim Yüklenemedi';
+                        imageDiv.appendChild(placeholderImg);
+                        listItem.appendChild(imageDiv);
+                    }
+                    
+                    listItems.appendChild(listItem);
+                });
+            }
+            
+            // Hata gösterme fonksiyonu
+            function showError(message) {
+                const errorContainer = document.createElement('div');
+                errorContainer.className = 'error-container';
+                errorContainer.innerHTML = `
+                    <div class="error-icon">⚠️</div>
+                    <div class="error-message">${message}</div>
+                `;
+                
+                listItems.innerHTML = '';
+                listTitle.textContent = 'HATA';
+                
+                document.querySelector('.container').insertBefore(
+                    errorContainer,
+                    listItems
+                );
+            }
+            
+            // Particles.js arka planını başlatma fonksiyonu
+            function initParticles() {
+                if (typeof particlesJS === 'function') {
+                    particlesJS('particles-js', {
+                        "particles": {
+                            "number": { "value": 50, "density": { "enable": true, "value_area": 800 } },
+                            "color": { "value": "#4f8fef" },
+                            "shape": { "type": "circle" },
+                            "opacity": { "value": 0.3, "random": true },
+                            "size": { "value": 3, "random": true },
+                            "line_linked": {
+                                "enable": true,
+                                "distance": 150,
+                                "color": "#4f8fef",
+                                "opacity": 0.2,
+                                "width": 1
+                            },
+                            "move": {
+                                "enable": true,
+                                "speed": 1,
+                                "direction": "none",
+                                "random": true,
+                                "out_mode": "out",
+                                "bounce": false
+                            }
+                        },
+                        "interactivity": {
+                            "detect_on": "canvas",
+                            "events": {
+                                "onhover": { "enable": true, "mode": "grab" },
+                                "onclick": { "enable": true, "mode": "push" },
+                                "resize": true
+                            }
+                        },
+                        "retina_detect": true
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>

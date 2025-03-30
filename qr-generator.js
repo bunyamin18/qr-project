@@ -181,32 +181,51 @@ document.addEventListener('DOMContentLoaded', function() {
             localStorage.setItem(`list_data_${listData.id}`, JSON.stringify(listData));
             console.log(`Liste verileri localStorage'a kaydedildi: 'list_data_${listData.id}'`);
             
-            // Tarayıcıdan bağımsız mutlak URL oluştur
-            // Açık dosya protokolü ile - lokalde kesinlikle çalışacak
-            const absolutePath = location.href.substring(0, location.href.lastIndexOf('/'));
-            const listPath = absolutePath + "/list.html";
+            // Liste verisini daha küçük bir formata getir
+            const minimalData = {
+                id: listData.id,
+                title: listData.title,
+                items: listData.items.map(item => {
+                    // Sadece önemli alanları al, veriyi küçült
+                    const minItem = {
+                        content: item.content || '',
+                        value: item.value || ''
+                    };
+                    
+                    // Resim varsa, ama boyutu uygunsa dahil et
+                    if (item.image) {
+                        // Veri URL mi kontrol et
+                        if (item.image.startsWith('data:image')) {
+                            // Resim verisi çok büyük değilse dahil et (2000 karakter limitli)
+                            if (item.image.length < 2000) {
+                                minItem.image = item.image;
+                            } else {
+                                // Çok büyük resimlerin yerine yer tutucu koy
+                                minItem.imagePlaceholder = true;
+                            }
+                        } else {
+                            // Standart resim URL'si ise dahil et
+                            minItem.image = item.image;
+                        }
+                    }
+                    
+                    return minItem;
+                })
+            };
             
-            // Tam URL oluştur (file:// veya http:// protokolünü koruyarak)
-            const finalUrl = `${listPath}?listId=${listData.id}`;
+            // Her tarayıcıda doğrudan açılabilecek bir URL oluştur 
+            // Viewer.html dosyasını direkt aç - data URL parametresi listede taşınsın
+            // Tarayıcıdan bağımsız URL oluştur
+            const absolutePath = location.href.substring(0, location.href.lastIndexOf('/'));
+            const viewerPath = absolutePath + "/viewer.html";
+            
+            // Tam URL oluştur - liste verilerini JSON olarak URL'ye ekle
+            const finalUrl = `${viewerPath}?data=${encodeURIComponent(JSON.stringify(minimalData))}`;
             
             console.log('Kullanılan URL:', finalUrl);
             
             // QR kod için container'ı temizle
             qrContainer.innerHTML = '';
-            
-            // QR kod kütüphanesini kontrol et
-            if (typeof QRCode !== 'function') {
-                console.error("QRCode kütüphanesi mevcut değil. window objesi:", Object.keys(window));
-                throw new Error('QR kod kütüphanesi yüklenemedi');
-            }
-            
-            console.log("QRCode kütüphanesi mevcut, oluşturuluyor...");
-            
-            // QR kod boyutlarını belirle (container'a sığacak şekilde)
-            const containerWidth = qrContainer.clientWidth || 300;
-            const qrSize = Math.min(240, containerWidth - 40); // Kenar boşlukları için 40px çıkar
-            
-            console.log("QR kod boyutu:", qrSize, "Container genişliği:", containerWidth);
             
             // QR kod div oluştur
             const qrDiv = document.createElement('div');
@@ -217,8 +236,8 @@ document.addEventListener('DOMContentLoaded', function() {
             qrDiv.style.borderRadius = '8px';
             qrDiv.style.boxShadow = '0 0 10px rgba(0,0,0,0.1)';
             qrDiv.style.maxWidth = '100%';
-            qrDiv.style.width = qrSize + 'px';
-            qrDiv.style.height = qrSize + 'px';
+            qrDiv.style.width = '240px';
+            qrDiv.style.height = '240px';
             qrDiv.style.display = 'flex';
             qrDiv.style.alignItems = 'center';
             qrDiv.style.justifyContent = 'center';
@@ -227,7 +246,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // QR kod oluştururken test amaçlı alternatif bir URL de göster
             // Bu, telefonda QR kodu taramanıza gerek kalmadan test etmenizi sağlar
-            const testUrl = `${window.location.origin}/list.html?listId=${listData.id}`;
+            const testUrl = `${window.location.origin}/list.html?rawData=${encodeURIComponent(JSON.stringify(minimalData))}`;
             
             // URL'i direkt göster (sorun gidermeye yardımcı olur)
             const urlDisplay = document.createElement('div');
@@ -245,8 +264,8 @@ document.addEventListener('DOMContentLoaded', function() {
             // QRCode kütüphanesini kullanarak QR kod oluştur
             const qrCode = new QRCode(qrDiv, {
                 text: finalUrl,
-                width: qrSize - 30, // İç padding için boyutu azalt
-                height: qrSize - 30,
+                width: 200,
+                height: 200,
                 colorDark: "#000000",
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.H  // En yüksek hata düzeltme seviyesi

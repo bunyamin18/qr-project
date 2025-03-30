@@ -12,31 +12,36 @@ document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
     
     // Desteklenen tüm parametre adları için kontrol et 
-    // (hem listId hem id parametresi desteklenir - Netlify ile uyumlu)
     const listId = urlParams.get('listId') || urlParams.get('id');
     const encodedData = urlParams.get('data');
+    const rawData = urlParams.get('rawData'); // Yeni eklenen ham veri parametresi
     
     console.log("Liste ID:", listId);
     console.log("Kodlanmış veri:", encodedData ? "Var (uzunluk: " + encodedData.length + ")" : "Yok");
+    console.log("Ham veri:", rawData ? "Var (uzunluk: " + rawData.length + ")" : "Yok");
     
-    // Liste verisini al (önce encoded data, sonra localStorage)
+    // Liste verisini al (önce rawData, sonra encoded data, sonra localStorage)
     let listData = null;
     
-    // URL-safe Base64 decode fonksiyonu (artık kullanılmıyor ama eski URL'leri desteklemek için tutuluyor)
-    function urlSafeBase64Decode(str) {
+    // 1. Öncelikle 'rawData' parametresini kontrol et (doğrudan JSON veri)
+    if (rawData) {
         try {
-            // URL güvenli Base64'ü standart Base64'e çevir
-            const base64 = str.replace(/-/g, '+').replace(/_/g, '/');
-            return decodeURIComponent(atob(base64));
-        } catch (e) {
-            console.error("Base64 decode hatası:", e);
-            return null;
+            listData = JSON.parse(decodeURIComponent(rawData));
+            console.log("Ham veriden liste yüklendi:", listData);
+            
+            // Çözülen veriyi aynı zamanda localStorage'a da kaydedelim
+            if (listData && listData.id) {
+                saveListToLocalStorage(listData);
+            }
+        } catch (error) {
+            console.error("Ham veri çözümlenemedi:", error);
         }
     }
     
-    // Önce URL'den gelen kodlanmış veriyi kontrol et (geriye dönük uyumluluk)
-    if (encodedData) {
+    // 2. Eğer 'rawData' yoksa, Base64 kodlu veriyi kontrol et
+    if (!listData && encodedData) {
         try {
+            // URL-safe Base64 decode
             const decodedData = urlSafeBase64Decode(encodedData);
             if (decodedData) {
                 listData = JSON.parse(decodedData);
@@ -54,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // 1. Öncelikle özel depolama alanını kontrol et (QR-özel veri)
+    // 3. Eğer hala veri bulunamadıysa, özel localStorage alanını kontrol et
     if (!listData && listId) {
         const specialData = localStorage.getItem(`list_data_${listId}`);
         if (specialData) {
@@ -67,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // 2. Eğer özel depoda bulunamazsa, normal localStorage'ı kontrol et
+    // 4. Son olarak normal localStorage'ı kontrol et
     if (!listData && listId) {
         try {
             listData = getListFromLocalStorage(listId);
@@ -96,6 +101,18 @@ document.addEventListener('DOMContentLoaded', function() {
     initCanvas();
     
     // Helper fonksiyonlar:
+    
+    // URL-safe Base64 decode fonksiyonu
+    function urlSafeBase64Decode(str) {
+        try {
+            // URL güvenli Base64'ü standart Base64'e çevir
+            const base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+            return decodeURIComponent(atob(base64));
+        } catch (e) {
+            console.error("Base64 decode hatası:", e);
+            return null;
+        }
+    }
     
     // localStorage'dan liste al
     function getListFromLocalStorage(id) {
@@ -146,6 +163,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 img.src = item.image;
                 img.alt = item.content || 'Liste öğesi';
                 img.loading = 'lazy'; // Lazy loading
+                img.onerror = function() {
+                    console.error("Resim yüklenemedi:", item.image.substring(0, 30) + "...");
+                    this.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAA90lEQVR4nO3bMQ7CMBBFQeD+d05LQUGNIvt/ZirLaZ5W2d4WAAAAAAAAAPyI5+kHuOyVfP+efYgNX5O37/vSWdZ3+jsXchghhBFCGCGEEUIYIYQRQhghhBFCGCGEEUIYIYQRQhghhBFCGCGEEUIYIYQRQhghhBFCGCGEEUIYIYQRQhghhLnrt5wn/7trf83+NxdyGCGEEUIYIYQRQhghhBFCGCGEEUIYIYQRQhghhBFCGCGEEUIYIYQRQhghhBFCGCGEEUIYIYQRQhghhBFCGCGEEUIAAAAAAAAAfMYHq/IDgNCgvmIAAAAASUVORK5CYII=';
+                    this.alt = 'Resim yüklenemedi';
+                    this.style.width = '50px';
+                    this.style.height = '50px';
+                    this.style.border = '1px solid #ccc';
+                };
                 imageDiv.appendChild(img);
                 listItem.appendChild(imageDiv);
             }
