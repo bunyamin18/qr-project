@@ -5,17 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Kod Oluştur</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- QRCode.js kütüphanesi -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-    <!-- Particles.js -->
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-    <!-- Önce dataStorage'ı hazırla -->
-    <script src="script.js"></script>
-    <!-- Sonra QR generator'ı yükle -->
-    <script src="qr-generator.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode-generator.min.js"></script>
+    <script type="module">
+        import './qr-generator.js';
+    </script>
 </head>
 <body>
-    <div id="particles-js" class="tech-background"></div>
+    <div class="create-tech-background"></div>
     <div class="container">
         <div class="center-card">
             <h1>QR Kod Oluştur</h1>
