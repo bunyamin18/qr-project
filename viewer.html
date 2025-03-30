@@ -3,533 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Liste Görüntüleyici</title>
+    <title>Liste Görüntüleyici</title>
     <style>
-        /* Ana sayfaya benzer bilim kurgu teması */
         :root {
             --primary-color: #00f5ff;
             --secondary-color: #6e36df;
-            --accent-color: #2be8d9;
-            --dark-bg: #0f1026;
-            --light-bg: #1a2035;
+            --background-color: #0f1026;
+            --card-bg: #1a2035;
             --text-color: #e0f7fa;
-            --card-bg: rgba(15, 20, 45, 0.8);
-            --card-shadow: 0 10px 30px rgba(0, 245, 255, 0.2);
-            --glow-neon: 0 0 10px rgba(0, 245, 255, 0.5);
-            --hologram-bg: linear-gradient(135deg, rgba(15, 20, 45, 0.9) 0%, rgba(26, 32, 53, 0.9) 100%);
-            --button-glow: 0 0 15px rgba(0, 245, 255, 0.6);
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
         }
         
         body {
+            font-family: Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
             margin: 0;
-            font-family: 'Arial', sans-serif;
-            background: var(--dark-bg);
-            min-height: 100vh;
+            padding: 20px;
         }
         
         .container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
         }
         
         header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
+            background-color: var(--card-bg);
             padding: 20px;
-            background: var(--hologram-bg);
             border-radius: 10px;
-            box-shadow: var(--card-shadow);
             border: 1px solid var(--primary-color);
         }
         
         h1 {
-            font-size: 28px;
             color: var(--primary-color);
-            text-shadow: var(--glow-neon);
-            margin-bottom: 10px;
+            margin: 0;
         }
         
         .list-items {
-            list-style-type: none;
-            margin-bottom: 30px;
+            list-style: none;
+            padding: 0;
         }
         
         .list-item {
-            background: var(--card-bg);
-            border-radius: 8px;
-            margin-bottom: 15px;
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            margin-bottom: 10px;
             padding: 15px;
-            box-shadow: var(--card-shadow);
-            border: 1px solid rgba(0, 245, 255, 0.2);
-            transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .list-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 245, 255, 0.2);
-        }
-        
-        .item-row {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
+            border: 1px solid rgba(0, 245, 255, 0.3);
         }
         
-        .item-content {
-            font-size: 18px;
-            color: var(--text-color);
+        .item-name {
             flex: 1;
         }
         
         .item-value {
             background-color: rgba(0, 245, 255, 0.1);
-            color: var(--primary-color);
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 16px;
-            min-width: 80px;
+            padding: 3px 10px;
+            border-radius: 5px;
+            margin-left: 10px;
+            min-width: 50px;
             text-align: center;
-            margin-left: 15px;
-        }
-        
-        .item-image-container {
-            margin-top: 10px;
-            text-align: center;
-            cursor: pointer;
-        }
-        
-        .image-thumbnail {
-            max-width: 100px;
-            max-height: 100px;
-            border-radius: 6px;
-            border: 1px solid var(--primary-color);
-            object-fit: cover;
-            transition: all 0.3s ease;
-        }
-        
-        .image-placeholder {
-            width: 100px;
-            height: 100px;
-            background-color: rgba(0, 245, 255, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary-color);
-            border-radius: 6px;
-            border: 1px solid var(--primary-color);
-            font-size: 12px;
-            margin: 0 auto;
-        }
-        
-        .button-container {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .button {
-            background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
-            color: var(--text-color);
-            border: none;
-            padding: 12px 20px;
-            border-radius: 50px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: var(--button-glow);
-            min-width: 160px;
-        }
-        
-        .back-button {
-            background: linear-gradient(45deg, #374785, #5a4a9c);
-        }
-        
-        .button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 7px 15px rgba(0, 245, 255, 0.4);
-        }
-        
-        .loading-item {
-            text-align: center;
-            padding: 30px;
-            color: var(--text-color);
-            font-style: italic;
-            background: var(--card-bg);
-            border-radius: 8px;
-            box-shadow: var(--card-shadow);
-        }
-        
-        .error-container {
-            background-color: rgba(168, 17, 17, 0.2);
-            border: 1px solid #FF5252;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px auto;
-            text-align: center;
-            max-width: 90%;
-        }
-        
-        .error-icon {
-            margin-bottom: 15px;
-            font-size: 40px;
-            color: #FF5252;
         }
         
         .error-message {
-            font-size: 18px;
-            color: #FF5252;
-            margin-bottom: 10px;
-        }
-        
-        /* Modal Stili */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .modal-content {
-            max-width: 90%;
-            max-height: 90%;
+            background-color: rgba(255, 0, 0, 0.2);
+            color: #ff6b6b;
             padding: 20px;
             border-radius: 10px;
-            background-color: var(--card-bg);
-            border: 1px solid var(--primary-color);
-            box-shadow: var(--card-shadow);
-            position: relative;
+            text-align: center;
         }
         
-        .close-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 24px;
-            color: var(--primary-color);
+        .back-button {
+            display: block;
+            margin: 20px auto;
+            background-color: var(--primary-color);
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
             cursor: pointer;
-            z-index: 1001;
-        }
-        
-        .modal-image {
-            max-width: 100%;
-            max-height: 80vh;
-            border-radius: 4px;
-        }
-        
-        /* Particles arka plan */
-        #particles-js {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-        }
-        
-        /* Mobil için uyumlu tasarım */
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-            
-            header {
-                padding: 15px;
-            }
-            
-            h1 {
-                font-size: 24px;
-            }
-            
-            .item-content {
-                font-size: 16px;
-            }
-            
-            .item-value {
-                font-size: 14px;
-                min-width: 60px;
-            }
-            
-            .button {
-                padding: 10px 15px;
-                font-size: 14px;
-                min-width: 130px;
-            }
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <div id="particles-js"></div>
-    
     <div class="container">
         <header>
             <h1 id="listTitle">Liste Yükleniyor...</h1>
         </header>
         
-        <ul id="listItems" class="list-items">
-            <li class="loading-item">Liste verileri yükleniyor...</li>
-        </ul>
+        <ul id="listItems" class="list-items"></ul>
         
-        <div class="button-container">
-            <a href="#" id="backButton" class="button back-button">Ana Sayfaya Dön</a>
-            <a href="#" id="editButton" class="button">Listeyi Düzenle</a>
-        </div>
+        <button id="closeButton" class="back-button">Kapat</button>
     </div>
     
-    <!-- Resim görüntüleme Modal -->
-    <div id="imageModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" id="closeModal">&times;</span>
-            <img id="modalImage" class="modal-image" src="" alt="Büyük Görüntü">
-        </div>
-    </div>
-    
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // HTML elemanları
             const listTitle = document.getElementById('listTitle');
             const listItems = document.getElementById('listItems');
-            const imageModal = document.getElementById('imageModal');
-            const modalImage = document.getElementById('modalImage');
-            const closeModal = document.getElementById('closeModal');
-            const backButton = document.getElementById('backButton');
+            const closeButton = document.getElementById('closeButton');
             
-            // URL'den liste verilerini al
-            function getListDataFromUrl() {
-                try {
-                    // URL parametrelerini al
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const base64Data = urlParams.get('data');
-                    
-                    // Base64 veri yoksa hata göster
-                    if (!base64Data) {
-                        throw new Error('Liste verileri bulunamadı');
-                    }
-                    
-                    // Base64 verilerini decode et
-                    const jsonData = decodeURIComponent(escape(atob(base64Data)));
-                    
-                    // JSON parse et
-                    const listData = JSON.parse(jsonData);
-                    console.log('Çözümlenen liste verileri:', listData);
-                    
-                    return listData;
-                } catch (error) {
-                    console.error('Veri çözümleme hatası:', error);
-                    showError('Liste verileri çözümlenemedi: ' + error.message);
-                    return null;
-                }
-            }
-            
-            // Uygulama başlangıcı
-            initParticles(); // Arka plan efektini başlat
-            
-            // Liste verilerini URL'den al ve göster
-            const listData = getListDataFromUrl();
-            if (listData) {
-                displayList(listData);
-            }
-            
-            // Modal kapatma
-            closeModal.addEventListener('click', function() {
-                imageModal.style.display = 'none';
-            });
-            
-            // Modal dışına tıklama
-            window.addEventListener('click', function(event) {
-                if (event.target === imageModal) {
-                    imageModal.style.display = 'none';
-                }
-            });
-            
-            // Geri butonu
-            if (backButton) {
-                backButton.addEventListener('click', function() {
-                    window.close(); // Pencereyi kapat
-                });
-            }
-            
-            // Liste gösterme fonksiyonu
-            function displayList(data) {
-                // Liste başlığını ayarla
-                listTitle.textContent = data.title || 'İsimsiz Liste';
+            // URL'den veriyi al
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const base64Data = urlParams.get('data');
                 
-                // Liste öğelerini temizle
-                listItems.innerHTML = '';
-                
-                if (!data.items || data.items.length === 0) {
-                    listItems.innerHTML = '<li class="loading-item">Listede öğe bulunamadı</li>';
+                if (!base64Data) {
+                    showError('Liste verisi bulunamadı');
                     return;
                 }
                 
-                // Liste öğelerini oluştur
-                data.items.forEach((item, index) => {
-                    const listItem = document.createElement('li');
-                    listItem.className = 'list-item';
-                    
-                    // Öğe adı ve değeri yan yana olacak şekilde row oluştur
-                    const itemRow = document.createElement('div');
-                    itemRow.className = 'item-row';
-                    
-                    // İçerik (öğe adı)
-                    if (item.content) {
-                        const contentDiv = document.createElement('div');
-                        contentDiv.className = 'item-content';
-                        contentDiv.textContent = `${index + 1}. ${item.content}`;
-                        itemRow.appendChild(contentDiv);
-                    }
-                    
-                    // Değer (miktar)
-                    if (item.value) {
-                        const valueDiv = document.createElement('div');
-                        valueDiv.className = 'item-value';
-                        valueDiv.textContent = item.value;
-                        itemRow.appendChild(valueDiv);
-                    }
-                    
-                    // Row'u list item'a ekle
-                    listItem.appendChild(itemRow);
-                    
-                    // Resim (varsa)
-                    if (item.image) {
-                        const imageContainer = document.createElement('div');
-                        imageContainer.className = 'item-image-container';
+                // Base64'ten JSON'a dönüştür
+                const jsonData = decodeURIComponent(escape(atob(base64Data)));
+                const listData = JSON.parse(jsonData);
+                
+                // Liste başlığını göster
+                listTitle.textContent = listData.title || 'İsimsiz Liste';
+                
+                // Liste öğelerini göster
+                if (listData.items && listData.items.length > 0) {
+                    listData.items.forEach(item => {
+                        const listItem = document.createElement('li');
+                        listItem.className = 'list-item';
                         
-                        // Thumbnail resim veya yer tutucu
-                        const thumbnail = document.createElement('div');
-                        thumbnail.className = 'image-thumbnail';
+                        const nameSpan = document.createElement('span');
+                        nameSpan.className = 'item-name';
+                        nameSpan.textContent = item.name || '';
                         
-                        // Resmin kısa bir versiyonu veya yer tutucu oluştur
-                        try {
-                            const img = document.createElement('img');
-                            img.src = item.image;
-                            img.alt = item.content || 'Liste öğesi';
-                            img.className = 'image-thumbnail';
-                            img.loading = 'lazy';
-                            
-                            // Tıklanınca büyük resmi göster
-                            img.addEventListener('click', function() {
-                                modalImage.src = item.image;
-                                modalImage.alt = item.content || 'Büyük Görüntü';
-                                imageModal.style.display = 'flex';
-                            });
-                            
-                            // Görüntü yükleme hatası durumunda
-                            img.onerror = function() {
-                                console.log("Resim yüklenemedi, yer tutucu gösteriliyor");
-                                createImagePlaceholder(imageContainer, item.content);
-                            };
-                            
-                            imageContainer.appendChild(img);
-                        } catch (e) {
-                            console.error("Resim oluşturma hatası:", e);
-                            createImagePlaceholder(imageContainer, item.content);
-                        }
+                        const valueSpan = document.createElement('span');
+                        valueSpan.className = 'item-value';
+                        valueSpan.textContent = item.quantity || '';
                         
-                        listItem.appendChild(imageContainer);
-                    } else if (item.imagePlaceholder) {
-                        // Resim yer tutucu göster
-                        const imageContainer = document.createElement('div');
-                        imageContainer.className = 'item-image-container';
-                        createImagePlaceholder(imageContainer, item.content);
-                        listItem.appendChild(imageContainer);
-                    }
-                    
-                    listItems.appendChild(listItem);
-                });
-            }
-            
-            // Resim yer tutucu oluşturma yardımcı fonksiyonu
-            function createImagePlaceholder(container, altText) {
-                const placeholder = document.createElement('div');
-                placeholder.className = 'image-placeholder';
-                placeholder.textContent = 'Resim';
-                placeholder.setAttribute('data-alt', altText || 'Görüntü');
-                
-                // Yer tutucuya tıklama
-                placeholder.addEventListener('click', function() {
-                    alert('Bu resim taşınamadı veya yüklenemedi.');
-                });
-                
-                container.appendChild(placeholder);
-                return placeholder;
-            }
-            
-            // Hata gösterme fonksiyonu
-            function showError(message) {
-                const errorContainer = document.createElement('div');
-                errorContainer.className = 'error-container';
-                errorContainer.innerHTML = `
-                    <div class="error-icon">⚠️</div>
-                    <div class="error-message">${message}</div>
-                `;
-                
-                listItems.innerHTML = '';
-                listTitle.textContent = 'HATA';
-                
-                document.querySelector('.container').insertBefore(
-                    errorContainer,
-                    listItems
-                );
-            }
-            
-            // Particles.js arka planını başlatma fonksiyonu
-            function initParticles() {
-                if (typeof particlesJS === 'function') {
-                    particlesJS('particles-js', {
-                        "particles": {
-                            "number": { "value": 50, "density": { "enable": true, "value_area": 800 } },
-                            "color": { "value": "#00f5ff" },
-                            "shape": { "type": "circle" },
-                            "opacity": { "value": 0.3, "random": true },
-                            "size": { "value": 3, "random": true },
-                            "line_linked": {
-                                "enable": true,
-                                "distance": 150,
-                                "color": "#00f5ff",
-                                "opacity": 0.2,
-                                "width": 1
-                            },
-                            "move": {
-                                "enable": true,
-                                "speed": 1,
-                                "direction": "none",
-                                "random": true,
-                                "out_mode": "out",
-                                "bounce": false
-                            }
-                        },
-                        "interactivity": {
-                            "detect_on": "canvas",
-                            "events": {
-                                "onhover": { "enable": true, "mode": "grab" },
-                                "onclick": { "enable": true, "mode": "push" },
-                                "resize": true
-                            }
-                        },
-                        "retina_detect": true
+                        listItem.appendChild(nameSpan);
+                        listItem.appendChild(valueSpan);
+                        
+                        listItems.appendChild(listItem);
                     });
+                } else {
+                    listItems.innerHTML = '<li class="list-item">Bu listede öğe bulunmuyor</li>';
                 }
+                
+            } catch (error) {
+                console.error('Liste yükleme hatası:', error);
+                showError('Liste verisi çözümlenemedi: ' + error.message);
+            }
+            
+            // Kapat butonu
+            closeButton.addEventListener('click', function() {
+                window.close();
+            });
+            
+            // Hata mesajı gösterme fonksiyonu
+            function showError(message) {
+                listTitle.textContent = 'Hata';
+                listItems.innerHTML = `<li class="error-message">${message}</li>`;
             }
         });
     </script>
