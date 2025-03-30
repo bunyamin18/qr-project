@@ -5,29 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste Görüntüleme</title>
     <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div class="container">
-        <div class="list-header">
-            <h1 id="listTitle"></h1>
-            <button onclick="window.location.href='index.html'" class="edit-button">Yeni Liste</button>
-            <button class="edit-button">Düzenle</button>
-        </div>
-        
-        <div class="list-content">
-            <div class="items-section">
-                <h2>Öğeler</h2>
-                <div id="itemsList" class="items-list"></div>
-            </div>
-            
-            <div class="qr-section">
-                <h2>QR Kod</h2>
-                <div id="qrContainer" class="qr-container"></div>
-                <div class="error-message" id="qrError"></div>
-            </div>
-        </div>
-    </div>
-
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.0/build/qrcode.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -45,16 +23,11 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
 
-        .list-header {
+        .center-card {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .list-header h1 {
-            font-size: 24px;
-            color: #333;
+            padding: 20px;
         }
 
         .edit-button {
@@ -71,89 +44,25 @@
             background: #0056b3;
         }
 
-        .list-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-
-        .items-section, .qr-section {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-        }
-
-        .items-section h2, .qr-section h2 {
-            margin-top: 0;
-            margin-bottom: 20px;
-            color: #2c3e50;
-        }
-
-        .items-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .list-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 15px;
-            padding: 15px;
-            background: white;
-            border-radius: 6px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-
-        .content, .value-container, .image-container {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .label {
-            font-weight: bold;
-            color: #6c757d;
-            margin-bottom: 5px;
-        }
-
-        .value {
-            color: #2c3e50;
-        }
-
-        .image-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: #f0f0f0;
-            border-radius: 4px;
-            padding: 10px;
-        }
-
-        .image-wrapper img {
-            max-width: 100px;
-            max-height: 100px;
-            object-fit: contain;
-        }
-
-        .qr-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .qr-container img {
-            max-width: 256px;
-            max-height: 256px;
-        }
-
-        .error-message {
+        #qrError {
+            display: none;
             color: #dc3545;
             text-align: center;
-            margin-top: 10px;
+            margin-top: 1rem;
         }
     </style>
-
-    <script src="public/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="create-tech-background"></div>
+    <div class="container">
+        <div class="center-card">
+            <h1 id="listTitle"></h1>
+            <div id="itemsList"></div>
+            <div id="qrContainer"></div>
+            <div id="qrError" style="display: none; color: #dc3545; text-align: center; margin-top: 1rem;"></div>
+            <button class="edit-button">Düzenle</button>
+        </div>
+    </div>
     <script src="list.js"></script>
 </body>
 </html>

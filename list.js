@@ -117,6 +117,10 @@ function displayListData(data) {
                 <p class="qr-text">${data.id}</p>
             </div>
         `;
+    } else {
+        qrContainer.innerHTML = '';
+        qrError.style.display = 'block';
+        qrError.textContent = 'QR kod oluşturulamadı';
     }
 }
 
@@ -147,7 +151,8 @@ async function createQRCode(listId) {
         const base64 = btoa(String.fromCharCode(...encoded));
 
         // QR kod oluştur
-        const qr = await QRCode.toDataURL(base64, {
+        const qr = await QRCode.toString(base64, {
+            type: 'terminal',
             width: 256,
             margin: 1,
             color: {
@@ -156,7 +161,28 @@ async function createQRCode(listId) {
             }
         });
 
-        return qr;
+        // Base64 image data URL'ine dönüştür
+        const canvas = document.createElement('canvas');
+        canvas.width = 256;
+        canvas.height = 256;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, 256, 256);
+        
+        // QR kodu canvas'e çiz
+        const qrCanvas = new QRCode(canvas, {
+            text: base64,
+            width: 256,
+            height: 256,
+            colorDark: '#000000',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
+        });
+
+        // Canvas'i data URL'ine dönüştür
+        const qrData = canvas.toDataURL();
+
+        return qrData;
     } catch (error) {
         console.error('QR kod oluşturma hatası:', error);
         return null;
