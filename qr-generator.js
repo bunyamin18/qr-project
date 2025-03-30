@@ -107,12 +107,10 @@ document.addEventListener('DOMContentLoaded', function() {
             // Veriyi base64 formatına dönüştür (UTF-8 uyumlu)
             const base64Data = btoa(unescape(encodeURIComponent(jsonData)));
             
-            // Basit bir URL oluştur
-            let qrURL = window.location.origin;
-            let pathParts = window.location.pathname.split('/');
-            pathParts.pop();
-            let viewerPath = pathParts.join('/') + '/viewer.html';
-            const finalUrl = qrURL + viewerPath + '?data=' + base64Data;
+            // Doğrudan viewer.html sayfasına giden URL oluştur
+            const finalUrl = 'viewer.html?data=' + encodeURIComponent(base64Data);
+            
+            console.log("Oluşturulan QR URL:", finalUrl);
             
             // QR kod container'ı temizle
             qrContainer.innerHTML = '';
@@ -127,12 +125,19 @@ document.addEventListener('DOMContentLoaded', function() {
             qrOuterDiv.style.height = '200px';
             qrOuterDiv.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
             
-            // Google Chart API ile QR kod üret
+            // Google Chart API ile QR kod üret - daha küçük bir URL oluştur
             const qrImg = document.createElement('img');
-            qrImg.src = `https://chart.googleapis.com/chart?cht=qr&chl=${encodeURIComponent(finalUrl)}&chs=200x200&chld=H|0`;
+            const qrUrl = encodeURIComponent(finalUrl);
+            qrImg.src = 'https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=' + qrUrl + '&choe=UTF-8';
             qrImg.alt = "QR Kod";
             qrImg.style.width = "100%";
             qrImg.style.height = "100%";
+            
+            // Hata durumunu yönet
+            qrImg.onerror = function() {
+                console.error("QR kod resmi yüklenemedi");
+                qrOuterDiv.innerHTML = "QR kod yüklenirken hata oluştu. Lütfen tekrar deneyin.";
+            };
             
             qrOuterDiv.appendChild(qrImg);
             qrContainer.appendChild(qrOuterDiv);
@@ -150,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
             copyButton.textContent = 'URL Kopyala';
             copyButton.className = 'copy-url-button';
             copyButton.addEventListener('click', function() {
-                navigator.clipboard.writeText(finalUrl)
+                navigator.clipboard.writeText(window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + finalUrl)
                     .then(() => {
                         alert('URL kopyalandı!');
                     })
@@ -160,9 +165,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     });
             });
             qrContainer.appendChild(copyButton);
-            
-            // QR kod URL'ini global değişkende tut
-            window.qrCodeURL = finalUrl;
             
         } catch (error) {
             console.error('QR kod oluşturma hatası:', error);
