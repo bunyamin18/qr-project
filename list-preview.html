@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste Önizleme</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.0/build/qrcode.min.js"></script>
+    <script type="module">
+        import './list-preview.js';
+    </script>
+</head>
+<body>
+    <div class="create-tech-background"></div>
+    <div class="container">
+        <div class="center-card">
+            <h1>Liste Önizleme</h1>
+            <div class="preview-container">
+                <div class="list-preview">
+                    <h2 id="listTitle"></h2>
+                    <div id="itemsPreview"></div>
+                </div>
+                <div id="qrContainer" class="qr-container"></div>
+            </div>
+            <div class="button-container">
+                <button class="back-button">Geri</button>
+                <button class="download-button">QR Kodu İndir</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

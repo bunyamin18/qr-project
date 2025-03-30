@@ -51,8 +51,8 @@ async function handleFormSubmit(event) {
         // Veriyi sakla
         const savedList = await dataStorage.saveList(listData);
         
-        // QR kod sayfasına yönlendir
-        window.location.href = `qr-generator.html?listId=${savedList.id}`;
+        // Liste önizleme sayfasına yönlendir
+        window.location.href = `list-preview.html?listId=${savedList.id}`;
 
     } catch (error) {
         console.error('Form gönderme hatası:', error);
