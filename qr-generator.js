@@ -181,11 +181,13 @@ document.addEventListener('DOMContentLoaded', function() {
             localStorage.setItem(`list_data_${listData.id}`, JSON.stringify(listData));
             console.log(`Liste verileri localStorage'a kaydedildi: 'list_data_${listData.id}'`);
             
-            // Basit bir fixed URL yapısı oluştur - her zaman aynı tabanı kullan
-            let baseUrl = 'https://bunyamin.netlify.app';
+            // Tarayıcıdan bağımsız mutlak URL oluştur
+            // Açık dosya protokolü ile - lokalde kesinlikle çalışacak
+            const absolutePath = location.href.substring(0, location.href.lastIndexOf('/'));
+            const listPath = absolutePath + "/list.html";
             
-            // Tam URL oluştur (Netlify'a yükleme yapılacağını varsayalım)
-            const finalUrl = `${baseUrl}/list?id=${listData.id}`;
+            // Tam URL oluştur (file:// veya http:// protokolünü koruyarak)
+            const finalUrl = `${listPath}?listId=${listData.id}`;
             
             console.log('Kullanılan URL:', finalUrl);
             
