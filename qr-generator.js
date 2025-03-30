@@ -5,6 +5,9 @@ import QRCode from 'qrcode';
 const qrContainer = document.getElementById('qrContainer');
 const downloadButton = document.getElementById('downloadQR');
 const backButton = document.getElementById('backToList');
+const listContent = document.createElement('div');
+listContent.className = 'list-content';
+qrContainer.parentNode.insertBefore(listContent, qrContainer);
 
 // QR kodu oluştur
 async function generateQRCode(listId) {
@@ -14,6 +17,20 @@ async function generateQRCode(listId) {
         if (!listData) {
             throw new Error('Liste bulunamadı');
         }
+
+        // Liste içeriğini göster
+        listContent.innerHTML = `
+            <h2>${listData.title}</h2>
+            <div class="items-container">
+                ${listData.items.map(item => `
+                    <div class="item">
+                        <div class="item-content">${item.content}</div>
+                        <div class="item-value">${item.value || ''}</div>
+                        ${item.image ? `<img src="${item.image}" class="item-image" alt="Resim">` : ''}
+                    </div>
+                `).join('')}
+            </div>
+        `;
 
         // QR kod içeriğini hazırla
         const qrContent = `https://okulprojesibunyamin.netlify.app/list.html?listId=${listId}`;
@@ -69,7 +86,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
         // Geri butonu event listener'ı
         backButton.addEventListener('click', () => {
-            window.location.href = 'list.html?listId=' + listId;
+            window.location.href = 'index.html';
         });
 
     } catch (error) {

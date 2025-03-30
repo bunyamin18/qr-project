@@ -52,7 +52,7 @@ h1 {
 }
 
 .items-container {
-    margin: 20px 0;
+    margin: 15px 0;
 }
 
 .form-row {
@@ -152,6 +152,7 @@ h1 {
     padding: 15px;
     background-color: #f8f9fa;
     border-radius: 8px;
+    font-size: 0.9em;
 }
 
 .list-item {
