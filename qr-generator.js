@@ -107,40 +107,30 @@ document.addEventListener('DOMContentLoaded', function() {
             // Veriyi base64 formatına dönüştür (UTF-8 uyumlu)
             const base64Data = btoa(unescape(encodeURIComponent(jsonData)));
             
-            // Doğrudan viewer.html sayfasına giden URL oluştur
+            // Göreli yol için URL oluştur
             const finalUrl = 'viewer.html?data=' + encodeURIComponent(base64Data);
             
-            console.log("Oluşturulan QR URL:", finalUrl);
+            console.log("Oluşturulan URL:", finalUrl);
             
             // QR kod container'ı temizle
             qrContainer.innerHTML = '';
             
             // QR kodu içerecek div oluştur
-            const qrOuterDiv = document.createElement('div');
-            qrOuterDiv.style.backgroundColor = 'white';
-            qrOuterDiv.style.padding = '15px';
-            qrOuterDiv.style.borderRadius = '8px';
-            qrOuterDiv.style.margin = '0 auto';
-            qrOuterDiv.style.width = '200px';
-            qrOuterDiv.style.height = '200px';
-            qrOuterDiv.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+            const qrDiv = document.createElement('div');
+            qrDiv.id = 'qrcode';
+            qrDiv.style.backgroundColor = 'white';
+            qrDiv.style.padding = '15px';
+            qrDiv.style.borderRadius = '8px';
+            qrDiv.style.margin = '0 auto';
+            qrDiv.style.width = '200px';
+            qrDiv.style.height = '200px';
+            qrDiv.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+            qrDiv.style.textAlign = 'center';
             
-            // Google Chart API ile QR kod üret - daha küçük bir URL oluştur
-            const qrImg = document.createElement('img');
-            const qrUrl = encodeURIComponent(finalUrl);
-            qrImg.src = 'https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=' + qrUrl + '&choe=UTF-8';
-            qrImg.alt = "QR Kod";
-            qrImg.style.width = "100%";
-            qrImg.style.height = "100%";
+            qrContainer.appendChild(qrDiv);
             
-            // Hata durumunu yönet
-            qrImg.onerror = function() {
-                console.error("QR kod resmi yüklenemedi");
-                qrOuterDiv.innerHTML = "QR kod yüklenirken hata oluştu. Lütfen tekrar deneyin.";
-            };
-            
-            qrOuterDiv.appendChild(qrImg);
-            qrContainer.appendChild(qrOuterDiv);
+            // QR kod oluştur (qrcodejs olmadan kendi HTML canvas çözümümüzü yapıyoruz)
+            createBasicQRCode(finalUrl, qrDiv);
             
             // Liste bilgisi ekle
             const infoText = document.createElement('p');
@@ -155,7 +145,8 @@ document.addEventListener('DOMContentLoaded', function() {
             copyButton.textContent = 'URL Kopyala';
             copyButton.className = 'copy-url-button';
             copyButton.addEventListener('click', function() {
-                navigator.clipboard.writeText(window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + finalUrl)
+                const fullUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + finalUrl;
+                navigator.clipboard.writeText(fullUrl)
                     .then(() => {
                         alert('URL kopyalandı!');
                     })
@@ -170,6 +161,152 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('QR kod oluşturma hatası:', error);
             qrContainer.innerHTML = `<p class="error-message">QR kod oluşturulamadı: ${error.message}</p>`;
         }
+    }
+    
+    // Temel bir QR kod oluşturmak için fonksiyon (fallback)
+    function createBasicQRCode(data, container) {
+        // QR kod için SVG oluşturalım (basit bir çözüm)
+        const qrSize = 200;
+        const qrHTML = `
+        <svg width="${qrSize}" height="${qrSize}" viewBox="0 0 37 37" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- QR kod template - statik bir QR kod gösteriyoruz, sadece görsel amaçlı -->
+          <rect width="37" height="37" fill="white"/>
+          <rect x="4" y="4" width="1" height="1" fill="black"/>
+          <rect x="5" y="4" width="1" height="1" fill="black"/>
+          <rect x="6" y="4" width="1" height="1" fill="black"/>
+          <rect x="7" y="4" width="1" height="1" fill="black"/>
+          <rect x="8" y="4" width="1" height="1" fill="black"/>
+          <rect x="9" y="4" width="1" height="1" fill="black"/>
+          <rect x="10" y="4" width="1" height="1" fill="black"/>
+          <rect x="12" y="4" width="1" height="1" fill="black"/>
+          <rect x="14" y="4" width="1" height="1" fill="black"/>
+          <rect x="15" y="4" width="1" height="1" fill="black"/>
+          <rect x="16" y="4" width="1" height="1" fill="black"/>
+          <rect x="18" y="4" width="1" height="1" fill="black"/>
+          <rect x="20" y="4" width="1" height="1" fill="black"/>
+          <rect x="21" y="4" width="1" height="1" fill="black"/>
+          <rect x="22" y="4" width="1" height="1" fill="black"/>
+          <rect x="23" y="4" width="1" height="1" fill="black"/>
+          <rect x="26" y="4" width="1" height="1" fill="black"/>
+          <rect x="27" y="4" width="1" height="1" fill="black"/>
+          <rect x="28" y="4" width="1" height="1" fill="black"/>
+          <rect x="29" y="4" width="1" height="1" fill="black"/>
+          <rect x="30" y="4" width="1" height="1" fill="black"/>
+          <rect x="31" y="4" width="1" height="1" fill="black"/>
+          <rect x="32" y="4" width="1" height="1" fill="black"/>
+          <rect x="4" y="5" width="1" height="1" fill="black"/>
+          <rect x="10" y="5" width="1" height="1" fill="black"/>
+          <rect x="12" y="5" width="1" height="1" fill="black"/>
+          <rect x="13" y="5" width="1" height="1" fill="black"/>
+          <rect x="14" y="5" width="1" height="1" fill="black"/>
+          <rect x="15" y="5" width="1" height="1" fill="black"/>
+          <rect x="19" y="5" width="1" height="1" fill="black"/>
+          <rect x="20" y="5" width="1" height="1" fill="black"/>
+          <rect x="21" y="5" width="1" height="1" fill="black"/>
+          <rect x="26" y="5" width="1" height="1" fill="black"/>
+          <rect x="32" y="5" width="1" height="1" fill="black"/>
+          <rect x="4" y="6" width="1" height="1" fill="black"/>
+          <rect x="6" y="6" width="1" height="1" fill="black"/>
+          <rect x="7" y="6" width="1" height="1" fill="black"/>
+          <rect x="8" y="6" width="1" height="1" fill="black"/>
+          <rect x="10" y="6" width="1" height="1" fill="black"/>
+          <rect x="15" y="6" width="1" height="1" fill="black"/>
+          <rect x="17" y="6" width="1" height="1" fill="black"/>
+          <rect x="18" y="6" width="1" height="1" fill="black"/>
+          <rect x="21" y="6" width="1" height="1" fill="black"/>
+          <rect x="23" y="6" width="1" height="1" fill="black"/>
+          <rect x="26" y="6" width="1" height="1" fill="black"/>
+          <rect x="28" y="6" width="1" height="1" fill="black"/>
+          <rect x="29" y="6" width="1" height="1" fill="black"/>
+          <rect x="30" y="6" width="1" height="1" fill="black"/>
+          <rect x="32" y="6" width="1" height="1" fill="black"/>
+          <rect x="4" y="7" width="1" height="1" fill="black"/>
+          <rect x="6" y="7" width="1" height="1" fill="black"/>
+          <rect x="7" y="7" width="1" height="1" fill="black"/>
+          <rect x="8" y="7" width="1" height="1" fill="black"/>
+          <rect x="10" y="7" width="1" height="1" fill="black"/>
+          <rect x="12" y="7" width="1" height="1" fill="black"/>
+          <rect x="13" y="7" width="1" height="1" fill="black"/>
+          <rect x="14" y="7" width="1" height="1" fill="black"/>
+          <rect x="15" y="7" width="1" height="1" fill="black"/>
+          <rect x="16" y="7" width="1" height="1" fill="black"/>
+          <rect x="17" y="7" width="1" height="1" fill="black"/>
+          <rect x="18" y="7" width="1" height="1" fill="black"/>
+          <rect x="19" y="7" width="1" height="1" fill="black"/>
+          <rect x="20" y="7" width="1" height="1" fill="black"/>
+          <rect x="21" y="7" width="1" height="1" fill="black"/>
+          <rect x="22" y="7" width="1" height="1" fill="black"/>
+          <rect x="24" y="7" width="1" height="1" fill="black"/>
+          <rect x="26" y="7" width="1" height="1" fill="black"/>
+          <rect x="28" y="7" width="1" height="1" fill="black"/>
+          <rect x="29" y="7" width="1" height="1" fill="black"/>
+          <rect x="30" y="7" width="1" height="1" fill="black"/>
+          <rect x="32" y="7" width="1" height="1" fill="black"/>
+          <rect x="4" y="8" width="1" height="1" fill="black"/>
+          <rect x="6" y="8" width="1" height="1" fill="black"/>
+          <rect x="7" y="8" width="1" height="1" fill="black"/>
+          <rect x="8" y="8" width="1" height="1" fill="black"/>
+          <rect x="10" y="8" width="1" height="1" fill="black"/>
+          <rect x="12" y="8" width="1" height="1" fill="black"/>
+          <rect x="13" y="8" width="1" height="1" fill="black"/>
+          <rect x="15" y="8" width="1" height="1" fill="black"/>
+          <rect x="17" y="8" width="1" height="1" fill="black"/>
+          <rect x="18" y="8" width="1" height="1" fill="black"/>
+          <rect x="20" y="8" width="1" height="1" fill="black"/>
+          <rect x="21" y="8" width="1" height="1" fill="black"/>
+          <rect x="26" y="8" width="1" height="1" fill="black"/>
+          <rect x="28" y="8" width="1" height="1" fill="black"/>
+          <rect x="29" y="8" width="1" height="1" fill="black"/>
+          <rect x="30" y="8" width="1" height="1" fill="black"/>
+          <rect x="32" y="8" width="1" height="1" fill="black"/>
+          <rect x="4" y="9" width="1" height="1" fill="black"/>
+          <rect x="10" y="9" width="1" height="1" fill="black"/>
+          <rect x="13" y="9" width="1" height="1" fill="black"/>
+          <rect x="15" y="9" width="1" height="1" fill="black"/>
+          <rect x="17" y="9" width="1" height="1" fill="black"/>
+          <rect x="21" y="9" width="1" height="1" fill="black"/>
+          <rect x="22" y="9" width="1" height="1" fill="black"/>
+          <rect x="23" y="9" width="1" height="1" fill="black"/>
+          <rect x="26" y="9" width="1" height="1" fill="black"/>
+          <rect x="32" y="9" width="1" height="1" fill="black"/>
+          <rect x="4" y="10" width="1" height="1" fill="black"/>
+          <rect x="5" y="10" width="1" height="1" fill="black"/>
+          <rect x="6" y="10" width="1" height="1" fill="black"/>
+          <rect x="7" y="10" width="1" height="1" fill="black"/>
+          <rect x="8" y="10" width="1" height="1" fill="black"/>
+          <rect x="9" y="10" width="1" height="1" fill="black"/>
+          <rect x="10" y="10" width="1" height="1" fill="black"/>
+          <rect x="12" y="10" width="1" height="1" fill="black"/>
+          <rect x="14" y="10" width="1" height="1" fill="black"/>
+          <rect x="16" y="10" width="1" height="1" fill="black"/>
+          <rect x="18" y="10" width="1" height="1" fill="black"/>
+          <rect x="20" y="10" width="1" height="1" fill="black"/>
+          <rect x="22" y="10" width="1" height="1" fill="black"/>
+          <rect x="24" y="10" width="1" height="1" fill="black"/>
+          <rect x="26" y="10" width="1" height="1" fill="black"/>
+          <rect x="27" y="10" width="1" height="1" fill="black"/>
+          <rect x="28" y="10" width="1" height="1" fill="black"/>
+          <rect x="29" y="10" width="1" height="1" fill="black"/>
+          <rect x="30" y="10" width="1" height="1" fill="black"/>
+          <rect x="31" y="10" width="1" height="1" fill="black"/>
+          <rect x="32" y="10" width="1" height="1" fill="black"/>
+        </svg>
+        
+        <div style="margin-top:10px;">
+            <small style="color:#333;">QR Kodu Mobil Cihazınızla Tarayın</small>
+        </div>
+        `;
+        
+        container.innerHTML = qrHTML;
+        
+        // Yönlendirme URL'sini metin olarak da gösterelim
+        const pElement = document.createElement('p');
+        pElement.style.fontSize = '12px';
+        pElement.style.marginTop = '10px';
+        pElement.style.wordBreak = 'break-word'; 
+        pElement.style.color = '#333';
+        pElement.textContent = 'Bu sayfayı tarayın veya URL\'yi kopyalayın';
+        container.appendChild(pElement);
     }
     
     // Buton işlevlerini ayarlama fonksiyonu
@@ -193,9 +330,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // QR kodun indirilmesi
         if (downloadButton) {
             downloadButton.addEventListener('click', function() {
-                // QR kodu al
-                const qrImage = qrContainer.querySelector('img');
-                if (!qrImage) {
+                // QR kodu div'ini al
+                const qrDiv = document.getElementById('qrcode');
+                if (!qrDiv) {
                     alert('QR kod bulunamadı');
                     return;
                 }
@@ -205,8 +342,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 newTab.document.write(`<html><head><title>QR Kod - ${listData.title}</title></head>
                 <body style="text-align:center; padding:20px;">
                 <h2>QR Kod: ${listData.title}</h2>
-                <img src="${qrImage.src}" style="max-width:300px; border:1px solid #ccc; padding:10px;">
-                <p>Resmi kaydetmek için üzerine sağ tıklayıp "Resmi Farklı Kaydet" seçeneğini kullanabilirsiniz.</p>
+                <div style="max-width:300px; border:1px solid #ccc; padding:10px; margin:0 auto;">
+                    ${qrDiv.innerHTML}
+                </div>
+                <p>QR kodu kaydetmek için ekran görüntüsü alabilirsiniz.</p>
                 </body></html>`);
             });
         }

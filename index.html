@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste Oluştur</title>
+    <title>QR Liste Oluşturucu</title>
     <link rel="stylesheet" href="styles.css">
     
     <!-- Basit QR kod kütüphanesi -->
@@ -18,23 +18,40 @@
 <body>
     <div id="particles-js" class="tech-background"></div>
     <div class="container">
-        <div class="center-card">
-            <h1>Liste Oluştur</h1>
+        <header>
+            <h1>QR Kod Liste Oluşturucu</h1>
+            <p class="header-description">Listelerinizi oluşturun, kaydedin ve QR kod ile paylaşın</p>
+        </header>
+        
+        <div class="form-container">
             <form id="listForm">
                 <div class="form-group">
-                    <label>Liste Başlığı</label>
-                    <input type="text" id="title" class="form-control" required>
+                    <label for="listTitle">Liste Başlığı</label>
+                    <input type="text" id="listTitle" placeholder="Liste başlığını girin" required>
                 </div>
-                <div id="itemsContainer"></div>
-                <div class="button-container">
-                    <button type="button" id="addItemButton" class="add-row-button">Yeni Öğe Ekle</button>
-                    <button type="submit" class="save-button">Kaydet</button>
+                
+                <div id="itemsContainer">
+                    <!-- Buraya dinamik olarak öğeler eklenecek -->
+                </div>
+                
+                <div class="form-actions">
+                    <button type="button" id="addItemButton" class="add-item-button">Yeni Öğe Ekle</button>
+                    <button type="submit" id="saveButton" class="save-button">Kaydet</button>
                 </div>
             </form>
         </div>
+        
+        <div class="saved-lists">
+            <h2>Kayıtlı Listelerim</h2>
+            <div id="savedLists" class="lists-container">
+                <!-- Buraya kaydedilmiş listeler eklenecek -->
+            </div>
+        </div>
     </div>
     
-    <!-- Gerekli script dosyaları -->
+    <!-- Javascript dosyaları -->
+    <script src="dataStorage.js"></script>
     <script src="script.js"></script>
+    <script src="qr-generator.js"></script>
 </body>
 </html>
