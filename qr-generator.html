@@ -3,35 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Kod</title>
+    <title>QR Kod Oluştur</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- QR kod kütüphanesi -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
-    <!-- Particles.js için gerekli script -->
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-    <!-- Font Awesome ikon kütüphanesi -->
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode-generator.min.js"></script>
+    <script type="module">
+        import './qr-generator.js';
+    </script>
 </head>
 <body>
-    <div id="particles-js" class="tech-background"></div>
+    <div class="create-tech-background"></div>
     <div class="container">
         <div class="center-card">
-            <h1>QR Kod Oluşturuldu</h1>
-            <div id="list-preview">
-                <h2 id="preview-title">Liste Başlığı</h2>
-                <div id="preview-items" class="preview-items"></div>
-            </div>
-            <div id="qrContainer"></div>
+            <h1>QR Kod Oluştur</h1>
+            <div id="qrContainer" class="qr-container"></div>
             <div class="button-container">
-                <button class="edit-button">Bu Listeyi Düzenle</button>
+                <button class="back-button">Geri</button>
                 <button class="download-button">QR Kodu İndir</button>
             </div>
-            <button class="back-button">Ana Sayfaya Dön</button>
         </div>
     </div>
-
-    <!-- Gerekli script dosyaları -->
-    <script src="services/dataStorage.js"></script>
-    <script src="qr-generator.js"></script>
 </body>
 </html>

@@ -1,72 +1,49 @@
 // Veri depolama servisi
 const dataStorage = {
-    // Tüm listeleri getir
-    getAllLists() {
+    // Liste verilerini sakla
+    async saveList(listData) {
         try {
-            const listsString = localStorage.getItem('lists');
-            return listsString ? JSON.parse(listsString) : [];
-        } catch (error) {
-            console.error('Listeleri alma hatası:', error);
-            return [];
-        }
-    },
-    
-    // Belirli bir listeyi id'ye göre getir
-    getList(id) {
-        try {
-            const lists = this.getAllLists();
-            return lists.find(list => list.id === id) || null;
-        } catch (error) {
-            console.error('Liste alma hatası:', error);
-            return null;
-        }
-    },
-    
-    // Yeni liste kaydet
-    saveList(listData) {
-        try {
-            const lists = this.getAllLists();
-            const listId = this.generateId();
+            // Liste ID'si oluştur
+            const listId = Date.now().toString();
             
-            const list = { id: listId, title: listData.title, items: listData.items };
+            // Liste verisini hazırla
+            const list = {
+                id: listId,
+                title: listData.title,
+                items: listData.items
+            };
+
+            // Veriyi localStorage'a kaydet
+            const lists = JSON.parse(localStorage.getItem('lists') || '[]');
             lists.push(list);
-            
             localStorage.setItem('lists', JSON.stringify(lists));
+
             return list;
         } catch (error) {
             console.error('Liste kaydetme hatası:', error);
-            return null;
+            throw error;
         }
     },
-    
-    // Mevcut bir listeyi güncelle
-    updateList(listData) {
+
+    // Liste verisini al
+    getList(listId) {
         try {
-            const lists = this.getAllLists();
-            const listIndex = lists.findIndex(list => list.id === listData.id);
-            
-            if (listIndex === -1) {
-                return null;
-            }
-            
-            lists[listIndex] = { id: listData.id, title: listData.title, items: listData.items };
-            localStorage.setItem('lists', JSON.stringify(lists));
-            
-            return lists[listIndex];
+            const lists = JSON.parse(localStorage.getItem('lists') || '[]');
+            return lists.find(list => list.id === listId);
         } catch (error) {
-            console.error('Liste güncelleme hatası:', error);
-            return null;
+            console.error('Liste alma hatası:', error);
+            throw error;
         }
     },
-    
-    // Benzersiz ID oluştur
-    generateId() {
-        return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-    },
-    
-    // Veri tabanını temizle (test için)
-    clear() {
-        localStorage.removeItem('lists');
+
+    // Tüm listeleri al
+    getAllLists() {
+        try {
+            return JSON.parse(localStorage.getItem('lists') || '[]');
+        } catch (error) {
+            console.error('Listeler alma hatası:', error);
+            throw error;
+        }
     }
 };
 
