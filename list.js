@@ -44,7 +44,8 @@ function displayListData(data) {
         });
     } catch (error) {
         console.error('Veri gösterme hatası:', error);
-        alert('Liste verisi gösterilirken bir hata oluştu');
+        qrError.style.display = 'block';
+        qrError.textContent = 'Liste verisi gösterilirken bir hata oluştu';
     }
 }
 
@@ -59,22 +60,16 @@ document.addEventListener('DOMContentLoaded', function() {
         editButton = document.querySelector('.edit-button');
         newListButton = document.querySelector('.new-list-button');
 
-        // Kontroller
         if (!titleElement || !itemsList || !qrContainer || !qrError || !editButton || !newListButton) {
-            console.error('Gerekli DOM elementleri bulunamadı');
-            alert('Sayfa yüklenirken bir hata oluştu');
-            return;
+            throw new Error('Gerekli DOM elementleri bulunamadı');
         }
 
         // URL'den liste ID'sini al
         const urlParams = new URLSearchParams(window.location.search);
         const listId = urlParams.get('listId');
 
-        // Veri kontrolü
         if (!listId) {
-            alert('Liste verisi bulunamadı');
-            window.location.href = 'index.html';
-            return;
+            throw new Error('Liste ID bulunamadı');
         }
 
         // Liste verisini al
@@ -93,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.location.href = `index.html?listId=${currentListData.id}`;
             } catch (error) {
                 console.error('Düzenleme butonu hatası:', error);
-                alert('Düzenleme butonu tıklandıktan sonra bir hata oluştu');
+                alert('Düzenleme sırasında bir hata oluştu');
             }
         };
 
@@ -103,12 +98,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.location.href = 'index.html';
             } catch (error) {
                 console.error('Yeni liste butonu hatası:', error);
-                alert('Yeni liste butonu tıklandıktan sonra bir hata oluştu');
+                alert('Yeni liste oluşturulurken bir hata oluştu');
             }
         };
+
     } catch (error) {
         console.error('Sayfa yükleme hatası:', error);
-        alert('Sayfa yüklenirken bir hata oluştu');
+        alert(error.message || 'Sayfa yüklenirken bir hata oluştu');
+        window.location.href = 'index.html';
     }
 });
 

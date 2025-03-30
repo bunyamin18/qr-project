@@ -15,9 +15,14 @@ class DataStorage {
     getAllLists() {
         try {
             const lists = localStorage.getItem(this.storageKey);
-            return lists ? JSON.parse(lists) : [];
+            if (!lists) {
+                this.initializeStorage();
+                return [];
+            }
+            return JSON.parse(lists);
         } catch (error) {
             console.error('Veri okuma hatası:', error);
+            this.initializeStorage();
             return [];
         }
     }
@@ -25,6 +30,11 @@ class DataStorage {
     // Liste ekle veya güncelle
     saveList(listData) {
         try {
+            // Liste ID'si yoksa oluştur
+            if (!listData.id) {
+                listData.id = this.generateUniqueID();
+            }
+
             const lists = this.getAllLists();
             const existingIndex = lists.findIndex(list => list.id === listData.id);
             
@@ -63,6 +73,17 @@ class DataStorage {
             console.error('Veri silme hatası:', error);
         }
     }
+
+    // Benzersiz ID oluşturma
+    generateUniqueID() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
 }
 
-export default new DataStorage();
+// Singleton instance
+const dataStorage = new DataStorage();
+
+// Exporting the instance
+window.dataStorage = dataStorage;
+
+export default dataStorage;

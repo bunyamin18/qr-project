@@ -9,57 +9,57 @@ let currentListData;
 async function handleFormSubmit(event) {
     event.preventDefault();
 
-    // Form verilerini al
-    const title = titleInput.value.trim();
-    const items = Array.from(itemsContainer.children)
-        .map(row => {
-            const content = row.querySelector('.item-content').value.trim();
-            const value = row.querySelector('.item-value').value.trim();
-            const imageInput = row.querySelector('.item-image');
-            let image = '';
-            
-            // Mevcut resmi al
-            const preview = row.querySelector('.image-preview');
-            if (preview && preview.src) {
-                image = preview.src;
-            }
-
-            return {
-                content,
-                value,
-                image
-            };
-        })
-        .filter(item => item.content || item.value || item.image); // Boş öğeleri filtrele
-
-    // Veri doğrulama
-    if (!title || items.length === 0) {
-        alert('Lütfen liste başlığı ve en az bir öğe girin');
-        return;
-    }
-
-    // Mevcut liste verisi varsa güncelle
-    if (currentListData) {
-        currentListData.title = title;
-        currentListData.items = items;
-    } else {
-        // Yeni liste oluştur
-        currentListData = {
-            id: generateUniqueID(),
-            title,
-            items
-        };
-    }
-
     try {
+        // Form verilerini al
+        const title = titleInput.value.trim();
+        const items = Array.from(itemsContainer.children)
+            .map(row => {
+                const content = row.querySelector('.item-content').value.trim();
+                const value = row.querySelector('.item-value').value.trim();
+                const imageInput = row.querySelector('.item-image');
+                let image = '';
+                
+                // Mevcut resmi al
+                const preview = row.querySelector('.image-preview');
+                if (preview && preview.src) {
+                    image = preview.src;
+                }
+
+                return {
+                    content,
+                    value,
+                    image
+                };
+            })
+            .filter(item => item.content || item.value || item.image); // Boş öğeleri filtrele
+
+        // Veri doğrulama
+        if (!title || items.length === 0) {
+            throw new Error('Lütfen liste başlığı ve en az bir öğe girin');
+        }
+
+        // Mevcut liste verisi varsa güncelle
+        if (currentListData) {
+            currentListData.title = title;
+            currentListData.items = items;
+        } else {
+            // Yeni liste oluştur
+            currentListData = {
+                id: generateUniqueID(),
+                title,
+                items
+            };
+        }
+
         // Veriyi sakla
         const savedList = await dataStorage.saveList(currentListData);
         
         // QR kod sayfasına yönlendir
         window.location.href = `qr-generator.html?listId=${savedList.id}`;
+
     } catch (error) {
-        console.error('Veri kaydetme hatası:', error);
-        alert('Liste kaydedilirken bir hata oluştu');
+        console.error('Form gönderme hatası:', error);
+        alert(error.message || 'Liste kaydedilirken bir hata oluştu');
     }
 }
 
@@ -145,49 +145,56 @@ function escapeHtml(unsafe) {
 
 // Sayfa yüklendiğinde çalışacak fonksiyon
 document.addEventListener('DOMContentLoaded', function() {
-    // DOM elementlerini al
-    titleInput = document.getElementById('listTitle');
-    itemsContainer = document.getElementById('items');
-    
-    // Form submit event listener'ı ekle
-    const form = document.getElementById('listForm');
-    if (form) {
-        form.addEventListener('submit', handleFormSubmit);
-    }
+    try {
+        // DOM elementlerini al
+        titleInput = document.getElementById('listTitle');
+        itemsContainer = document.getElementById('items');
+        
+        if (!titleInput || !itemsContainer) {
+            throw new Error('Gerekli DOM elementleri bulunamadı');
+        }
 
-    // Yeni öğe ekleme butonu event listener'ı ekle
-    const addItemButton = document.querySelector('.add-row-button');
-    if (addItemButton) {
-        addItemButton.addEventListener('click', addItem);
-    }
+        // Form submit event listener'ı ekle
+        const form = document.getElementById('listForm');
+        if (form) {
+            form.addEventListener('submit', handleFormSubmit);
+        }
 
-    // URL'den veri al
-    const urlParams = new URLSearchParams(window.location.search);
-    const listId = urlParams.get('listId');
-    
-    if (listId) {
-        try {
+        // Yeni öğe ekleme butonu event listener'ı ekle
+        const addItemButton = document.querySelector('.add-row-button');
+        if (addItemButton) {
+            addItemButton.addEventListener('click', addItem);
+        }
+
+        // URL'den veri al
+        const urlParams = new URLSearchParams(window.location.search);
+        const listId = urlParams.get('listId');
+        
+        if (listId) {
             // Liste verisini al
             currentListData = dataStorage.getList(listId);
             
-            if (currentListData) {
-                // Veriyi form'a yükle
-                titleInput.value = currentListData.title || '';
-                
-                // Mevcut öğeleri ekle
-                currentListData.items.forEach(item => {
-                    const row = createItemRow(item.content, item.value, item.image);
-                    itemsContainer.appendChild(row);
-                });
+            if (!currentListData) {
+                throw new Error('Liste bulunamadı');
             }
-        } catch (error) {
-            console.error('Veri yükleme hatası:', error);
-            alert('Liste verisi yüklenirken bir hata oluştu');
-        }
-    }
 
-    // İlk satırı ekle
-    if (itemsContainer.children.length === 0) {
-        addItem();
+            // Veriyi form'a yükle
+            titleInput.value = currentListData.title || '';
+            
+            // Mevcut öğeleri ekle
+            currentListData.items.forEach(item => {
+                const row = createItemRow(item.content, item.value, item.image);
+                itemsContainer.appendChild(row);
+            });
+        }
+
+        // İlk satırı ekle
+        if (itemsContainer.children.length === 0) {
+            addItem();
+        }
+
+    } catch (error) {
+        console.error('Sayfa yükleme hatası:', error);
+        alert(error.message || 'Sayfa yüklenirken bir hata oluştu');
     }
 });
