@@ -96,40 +96,56 @@ label {
     position: relative;
 }
 
-/* Buton stil */
-button {
-    background: var(--secondary-color);
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s ease;
-    margin: 5px;
+/* Butonlar stil */
+.button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    gap: 10px;
 }
 
-button:hover {
-    background: #2980b9;
+.add-row-button,
+.save-button,
+.back-button,
+.download-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 1;
+    min-width: 120px;
+}
+
+.add-row-button:hover,
+.save-button:hover,
+.back-button:hover,
+.download-button:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
 }
 
 /* Silme butonu stil */
 .delete-row {
-    background: var(--accent-color);
-    color: white;
-    border: none;
-    padding: 0 8px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 20px;
     position: absolute;
     top: 8px;
     right: 8px;
-    transition: background-color 0.3s;
+    font-size: 20px;
+    padding: 0 8px;
+    border-radius: 50%;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .delete-row:hover {
-    background: #c0392b;
+    background-color: #c82333;
+    transform: scale(1.1);
 }
 
 /* Liste önizleme stil */
@@ -295,68 +311,6 @@ button:hover {
 
 .center-card {
     animation: fadeIn 0.6s ease-out;
-}
-
-/* Yeni öğe ekleme butonu stil */
-.add-row-button {
-    background: #2ecc71;
-    margin-top: 20px;
-}
-
-.add-row-button:hover {
-    background: #27ae60;
-}
-
-/* QR kod indirme butonu stil */
-.download-button {
-    background-color: #2ecc71;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 6px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    width: 100%;
-}
-
-.download-button:hover {
-    background-color: #27ae60;
-    transform: translateY(-2px);
-}
-
-/* Geri butonu stil */
-.back-button {
-    background: #95a5a6;
-    margin-top: 20px;
-}
-
-.back-button:hover {
-    background: #7f8c8d;
-}
-
-/* Button container stil */
-.button-container {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 20px;
-}
-
-.generate-button {
-    background-color: #3498db;
-    color: white;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 6px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    width: 100%;
-}
-
-.generate-button:hover {
-    background-color: #2980b9;
-    transform: translateY(-2px);
 }
 
 /* Teknolojik arka plan efekti */
