@@ -3,24 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Kod Oluştur</title>
+    <title>QR Kod Oluşturucu</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode-generator.min.js"></script>
-    <script type="module">
-        import './qr-generator.js';
-    </script>
+    <!-- QR kod kütüphanesi -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+    <!-- Particles.js için gerekli script -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <!-- Font Awesome ikon kütüphanesi -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <!-- DataStorage servisi -->
+    <script src="services/dataStorage.js"></script>
 </head>
 <body>
-    <div class="create-tech-background"></div>
+    <div id="particles-js" class="tech-background"></div>
     <div class="container">
         <div class="center-card">
-            <h1>QR Kod Oluştur</h1>
-            <div id="qrContainer" class="qr-container"></div>
+            <h1 id="listTitle">QR Kod Oluşturuluyor...</h1>
+
+            <div id="list-preview">
+                <h2>Liste Önizleme</h2>
+                <div id="preview-items">
+                    <p>Yükleniyor...</p>
+                </div>
+            </div>
+
+            <div id="qrContainer">
+                <p>QR Kod oluşturuluyor...</p>
+            </div>
+
             <div class="button-container">
-                <button class="back-button">Geri</button>
-                <button class="download-button">QR Kodu İndir</button>
+                <button id="backButton" class="back-button">Ana Sayfaya Dön</button>
+                <button id="editButton" class="edit-button">Listeyi Düzenle</button>
+                <button id="downloadButton" class="download-button">QR Kodu İndir</button>
             </div>
         </div>
     </div>
+    
+    <!-- Gerekli script dosyaları -->
+    <script src="qr-generator.js"></script>
 </body>
 </html>
