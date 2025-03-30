@@ -34,8 +34,8 @@ async function displayListPreview(listId) {
         // QR kodu oluştur
         const qr = new QRCode(qrContainer, {
             text: qrContent,
-            width: 256,
-            height: 256,
+            width: 128,  // Daha küçük boyut
+            height: 128, // Daha küçük boyut
             colorDark: '#000000',
             colorLight: '#ffffff',
             correctLevel: QRCode.CorrectLevel.H
@@ -52,7 +52,7 @@ async function displayListPreview(listId) {
 
     } catch (error) {
         console.error('Liste önizleme hatası:', error);
-        alert('Liste önizlenirken bir hata oluştu');
+        // Hata mesajını gösterme yerine sadece logla
     }
 }
 
@@ -77,6 +77,6 @@ document.addEventListener('DOMContentLoaded', async function() {
 
     } catch (error) {
         console.error('Sayfa yükleme hatası:', error);
-        alert(error.message || 'Sayfa yüklenirken bir hata oluştu');
+        // Hata mesajını gösterme yerine sadece logla
     }
 });

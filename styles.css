@@ -150,28 +150,30 @@ h1 {
 .list-preview {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 15px;
 }
 
 .list-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .list-content {
     background-color: #f8f9fa;
-    padding: 15px;
-    border-radius: 8px;
-    font-size: 0.9em;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 0.8em;
+    max-height: 200px;
+    overflow-y: auto;
 }
 
 .list-item {
     display: grid;
     grid-template-columns: 1fr 1fr auto;
-    gap: 10px;
-    padding: 10px;
+    gap: 8px;
+    padding: 8px;
     border-bottom: 1px solid #dee2e6;
 }
 
@@ -182,26 +184,28 @@ h1 {
 .item-content {
     font-weight: 500;
     color: #212529;
+    font-size: 0.8em;
 }
 
 .item-value {
     color: #6c757d;
+    font-size: 0.8em;
 }
 
 .item-image {
-    max-width: 50px;
-    max-height: 50px;
+    max-width: 30px;
+    max-height: 30px;
     object-fit: contain;
 }
 
 .qr-container {
-    margin: 20px 0;
+    margin: 15px 0;
     text-align: center;
 }
 
 .qr-container canvas {
-    max-width: 256px;
-    max-height: 256px;
+    max-width: 128px;
+    max-height: 128px;
 }
 
 /* Mobil uyumlu stil */
