@@ -190,11 +190,35 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log("Baz URL:", baseUrl);
             
-            // Tam URL oluştur - list.html için
-            const listUrl = `${baseUrl}/list.html?listId=${listData.id}`;
+            // Liste verisini Base64 ile kodla (compres için gereksiz bilgileri kaldır)
+            const compressedListData = {
+                id: listData.id,
+                title: listData.title,
+                items: listData.items.map(item => ({
+                    content: item.content,
+                    value: item.value,
+                    // Resim verilerinin URL'yi aşırı büyütmemesi için kaldırıldı
+                    // image: item.image
+                }))
+            };
+            
+            // Liste verisini Base64 olarak kodla
+            const encodedData = btoa(encodeURIComponent(JSON.stringify(compressedListData)));
+            console.log("Encoded data length:", encodedData.length);
+            
+            // Tam URL oluştur - list.html için (veri de dahil)
+            const listUrl = `${baseUrl}/list.html?data=${encodedData}`;
+            
+            // Alternatif URL (ID ile)
+            const idUrl = `${baseUrl}/list.html?listId=${listData.id}`;
             
             // Log URL for debugging
-            console.log('QR kod için oluşturulan URL:', listUrl);
+            console.log('Veri URL uzunluğu:', listUrl.length);
+            console.log('Alternatif URL (ID):', idUrl);
+            
+            // URL çok uzunsa sadece ID'yi kullan
+            const finalUrl = listUrl.length > 1500 ? idUrl : listUrl;
+            console.log('Kullanılan URL:', finalUrl);
             
             // QR kod için container'ı temizle
             qrContainer.innerHTML = '';
@@ -233,7 +257,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // URL'i direkt göster (sorun gidermeye yardımcı olur)
             const urlDisplay = document.createElement('div');
             urlDisplay.className = 'url-display';
-            urlDisplay.innerHTML = `<a href="${listUrl}" target="_blank" rel="noopener noreferrer">Listeye Git</a>`;
+            urlDisplay.innerHTML = `<a href="${finalUrl}" target="_blank" rel="noopener noreferrer">Listeye Git</a>`;
             urlDisplay.style.fontSize = '12px';
             urlDisplay.style.margin = '5px 0';
             urlDisplay.style.opacity = '0.7';
@@ -242,7 +266,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // QRCode kütüphanesini kullanarak QR kod oluştur
             const qrCode = new QRCode(qrDiv, {
-                text: listUrl,
+                text: finalUrl,
                 width: qrSize - 30, // İç padding için boyutu azalt
                 height: qrSize - 30,
                 colorDark: "#000000",

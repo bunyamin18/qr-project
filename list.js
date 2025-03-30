@@ -6,57 +6,63 @@ document.addEventListener('DOMContentLoaded', function() {
     const listTitle = document.getElementById('listTitle');
     const listItems = document.getElementById('listItems');
     const backButton = document.getElementById('backButton');
+    const editButton = document.getElementById('editButton');
     
-    // URL'den liste ID'sini al
+    // URL parametrelerini al
     const urlParams = new URLSearchParams(window.location.search);
     const listId = urlParams.get('listId');
+    const encodedData = urlParams.get('data');
     
     console.log("Liste ID:", listId);
+    console.log("Kodlanmış veri:", encodedData ? "Var (uzunluk: " + encodedData.length + ")" : "Yok");
     
-    // Liste ID'si kontrolü
-    if (!listId) {
-        showError('Liste ID bulunamadı. Lütfen ana sayfaya dönün ve tekrar deneyin.');
+    // Liste verisini al (önce encoded data, sonra localStorage)
+    let listData = null;
+    
+    // Önce URL'den gelen kodlanmış veriyi kontrol et
+    if (encodedData) {
+        try {
+            // Base64 decode
+            const decodedData = decodeURIComponent(atob(encodedData));
+            listData = JSON.parse(decodedData);
+            console.log("URL'den liste verisi çözüldü:", listData);
+            
+            // Çözülen veriyi aynı zamanda localStorage'a da kaydedelim
+            if (listData && listData.id) {
+                saveListToLocalStorage(listData);
+            }
+        } catch (error) {
+            console.error("URL'den gelen veri çözümlenemedi:", error);
+        }
+    }
+    
+    // Eğer URL'den veri gelmezse ve listId varsa localStorage'dan deneyelim
+    if (!listData && listId) {
+        try {
+            listData = getListFromLocalStorage(listId);
+            console.log("localStorage'dan liste verisi alındı:", listData);
+        } catch (error) {
+            console.error("localStorage'dan liste alınamadı:", error);
+        }
+    }
+    
+    // Liste verisi kontrolü
+    if (!listData) {
+        showError('Liste bulunamadı.');
         return;
     }
     
-    // localStorage'dan liste verilerini al
-    try {
-        const storedLists = localStorage.getItem('lists');
-        
-        if (!storedLists) {
-            showError('Kayıtlı liste bulunamadı.');
-            return;
-        }
-        
-        const lists = JSON.parse(storedLists);
-        
-        if (!Array.isArray(lists)) {
-            showError('Liste verisi geçersiz format.');
-            return;
-        }
-        
-        const listData = lists.find(list => list && list.id === listId);
-        
-        if (!listData) {
-            showError('Liste bulunamadı.');
-            return;
-        }
-        
-        console.log("Liste bulundu:", listData);
-        
-        // Liste başlığını göster
-        listTitle.textContent = listData.title || 'İsimsiz Liste';
-        
-        // Liste öğelerini göster
-        displayListItems(listData.items || []);
-        
-        // Animasyonu başlat
-        initCanvas();
-        
-    } catch (error) {
-        console.error('Liste yükleme hatası:', error);
-        showError('Liste yüklenirken bir hata oluştu: ' + error.message);
-    }
+    // Liste başlığını göster
+    listTitle.textContent = listData.title || 'İsimsiz Liste';
+    
+    // Liste öğelerini göster
+    displayListItems(listData.items || []);
+    
+    // Düzenleme butonunu ayarla
+    setupEditButton(listData.id);
+    
+    // Animasyonu başlat
+    initCanvas();
     
     // Liste öğelerini gösterme fonksiyonu
     function displayListItems(items) {
@@ -96,20 +102,78 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 listItems.appendChild(itemElement);
             });
-            
-            // Düzenleme düğmesi ekle
-            const editButton = document.createElement('button');
-            editButton.className = 'edit-button';
-            editButton.innerHTML = '<i class="fas fa-edit"></i> Listeyi Düzenle';
-            editButton.addEventListener('click', function() {
-                window.location.href = `index.html?edit=${listId}`;
-            });
-            
-            const buttonContainer = document.querySelector('.button-container');
-            buttonContainer.insertBefore(editButton, backButton);
-            
         } else {
             listItems.innerHTML = '<p>Bu listede hiç öğe yok.</p>';
+        }
+    }
+    
+    // Düzenleme butonunu ayarla
+    function setupEditButton(id) {
+        if (editButton && id) {
+            editButton.addEventListener('click', function() {
+                window.location.href = `index.html?edit=${id}`;
+            });
+        } else if (editButton) {
+            editButton.style.display = 'none';
+        }
+    }
+    
+    // Ana sayfaya dönüş button listener
+    if (backButton) {
+        backButton.addEventListener('click', function() {
+            window.location.href = 'index.html';
+        });
+    }
+    
+    // localStorage'dan liste alma fonksiyonu
+    function getListFromLocalStorage(id) {
+        const storedLists = localStorage.getItem('lists');
+        
+        if (!storedLists) {
+            return null;
+        }
+        
+        const lists = JSON.parse(storedLists);
+        
+        if (!Array.isArray(lists)) {
+            return null;
+        }
+        
+        return lists.find(list => list && list.id === id);
+    }
+    
+    // Listeyi localStorage'a kaydetme fonksiyonu
+    function saveListToLocalStorage(list) {
+        if (!list || !list.id) return;
+        
+        try {
+            // Mevcut listeleri al
+            const storedLists = localStorage.getItem('lists');
+            let lists = [];
+            
+            if (storedLists) {
+                lists = JSON.parse(storedLists);
+                if (!Array.isArray(lists)) {
+                    lists = [];
+                }
+            }
+            
+            // Aynı ID'ye sahip listeyi ara
+            const existingIndex = lists.findIndex(item => item && item.id === list.id);
+            
+            if (existingIndex >= 0) {
+                // Mevcut listeyi güncelle
+                lists[existingIndex] = list;
+            } else {
+                // Yeni liste ekle
+                lists.push(list);
+            }
+            
+            // Güncellenmiş listeyi kaydet
+            localStorage.setItem('lists', JSON.stringify(lists));
+            console.log("Liste localStorage'a kaydedildi:", list.id);
+        } catch (error) {
+            console.error("Liste kaydederken hata:", error);
         }
     }
     
@@ -164,13 +228,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Add modal to body
         document.body.appendChild(modal);
-    }
-    
-    // Ana sayfaya dönüş button listener
-    if (backButton) {
-        backButton.addEventListener('click', function() {
-            window.location.href = 'index.html';
-        });
     }
     
     // Animasyon için canvas
@@ -329,7 +386,7 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error("HATA:", message);
         
         if (listTitle) {
-            listTitle.textContent = 'Hata';
+            listTitle.textContent = 'HATA';
             listTitle.style.color = 'red';
         }
         
