@@ -6,25 +6,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const itemsContainer = document.getElementById('itemsContainer');
     const addItemButton = document.getElementById('addItemButton');
     
-    // Initialize particles.js for background animation - sci-fi data transfer effect
+    // Initialize particles.js for background animation
     if (window.particlesJS) {
         particlesJS('particles-js', {
             particles: {
-                number: { value: 180, density: { enable: true, value_area: 800 } },
-                color: { value: ["#00f5ff", "#6e36df", "#2be8d9"] },
+                number: { value: 150, density: { enable: true, value_area: 800 } },
+                color: { value: ["#6c5ce7", "#a29bfe", "#74b9ff"] },
                 shape: { type: "circle" },
                 opacity: { value: 0.6, random: true },
                 size: { value: 2, random: true },
                 line_linked: {
                     enable: true,
                     distance: 150,
-                    color: "#00f5ff",
+                    color: "#a29bfe",
                     opacity: 0.4,
                     width: 1
                 },
                 move: {
                     enable: true,
-                    speed: 6,
+                    speed: 4,
                     direction: "right",
                     random: true,
                     straight: false,
@@ -44,8 +44,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Initialize item count
-    let itemCount = 0;
     let currentListData = null;
     
     // Check if we're in edit mode (URL has listId parameter)
@@ -79,15 +77,15 @@ document.addEventListener('DOMContentLoaded', function() {
         addNewItemRow();
     }
     
-    // Add new item row
+    // Add new item row - Miktar/Değer sağda, Öğe Adı solda
     function addNewItemRow(content = '', value = '', image = '') {
         const itemRow = document.createElement('div');
         itemRow.className = 'item-container';
         
         itemRow.innerHTML = `
             <div class="item-fields">
-                <input type="text" class="form-control item-value" placeholder="Miktar/Değer" value="${value}">
                 <input type="text" class="form-control item-content" placeholder="Öğe Adı" value="${content}">
+                <input type="text" class="form-control item-value" placeholder="Miktar/Değer" value="${value}">
             </div>
             <div class="image-container">
                 <label class="image-upload-label">

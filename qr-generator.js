@@ -91,14 +91,14 @@ document.addEventListener('DOMContentLoaded', function() {
             // Öğeleri temizle
             previewItems.innerHTML = '';
             
-            // Öğeleri göster - Miktar/Değer solda, Öğe Adı sağda
+            // Öğeleri göster - Öğe Adı solda, Miktar/Değer sağda
             list.items.forEach(item => {
                 const itemElement = document.createElement('div');
                 itemElement.className = 'preview-item';
                 
                 itemElement.innerHTML = `
-                    <div class="preview-item-value">${escapeHtml(item.value)}</div>
                     <div class="preview-item-content">${escapeHtml(item.content)}</div>
+                    <div class="preview-item-value">${escapeHtml(item.value)}</div>
                 `;
                 
                 // Resim varsa göster

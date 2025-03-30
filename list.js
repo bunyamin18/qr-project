@@ -106,10 +106,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 const itemElement = document.createElement('div');
                 itemElement.className = 'list-item';
                 
-                // Miktar/Değer solda, Öğe Adı sağda şeklinde göster
+                // Öğe Adı solda, Miktar/Değer sağda şeklinde göster
                 itemElement.innerHTML = `
-                    <div class="item-value">${escapeHtml(item.value)}</div>
                     <div class="item-content">${escapeHtml(item.content)}</div>
+                    <div class="item-value">${escapeHtml(item.value)}</div>
                 `;
 
                 // Resim varsa görüntüleme butonunu ekle
