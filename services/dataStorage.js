@@ -6,7 +6,13 @@ class DataStorage {
 
     // Depolamayı başlat
     initializeStorage() {
-        if (!localStorage.getItem(this.storageKey)) {
+        try {
+            const lists = localStorage.getItem(this.storageKey);
+            if (!lists) {
+                localStorage.setItem(this.storageKey, JSON.stringify([]));
+            }
+        } catch (error) {
+            console.error('Depolama başlatma hatası:', error);
             localStorage.setItem(this.storageKey, JSON.stringify([]));
         }
     }
@@ -19,7 +25,8 @@ class DataStorage {
                 this.initializeStorage();
                 return [];
             }
-            return JSON.parse(lists) || [];
+            const parsedLists = JSON.parse(lists);
+            return Array.isArray(parsedLists) ? parsedLists : [];
         } catch (error) {
             console.error('Veri okuma hatası:', error);
             this.initializeStorage();
@@ -36,10 +43,6 @@ class DataStorage {
             }
 
             const lists = this.getAllLists();
-            if (!Array.isArray(lists)) {
-                throw new Error('Geçersiz liste verisi');
-            }
-
             const existingIndex = lists.findIndex(list => list.id === listData.id);
             
             if (existingIndex !== -1) {
@@ -60,9 +63,6 @@ class DataStorage {
     getList(listId) {
         try {
             const lists = this.getAllLists();
-            if (!Array.isArray(lists)) {
-                throw new Error('Geçersiz liste verisi');
-            }
             return lists.find(list => list.id === listId);
         } catch (error) {
             console.error('Veri okuma hatası:', error);
@@ -74,9 +74,6 @@ class DataStorage {
     deleteList(listId) {
         try {
             const lists = this.getAllLists();
-            if (!Array.isArray(lists)) {
-                throw new Error('Geçersiz liste verisi');
-            }
             const updatedLists = lists.filter(list => list.id !== listId);
             localStorage.setItem(this.storageKey, JSON.stringify(updatedLists));
         } catch (error) {

@@ -196,7 +196,9 @@
             </form>
         </div>
     </div>
-    <script type="module" src="./services/dataStorage.js"></script>
-    <script type="module" src="./script.js"></script>
+    <script type="module">
+        import dataStorage from './services/dataStorage.js';
+        import './script.js';
+    </script>
 </body>
 </html>

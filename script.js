@@ -45,6 +45,7 @@ async function handleFormSubmit(event) {
         } else {
             // Yeni liste oluştur
             currentListData = {
+                id: dataStorage.generateUniqueID(),
                 title,
                 items
             };

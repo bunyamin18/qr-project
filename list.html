@@ -22,7 +22,9 @@
             <div id="qrError" style="display: none; color: #dc3545; text-align: center; margin-top: 1rem;"></div>
         </div>
     </div>
-    <script type="module" src="./services/dataStorage.js"></script>
-    <script type="module" src="./list.js"></script>
+    <script type="module">
+        import dataStorage from './services/dataStorage.js';
+        import './list.js';
+    </script>
 </body>
 </html>
