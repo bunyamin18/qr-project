@@ -3,10 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste Oluştur</title>
+    <title>Yeni Liste Oluştur</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.0/build/qrcode.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         body {
             margin: 0;
@@ -121,7 +119,7 @@
         }
 
         .add-row-button,
-        .submit-button {
+        .save-button {
             background-color: #28a745;
             color: white;
             border: none;
@@ -133,16 +131,16 @@
         }
 
         .add-row-button:hover,
-        .submit-button:hover {
+        .save-button:hover {
             background-color: #218838;
             transform: translateY(-2px);
         }
 
-        .submit-button {
+        .save-button {
             background-color: #007bff;
         }
 
-        .submit-button:hover {
+        .save-button:hover {
             background-color: #0056b3;
         }
 
@@ -190,7 +188,7 @@
     <div class="create-tech-background"></div>
     <div class="container">
         <div class="center-card">
-            <h1>Liste Oluştur</h1>
+            <h1>Yeni Liste Oluştur</h1>
             <form id="listForm">
                 <div class="form-group">
                     <label for="listTitle">Liste Başlığı</label>
@@ -199,7 +197,7 @@
                 <div id="items"></div>
                 <div class="button-container">
                     <button type="button" class="add-row-button">Yeni Öğe Ekle</button>
-                    <button type="submit" class="submit-button">Kaydet</button>
+                    <button type="submit" class="save-button">Kaydet</button>
                 </div>
             </form>
         </div>

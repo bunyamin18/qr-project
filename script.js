@@ -22,6 +22,7 @@ async function handleFormSubmit(event) {
                 // Mevcut resmi al
                 const preview = row.querySelector('.image-preview');
                 if (preview && preview.src) {
+                    // Resim URL'sini sakla
                     image = preview.src;
                 }
 
