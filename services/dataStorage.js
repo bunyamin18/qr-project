@@ -3,8 +3,8 @@ class DataStorage {
         this.dbName = 'qr-lists-db';
         this.dbVersion = 1;
         this.storeName = 'lists';
-        this.maxLists = 100; // Maksimum liste sayısı
-        this.maxItemLength = 1000; // Her öğe için maksimum karakter sayısı
+        this.maxLists = 100;
+        this.maxItemLength = 1000;
         this.db = null;
         this.initializeDB();
     }

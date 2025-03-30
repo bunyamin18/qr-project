@@ -1,6 +1,7 @@
-// Gerekli elementleri sakla
 import dataStorage from './services/dataStorage.js';
+import QRCode from 'qrcode';
 
+// Gerekli elementleri sakla
 let titleInput;
 let itemsContainer;
 let currentListData;
@@ -102,39 +103,30 @@ function createItemRow(content = '', value = '', image = '') {
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    // Resmi önizleme olarak göster
                     const preview = document.createElement('img');
                     preview.className = 'image-preview';
                     preview.src = e.target.result;
                     preview.style.maxWidth = '100px';
                     preview.style.maxHeight = '100px';
-                    preview.style.objectFit = 'cover';
                     
-                    // Mevcut önizleme varsa kaldır
+                    // Mevcut önizlemeyi temizle
                     const existingPreview = row.querySelector('.image-preview');
                     if (existingPreview) {
                         existingPreview.remove();
                     }
                     
                     // Yeni önizlemeyi ekle
-                    const imageContainer = row.querySelector('.item-image-container');
-                    imageContainer.appendChild(preview);
+                    row.insertBefore(preview, imageInput);
                 };
                 reader.readAsDataURL(file);
             }
         });
     }
 
-    // Silme butonu event listener'ı ekle
+    // Silme butonu event listener'ı
     const deleteButton = row.querySelector('.delete-row');
     if (deleteButton) {
-        deleteButton.style.position = 'absolute';
-        deleteButton.style.top = '8px';
-        deleteButton.style.right = '8px';
-        deleteButton.style.fontSize = '20px';
-        deleteButton.style.padding = '0 8px';
-        deleteButton.style.borderRadius = '50%';
-        deleteButton.addEventListener('click', () => {
+        deleteButton.addEventListener('click', function() {
             row.remove();
         });
     }
@@ -163,44 +155,20 @@ document.addEventListener('DOMContentLoaded', function() {
             throw new Error('Gerekli DOM elementleri bulunamadı');
         }
 
-        // Form submit event listener'ı ekle
+        // Yeni öğe ekleme butonuna event listener ekle
+        const addRowButton = document.querySelector('.add-row-button');
+        if (addRowButton) {
+            addRowButton.addEventListener('click', addItem);
+        }
+
+        // Form gönderme event listener'ı
         const form = document.getElementById('listForm');
         if (form) {
             form.addEventListener('submit', handleFormSubmit);
         }
 
-        // Yeni öğe ekleme butonu event listener'ı ekle
-        const addItemButton = document.querySelector('.add-row-button');
-        if (addItemButton) {
-            addItemButton.addEventListener('click', addItem);
-        }
-
-        // URL'den veri al
-        const urlParams = new URLSearchParams(window.location.search);
-        const listId = urlParams.get('listId');
-        
-        if (listId) {
-            // Liste verisini al
-            currentListData = dataStorage.getList(listId);
-            
-            if (!currentListData) {
-                throw new Error('Liste bulunamadı');
-            }
-
-            // Veriyi form'a yükle
-            titleInput.value = currentListData.title || '';
-            
-            // Mevcut öğeleri ekle
-            currentListData.items.forEach(item => {
-                const row = createItemRow(item.content, item.value, item.image);
-                itemsContainer.appendChild(row);
-            });
-        }
-
-        // İlk satırı ekle
-        if (itemsContainer.children.length === 0) {
-            addItem();
-        }
+        // Başlangıçta bir öğe ekle
+        addItem();
 
     } catch (error) {
         console.error('Sayfa yükleme hatası:', error);
