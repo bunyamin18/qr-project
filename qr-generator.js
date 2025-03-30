@@ -176,119 +176,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 throw new Error('Liste ID bilgisi eksik');
             }
             
-            // Liste ID'yi localStorage'a da kaydediyoruz (paylaşılan URL'ler için)
+            // Liste ID'yi localStorage'a kesinlikle kaydet
             localStorage.setItem('currentQRListId', listData.id);
+            localStorage.setItem(`list_data_${listData.id}`, JSON.stringify(listData));
+            console.log(`Liste verileri localStorage'a kaydedildi: 'list_data_${listData.id}'`);
             
-            // QR kod için URL oluştur - Göreceli URL kullan
-            let baseUrl = window.location.protocol + '//' + window.location.host;
+            // Basit bir fixed URL yapısı oluştur - her zaman aynı tabanı kullan
+            let baseUrl = 'https://bunyamin.netlify.app';
             
-            // Eğer localhost ya da dosya sistemi üzerinden çalışıyorsak
-            if (baseUrl.includes('localhost') || baseUrl.includes('file://')) {
-                // Linklerimiz dosya sisteminde çalışsın
-                baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
-            }
-            
-            console.log("Baz URL:", baseUrl);
-            
-            // Liste verisini Base64 ile kodla (compress için gereksiz bilgileri kaldır)
-            // Resimleri de ekleyelim, ancak boyutu kontrol altında tutmak için
-            // her bir resim için maksimum boyutu sınırlayalım
-            
-            // Resim sıkıştırma için yardımcı fonksiyon
-            function compressImage(baseImage, maxImageSize = 1000) {
-                // Eğer resim yoksa veya çok küçükse direkt döndür
-                if (!baseImage || baseImage.length < maxImageSize) return baseImage;
-                
-                // Büyük bir resimse sıkıştır
-                const compressRatio = maxImageSize / baseImage.length;
-                console.log(`Resim sıkıştırılıyor. Orijinal: ${baseImage.length}, Hedef: ${maxImageSize}, Oran: ${compressRatio}`);
-                
-                try {
-                    // Resim bilgilerini kes (veri: kısmı hariç)
-                    if (baseImage.indexOf('data:image') === 0) {
-                        // Base64 veri URI formatında, sadece temel bilgiyi alalım
-                        const format = baseImage.split(';')[0] + ';base64,'; // örn: data:image/jpeg;base64,
-                        const encodedData = baseImage.split(',')[1];
-                        
-                        if (encodedData && encodedData.length > 100) {
-                            // Resmi kısaltalım (sınırlı boyuta)
-                            return format + encodedData.substring(0, maxImageSize);
-                        }
-                    }
-                } catch (e) {
-                    console.error("Resim sıkıştırma hatası:", e);
-                }
-                
-                return baseImage;
-            }
-            
-            // Liste verilerini hazırla (resimler sıkıştırılmış olarak dahil)
-            const compressedListData = {
-                id: listData.id,
-                title: listData.title,
-                items: listData.items.map(item => {
-                    // Her öğe için nesne oluştur
-                    const compressedItem = {
-                        content: item.content || '',
-                        value: item.value || ''
-                    };
-                    
-                    // Resim varsa ekle (sıkıştırarak)
-                    if (item.image) {
-                        compressedItem.image = compressImage(item.image);
-                    }
-                    
-                    return compressedItem;
-                })
-            };
-            
-            // Liste verisini URL-safe Base64 olarak kodla
-            const jsonData = JSON.stringify(compressedListData);
-            console.log("JSON veri boyutu:", jsonData.length);
-            
-            // URL-safe Base64 fonksiyonu (+ yerine -, / yerine _ ve = yok)
-            function urlSafeBase64Encode(str) {
-                return btoa(encodeURIComponent(str))
-                    .replace(/\+/g, '-')
-                    .replace(/\//g, '_')
-                    .replace(/=/g, '');
-            }
-            
-            const encodedData = urlSafeBase64Encode(jsonData);
-            console.log("Encoded data length:", encodedData.length);
-            
-            // Veri uzunluğuna göre QR kod URL stratejisi belirle
-            let finalUrl;
-            
-            if (encodedData.length < 1000) {
-                // Direk veriyi URL'e ekle
-                finalUrl = `${baseUrl}/list.html?data=${encodedData}`;
-                console.log("Tam veri URL kullanılıyor.");
-            } else {
-                // Veri çok büyük, sadece ID kullan ve localStorage'a kaydet
-                finalUrl = `${baseUrl}/list.html?listId=${listData.id}`;
-                console.log("Veri çok büyük, sadece ID URL kullanılıyor.");
-                
-                // Büyük veriyi localStorage'a kaydet
-                try {
-                    localStorage.setItem(`list_data_${listData.id}`, jsonData);
-                    console.log("Büyük veri localStorage'a kaydedildi.");
-                } catch (e) {
-                    console.error("localStorage'a veri kaydedilemedi:", e);
-                }
-            }
+            // Tam URL oluştur (Netlify'a yükleme yapılacağını varsayalım)
+            const finalUrl = `${baseUrl}/list?id=${listData.id}`;
             
             console.log('Kullanılan URL:', finalUrl);
-            
-            // Basit URL kontrolü
-            try {
-                new URL(finalUrl);
-                console.log("URL geçerli format");
-            } catch (e) {
-                console.error("URL geçersiz format:", e);
-                finalUrl = `https://raw.githubusercontent.com/bunyamin18/qr-project/main/list.html?listId=${listData.id}`;
-                console.log("Düzeltilmiş URL:", finalUrl);
-            }
             
             // QR kod için container'ı temizle
             qrContainer.innerHTML = '';
@@ -324,12 +223,19 @@ document.addEventListener('DOMContentLoaded', function() {
             
             qrContainer.appendChild(qrDiv);
             
+            // QR kod oluştururken test amaçlı alternatif bir URL de göster
+            // Bu, telefonda QR kodu taramanıza gerek kalmadan test etmenizi sağlar
+            const testUrl = `${window.location.origin}/list.html?listId=${listData.id}`;
+            
             // URL'i direkt göster (sorun gidermeye yardımcı olur)
             const urlDisplay = document.createElement('div');
             urlDisplay.className = 'url-display';
-            urlDisplay.innerHTML = `<a href="${finalUrl}" target="_blank" rel="noopener noreferrer">Listeye Git</a>`;
+            urlDisplay.innerHTML = `
+                <p>QR kod URL'si: <a href="${finalUrl}" target="_blank">${finalUrl}</a></p>
+                <p>Test URL'si: <a href="${testUrl}" target="_blank">Yerel Test</a></p>
+            `;
             urlDisplay.style.fontSize = '12px';
-            urlDisplay.style.margin = '5px 0';
+            urlDisplay.style.margin = '10px 0';
             urlDisplay.style.opacity = '0.7';
             urlDisplay.style.wordWrap = 'break-word';
             qrContainer.appendChild(urlDisplay);
@@ -354,6 +260,28 @@ document.addEventListener('DOMContentLoaded', function() {
             infoText.style.wordBreak = 'break-word';
             infoText.innerHTML = `Bu QR kod <strong>${escapeHtml(listData.title || 'Liste')}</strong> listesine bağlantı içerir.`;
             qrContainer.appendChild(infoText);
+            
+            // Test linki oluştur - URL'yi kopyalamak için
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-url-button';
+            copyBtn.textContent = 'URL Kopyala';
+            copyBtn.style.marginTop = '10px';
+            copyBtn.addEventListener('click', function() {
+                navigator.clipboard.writeText(finalUrl).then(() => {
+                    alert('URL kopyalandı!');
+                }).catch(err => {
+                    console.error('URL kopyalama hatası:', err);
+                    // Fallback
+                    const textArea = document.createElement('textarea');
+                    textArea.value = finalUrl;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    alert('URL kopyalandı!');
+                });
+            });
+            qrContainer.appendChild(copyBtn);
             
         } catch (error) {
             console.error('QR kod oluşturma hatası:', error);
