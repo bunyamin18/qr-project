@@ -602,44 +602,53 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Initialize item count
+    // Mevcut liste verisi (düzenleme modu için)
     let currentListData = null;
     
-    // Check if we're in edit mode (URL has listId parameter)
-    try {
-        const urlParams = new URLSearchParams(window.location.search);
-        const listId = urlParams.get('listId');
-        
-        if (listId) {
-            console.log("Liste ID bulundu, liste verisi alınıyor");
-            // We're in edit mode - get list data
-            currentListData = dataStorage.getList(listId);
+    // Sayfa yüklendiğinde edit parametresini kontrol et
+    const urlParams = new URLSearchParams(window.location.search);
+    const editListId = urlParams.get('edit');
+    
+    if (editListId) {
+        console.log("Düzenleme modu, liste ID:", editListId);
+        try {
+            // Liste verisini al
+            const listToEdit = dataStorage.getList(editListId);
             
-            if (currentListData) {
-                console.log("Liste verisi yüklendi, formu dolduruyorum");
-                // Fill form with existing data
-                listTitleInput.value = currentListData.title;
+            if (listToEdit) {
+                console.log("Düzenlenecek liste yüklendi:", listToEdit);
                 
-                // Clear existing items
-                itemsContainer.innerHTML = '';
+                // Mevcut liste verisini sakla
+                currentListData = listToEdit;
                 
-                // Add existing items
-                currentListData.items.forEach(item => {
-                    addNewItemRow(item.content, item.value, item.image);
-                });
+                // Form alanlarını doldur
+                listTitleInput.value = listToEdit.title || '';
+                
+                // Öğeleri ekle
+                if (listToEdit.items && listToEdit.items.length > 0) {
+                    // Önce varsayılan boş öğe satırını temizle
+                    itemsContainer.innerHTML = '';
+                    
+                    // Her öğeyi ekle
+                    listToEdit.items.forEach(item => {
+                        addNewItemRow(item.content, item.value, item.image);
+                    });
+                }
+                
+                // Başlığı güncelle
+                document.querySelector('h1').textContent = 'Listeyi Düzenle';
+                document.querySelector('button[type="submit"]').textContent = 'Değişiklikleri Kaydet';
+                
+                // Düzenleme modunda olduğumuzu göstermek için sınıf ekle
+                document.querySelector('.center-card').classList.add('edit-mode');
             } else {
-                console.log("Liste bulunamadı, boş öğe ekleniyor");
-                addNewItemRow();
+                console.error("Düzenlenecek liste bulunamadı, ID:", editListId);
+                alert("Düzenlenecek liste bulunamadı");
             }
-        } else {
-            console.log("Yeni liste oluşturuluyor, boş öğe ekleniyor");
-            // We're in create mode - add a blank item
-            addNewItemRow();
+        } catch (error) {
+            console.error("Liste düzenleme hatası:", error);
+            alert("Liste yüklenirken bir hata oluştu: " + error.message);
         }
-    } catch (error) {
-        console.error('Error checking edit mode:', error);
-        // Default to create mode with one blank item
-        addNewItemRow();
     }
     
     // Add new item row
