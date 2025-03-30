@@ -1,7 +1,3 @@
-import dataService from './services/dataService.js';
-import qrService from './services/qrService.js';
-import QRCode from 'qrcodejs';
-
 // Gerekli elementleri sakla
 let titleElement;
 let itemsList;
