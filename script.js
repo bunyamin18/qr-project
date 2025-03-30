@@ -1,4 +1,6 @@
 // Gerekli elementleri sakla
+import dataStorage from './services/dataStorage.js';
+
 let titleInput;
 let itemsContainer;
 let currentListData;
