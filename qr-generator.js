@@ -1,18 +1,17 @@
 import dataStorage from './services/dataStorage.js';
 import QRCode from 'qrcode';
 
-// Gerekli elementleri sakla
-let qrContainer;
-let downloadButton;
-let backButton;
-let currentListData;
+// DOM elementleri
+const qrContainer = document.getElementById('qrContainer');
+const downloadButton = document.getElementById('downloadQR');
+const backButton = document.getElementById('backToList');
 
 // QR kodu oluştur
 async function generateQRCode(listId) {
     try {
         // Liste verisini al
-        currentListData = await dataStorage.getList(listId);
-        if (!currentListData) {
+        const listData = await dataStorage.getList(listId);
+        if (!listData) {
             throw new Error('Liste bulunamadı');
         }
 
@@ -57,15 +56,6 @@ async function generateQRCode(listId) {
 // Sayfa yüklendiğinde çalışacak fonksiyon
 document.addEventListener('DOMContentLoaded', async function() {
     try {
-        // DOM elementlerini al
-        qrContainer = document.getElementById('qrContainer');
-        downloadButton = document.querySelector('.download-button');
-        backButton = document.querySelector('.back-button');
-        
-        if (!qrContainer || !downloadButton || !backButton) {
-            throw new Error('Gerekli DOM elementleri bulunamadı');
-        }
-
         // URL'den liste ID'sini al
         const urlParams = new URLSearchParams(window.location.search);
         const listId = urlParams.get('listId');

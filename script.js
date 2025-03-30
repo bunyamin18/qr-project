@@ -1,10 +1,10 @@
 import dataStorage from './services/dataStorage.js';
-import QRCode from 'qrcode';
 
-// Gerekli elementleri sakla
-let titleInput;
-let itemsContainer;
-let currentListData;
+// DOM elementleri
+const form = document.getElementById('listForm');
+const titleInput = document.getElementById('listTitle');
+const itemsContainer = document.getElementById('items');
+const addRowButton = document.getElementById('addRow');
 
 // Form gönderme fonksiyonu
 async function handleFormSubmit(event) {
@@ -23,7 +23,6 @@ async function handleFormSubmit(event) {
                 // Mevcut resmi al
                 const preview = row.querySelector('.image-preview');
                 if (preview && preview.src) {
-                    // Resim URL'sini sakla
                     image = preview.src;
                 }
 
@@ -44,20 +43,14 @@ async function handleFormSubmit(event) {
             throw new Error('Lütfen en az bir öğe ekleyin');
         }
 
-        // Mevcut liste verisi varsa güncelle
-        if (currentListData) {
-            currentListData.title = title;
-            currentListData.items = items;
-        } else {
-            // Yeni liste oluştur
-            currentListData = {
-                title,
-                items
-            };
-        }
+        // Liste verisini oluştur
+        const listData = {
+            title,
+            items
+        };
 
         // Veriyi sakla
-        const savedList = await dataStorage.saveList(currentListData);
+        const savedList = await dataStorage.saveList(listData);
         
         // QR kod sayfasına yönlendir
         window.location.href = `qr-generator.html?listId=${savedList.id}`;
@@ -147,24 +140,14 @@ function escapeHtml(unsafe) {
 // Sayfa yüklendiğinde çalışacak fonksiyon
 document.addEventListener('DOMContentLoaded', function() {
     try {
-        // DOM elementlerini al
-        titleInput = document.getElementById('listTitle');
-        itemsContainer = document.getElementById('items');
-        
-        if (!titleInput || !itemsContainer) {
-            throw new Error('Gerekli DOM elementleri bulunamadı');
-        }
-
-        // Yeni öğe ekleme butonuna event listener ekle
-        const addRowButton = document.querySelector('.add-row-button');
-        if (addRowButton) {
-            addRowButton.addEventListener('click', addItem);
-        }
-
         // Form gönderme event listener'ı
-        const form = document.getElementById('listForm');
         if (form) {
             form.addEventListener('submit', handleFormSubmit);
+        }
+
+        // Yeni öğe ekleme butonu event listener'ı
+        if (addRowButton) {
+            addRowButton.addEventListener('click', addItem);
         }
 
         // Başlangıçta bir öğe ekle

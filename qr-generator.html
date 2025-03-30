@@ -5,22 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Kod Oluştur</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.0/build/qrcode.min.js"></script>
+    <script type="module" src="qr-generator.js"></script>
 </head>
 <body>
-    <div class="create-tech-background"></div>
     <div class="container">
-        <div class="center-card">
+        <div class="card">
             <h1>QR Kod Oluştur</h1>
-            <div id="qrContainer"></div>
+            <div id="qrContainer" class="qr-container"></div>
             <div class="button-container">
-                <button class="download-button">QR Kodu İndir</button>
-                <button class="back-button">Geri</button>
+                <button type="button" class="btn btn-secondary" id="downloadQR">QR Kodu İndir</button>
+                <button type="button" class="btn btn-primary" id="backToList">Listeye Dön</button>
             </div>
         </div>
     </div>
-    <script type="module">
-        import './qr-generator.js';
-    </script>
 </body>
 </html>
