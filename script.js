@@ -34,8 +34,12 @@ async function handleFormSubmit(event) {
             .filter(item => item.content || item.value || item.image); // Boş öğeleri filtrele
 
         // Veri doğrulama
-        if (!title || items.length === 0) {
-            throw new Error('Lütfen liste başlığı ve en az bir öğe girin');
+        if (!title) {
+            throw new Error('Lütfen liste başlığı girin');
+        }
+
+        if (items.length === 0) {
+            throw new Error('Lütfen en az bir öğe ekleyin');
         }
 
         // Mevcut liste verisi varsa güncelle

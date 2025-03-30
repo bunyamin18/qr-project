@@ -37,12 +37,28 @@ class DataStorage {
     // Liste ekle veya güncelle
     saveList(listData) {
         try {
+            // Liste verisini doğrula
+            if (!listData || typeof listData !== 'object') {
+                throw new Error('Geçersiz liste verisi');
+            }
+
+            if (!listData.title || typeof listData.title !== 'string') {
+                throw new Error('Geçersiz liste başlığı');
+            }
+
+            if (!Array.isArray(listData.items)) {
+                throw new Error('Geçersiz liste öğeleri');
+            }
+
             // Liste ID'si yoksa oluştur
             if (!listData.id) {
                 listData.id = this.generateUniqueID();
             }
 
+            // Mevcut listeleri al
             const lists = this.getAllLists();
+            
+            // Liste güncelleme veya ekleme
             const existingIndex = lists.findIndex(list => list.id === listData.id);
             
             if (existingIndex !== -1) {
@@ -65,7 +81,7 @@ class DataStorage {
             return savedList;
         } catch (error) {
             console.error('Veri kaydetme hatası:', error);
-            throw new Error('Liste kaydedilirken bir hata oluştu');
+            throw error;
         }
     }
 
