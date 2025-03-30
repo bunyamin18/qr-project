@@ -45,19 +45,8 @@ document.addEventListener('DOMContentLoaded', function() {
             throw new Error('Geçersiz liste verisi');
         }
 
-        // QR kod oluştur
-        createQRCode(listData.id).then(qrData => {
-            if (qrData) {
-                listData.qrCode = qrData;
-                displayListData(listData);
-            } else {
-                throw new Error('QR kod oluşturulamadı');
-            }
-        }).catch(error => {
-            console.error('QR kod oluşturma hatası:', error);
-            qrError.style.display = 'block';
-            qrError.textContent = 'QR kod oluşturulamadı';
-        });
+        // QR kod sayfasına yönlendir
+        window.location.href = `qr-generator.html?data=${encodeURIComponent(JSON.stringify(listData))}`;
 
     } catch (error) {
         console.error('Veri yükleme hatası:', error);

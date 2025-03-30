@@ -216,8 +216,8 @@ function handleFormSubmit(event) {
     // Veriyi URL formatında kodla
     const encodedData = encodeURIComponent(JSON.stringify(currentListData));
     
-    // Liste sayfasına yönlendir
-    window.location.href = `list.html?data=${encodedData}`;
+    // QR kod sayfasına yönlendir
+    window.location.href = `qr-generator.html?data=${encodedData}`;
 }
 
 // Benzersiz ID oluşturma fonksiyonu

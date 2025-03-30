@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Kod Oluştur</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.0/build/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="create-tech-background"></div>
+    <div class="container">
+        <div class="center-card">
+            <h1>QR Kod Oluştur</h1>
+            <div class="qr-generator-container">
+                <div id="qrPreview" class="qr-preview"></div>
+                <div class="qr-controls">
+                    <button id="downloadQR" class="submit-button">QR Kodu İndir</button>
+                    <button id="backToList" class="add-row-button">Listeye Dön</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // URL'den liste verisini al
+        const urlParams = new URLSearchParams(window.location.search);
+        const encodedData = urlParams.get('data');
+        let listData = null;
+
+        if (encodedData) {
+            try {
+                const decodedString = decodeURIComponent(encodedData);
+                listData = JSON.parse(decodedString);
+            } catch (error) {
+                console.error('Veri yükleme hatası:', error);
+                alert('Liste verisi yüklenirken bir hata oluştu');
+                window.location.href = 'index.html';
+                return;
+            }
+        }
+
+        // QR kodu oluştur
+        if (listData) {
+            const qr = new QRCode(document.getElementById("qrPreview"), {
+                text: `https://okulprojesibunyamin.netlify.app/list.html?data=${encodeURIComponent(JSON.stringify(listData))}`,
+                width: 256,
+                height: 256,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+
+        // İndirme butonu event listener'ı
+        document.getElementById('downloadQR').addEventListener('click', () => {
+            const qrElement = document.querySelector('.qr-preview canvas');
+            if (qrElement) {
+                const link = document.createElement('a');
+                link.download = `liste-qr-${listData.id}.png`;
+                link.href = qrElement.toDataURL("image/png");
+                link.click();
+            }
+        });
+
+        // Listeye dön butonu event listener'ı
+        document.getElementById('backToList').addEventListener('click', () => {
+            window.location.href = `list.html?data=${encodeURIComponent(JSON.stringify(listData))}`;
+        });
+    </script>
+</body>
+</html>

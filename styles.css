@@ -93,14 +93,23 @@ body {
 .container {
     width: 100%;
     max-width: 800px;
-    padding: 2rem;
+    margin: 0 auto;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
 }
 
 .center-card {
-    background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+    background: white;
     border-radius: 20px;
-    padding: 2.5rem;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    overflow-y: auto;
+    max-height: 90vh;
 }
 
 h1 {
@@ -358,6 +367,26 @@ input[type="file"] {
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
+.qr-generator-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.qr-preview {
+    width: 256px;
+    height: 256px;
+    margin: 1rem 0;
+}
+
+.qr-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+}
+
 /* Mobil uyumlu stil */
 @media (max-width: 768px) {
     body {
@@ -370,7 +399,7 @@ input[type="file"] {
 
     .center-card {
         padding: 1.5rem;
-        margin: 0;
+        gap: 1rem;
     }
 
     h1 {
@@ -422,44 +451,12 @@ input[type="file"] {
     .submit-button {
         width: 100%;
         padding: 0.75rem;
-        margin: 0.5rem 0;
         font-size: 1rem;
     }
 
-    .qr-code-container {
-        margin: 1rem 0;
-    }
-
-    .qr-code-container img {
-        width: 100%;
-        max-width: 200px;
-        height: auto;
-    }
-
-    .qr-text {
-        font-size: 0.875rem;
-        margin-top: 0.5rem;
-        text-align: center;
-    }
-
-    .list-row {
-        margin-bottom: 0.75rem;
-        padding: 0.75rem;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-    }
-
-    .item-content,
-    .item-value {
-        font-size: 0.875rem;
-        margin-bottom: 0.25rem;
-    }
-
-    .item-image {
-        width: 60px;
-        height: 60px;
-        object-fit: cover;
-        border-radius: 4px;
+    .qr-preview {
+        width: 200px;
+        height: 200px;
     }
 }
 
@@ -472,21 +469,9 @@ input[type="file"] {
         display: none;
     }
 
-    .item-content-container {
-        grid-column: 1;
-    }
-
-    .item-image-container {
-        grid-column: 1;
-    }
-
     .delete-row {
         font-size: 1rem;
         top: 0.25rem;
         right: 0.25rem;
-    }
-
-    .qr-code-container img {
-        max-width: 150px;
     }
 }
