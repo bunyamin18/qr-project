@@ -307,39 +307,47 @@
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            console.log("QR görüntüleyici yüklendi");
-            
-            // DOM elemanlarını tanımlama
             const listTitle = document.getElementById('listTitle');
             const listItems = document.getElementById('listItems');
-            const backButton = document.getElementById('backButton');
-            const editButton = document.getElementById('editButton');
-            
-            // Modal elemanları
             const imageModal = document.getElementById('imageModal');
             const modalImage = document.getElementById('modalImage');
             const closeModal = document.getElementById('closeModal');
+            const backButton = document.getElementById('backButton');
             
-            // URL'den veri parametresini al
-            const urlParams = new URLSearchParams(window.location.search);
-            const dataParam = urlParams.get('data');
-            
-            let listData = null;
-            
-            if (dataParam) {
+            // URL'den liste verilerini al
+            function getListDataFromUrl() {
                 try {
-                    // URL parametresinden veriyi çöz
-                    listData = JSON.parse(decodeURIComponent(dataParam));
-                    console.log("Liste verisi başarıyla çözüldü:", listData);
+                    // URL parametrelerini al
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const base64Data = urlParams.get('data');
                     
-                    // Liste verilerini göster
-                    displayList(listData);
+                    // Base64 veri yoksa hata göster
+                    if (!base64Data) {
+                        throw new Error('Liste verileri bulunamadı');
+                    }
+                    
+                    // Base64 verilerini decode et
+                    const jsonData = decodeURIComponent(escape(atob(base64Data)));
+                    
+                    // JSON parse et
+                    const listData = JSON.parse(jsonData);
+                    console.log('Çözümlenen liste verileri:', listData);
+                    
+                    return listData;
                 } catch (error) {
-                    console.error("Veri çözümlenirken hata oluştu:", error);
-                    showError("Liste verisi çözümlenemedi. Lütfen geçerli bir QR kod okutun.");
+                    console.error('Veri çözümleme hatası:', error);
+                    showError('Liste verileri çözümlenemedi: ' + error.message);
+                    return null;
                 }
-            } else {
-                showError("Liste verisi bulunamadı. Lütfen geçerli bir QR kod okutun.");
+            }
+            
+            // Uygulama başlangıcı
+            initParticles(); // Arka plan efektini başlat
+            
+            // Liste verilerini URL'den al ve göster
+            const listData = getListDataFromUrl();
+            if (listData) {
+                displayList(listData);
             }
             
             // Modal kapatma
@@ -347,30 +355,19 @@
                 imageModal.style.display = 'none';
             });
             
-            // Modal dışına tıklayınca kapat
+            // Modal dışına tıklama
             window.addEventListener('click', function(event) {
                 if (event.target === imageModal) {
                     imageModal.style.display = 'none';
                 }
             });
             
-            // Butonların event listener'larını ayarla
-            backButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                // Kullanıcıya ana sayfaya dönmek istediğinden emin olup olmadığını sor
-                if (confirm('Ana sayfaya dönmek istediğinizden emin misiniz?')) {
-                    window.close(); // Tarayıcı penceresini kapat
-                }
-            });
-            
-            // Düzenleme butonu için kullanıcıyı uyar
-            editButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                alert('Bu liste sadece görüntüleme modunda açılmıştır. Düzenlemek için QR kodu oluşturan cihazda açın.');
-            });
-            
-            // Particles.js arka planını başlat
-            initParticles();
+            // Geri butonu
+            if (backButton) {
+                backButton.addEventListener('click', function() {
+                    window.close(); // Pencereyi kapat
+                });
+            }
             
             // Liste gösterme fonksiyonu
             function displayList(data) {

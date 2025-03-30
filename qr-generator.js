@@ -167,368 +167,52 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // QR kodu oluşturma fonksiyonu
     function generateQRCode(listData) {
+        console.log("generateQRCode fonksiyonu çağrıldı", listData);
+        
+        // Liste önizleme görüntüsünü güncelle
+        if (listData.items && listData.items.length > 0) {
+            displayPreviewItems(listData.items);
+        }
+        
+        // Liste başlığını güncelle
+        if (listTitle) {
+            listTitle.textContent = listData.title || 'Liste';
+        }
+        
         try {
-            // İşlem başlangıcı
-            console.log("QR kod oluşturma başladı. Liste verisi:", JSON.stringify(listData));
-            
-            // ID kontrolü
-            if (!listData || !listData.id) {
-                throw new Error('Liste ID bilgisi eksik');
-            }
-            
-            // Liste ID'yi localStorage'a kesinlikle kaydet
-            localStorage.setItem('currentQRListId', listData.id);
-            localStorage.setItem(`list_data_${listData.id}`, JSON.stringify(listData));
-            console.log(`Liste verileri localStorage'a kaydedildi: 'list_data_${listData.id}'`);
-            
-            // Liste verisini daha küçük bir formata getir
+            // Liste verisini JSON olarak hazırla - QR kodunda taşınabilecek kadar minimal olması için
             const minimalData = {
                 id: listData.id,
                 title: listData.title,
                 items: listData.items.map(item => {
-                    // Sadece önemli alanları al, veriyi küçült
-                    const minItem = {
-                        content: item.content || '',
-                        value: item.value || ''
+                    // Liste verilerini minimalize edelim
+                    return {
+                        name: item.name,
+                        quantity: item.quantity,
+                        // Resimleri şimdilik dahil etmiyoruz, çok büyük olabilirler
+                        // image: item.image
                     };
-                    
-                    // Resim varsa, ama boyutu uygunsa dahil et
-                    if (item.image) {
-                        // Veri URL mi kontrol et
-                        if (item.image.startsWith('data:image')) {
-                            // Resim verisi çok büyük değilse dahil et (2000 karakter limitli)
-                            if (item.image.length < 2000) {
-                                minItem.image = item.image;
-                            } else {
-                                // Çok büyük resimlerin yerine yer tutucu koy
-                                minItem.imagePlaceholder = true;
-                            }
-                        } else {
-                            // Standart resim URL'si ise dahil et
-                            minItem.image = item.image;
-                        }
-                    }
-                    
-                    return minItem;
                 })
             };
             
-            // QR kodu için URL oluştur - tamamen bağımsız çalışacak şekilde
-            // Data URL şeması kullanarak herhangi bir sunucuya bağlanmadan direkt çalışacak
+            // Liste verisini JSON'a dönüştür ve Base64 ile kodla
+            const jsonData = JSON.stringify(minimalData);
+            const base64Data = btoa(unescape(encodeURIComponent(jsonData)));
             
-            // Viewer.html'den minimal bir sürüm oluştur
-            const minimalViewerHtml = `<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Liste Görüntüleyici</title>
-    <style>
-        :root {
-            --primary-color: #00f5ff;
-            --secondary-color: #6e36df;
-            --accent-color: #2be8d9;
-            --dark-bg: #0f1026;
-            --light-bg: #1a2035;
-            --text-color: #e0f7fa;
-            --card-bg: rgba(15, 20, 45, 0.8);
-            --card-shadow: 0 10px 30px rgba(0, 245, 255, 0.2);
-            --glow-neon: 0 0 10px rgba(0, 245, 255, 0.5);
-        }
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            margin: 0;
-            font-family: sans-serif;
-            background: var(--dark-bg);
-            min-height: 100vh;
-            color: var(--text-color);
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: linear-gradient(135deg, rgba(15, 20, 45, 0.9) 0%, rgba(26, 32, 53, 0.9) 100%);
-            border-radius: 10px;
-            box-shadow: var(--card-shadow);
-            border: 1px solid var(--primary-color);
-        }
-        h1 {
-            font-size: 28px;
-            color: var(--primary-color);
-            text-shadow: var(--glow-neon);
-            margin-bottom: 10px;
-        }
-        .list-items {
-            list-style-type: none;
-            margin-bottom: 30px;
-        }
-        .list-item {
-            background: var(--card-bg);
-            border-radius: 8px;
-            margin-bottom: 15px;
-            padding: 15px;
-            box-shadow: var(--card-shadow);
-            border: 1px solid rgba(0, 245, 255, 0.2);
-            transition: all 0.3s ease;
-        }
-        .item-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .item-content {
-            font-size: 18px;
-            flex: 1;
-        }
-        .item-value {
-            background-color: rgba(0, 245, 255, 0.1);
-            color: var(--primary-color);
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 16px;
-            min-width: 80px;
-            text-align: center;
-            margin-left: 15px;
-        }
-        .item-image-container {
-            margin-top: 10px;
-            text-align: center;
-            cursor: pointer;
-        }
-        .image-thumbnail, .image-placeholder {
-            width: 100px;
-            height: 100px;
-            background-color: rgba(0, 245, 255, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--primary-color);
-            border-radius: 6px;
-            border: 1px solid var(--primary-color);
-            margin: 0 auto;
-        }
-        .back-link {
-            display: block;
-            text-align: center;
-            color: var(--primary-color);
-            margin-top: 20px;
-            text-decoration: none;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            max-width: 90%;
-            max-height: 90%;
-            padding: 20px;
-            border-radius: 10px;
-            background-color: var(--card-bg);
-            border: 1px solid var(--primary-color);
-            box-shadow: var(--card-shadow);
-            position: relative;
-        }
-        .close-button {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 24px;
-            color: var(--primary-color);
-            cursor: pointer;
-            z-index: 1001;
-        }
-        .modal-image {
-            max-width: 100%;
-            max-height: 80vh;
-            border-radius: 4px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <header>
-            <h1 id="listTitle"></h1>
-        </header>
-        
-        <ul id="listItems" class="list-items"></ul>
-        
-        <a href="#" class="back-link" id="closeButton">Kapat</a>
-    </div>
-    
-    <div id="imageModal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" id="closeModal">&times;</span>
-            <img id="modalImage" class="modal-image" src="" alt="">
-        </div>
-    </div>
-
-    <script>
-    // Liste verisi inline olarak eklenecek
-    const listData = _DATA_PLACEHOLDER_;
-    
-    document.addEventListener('DOMContentLoaded', function() {
-        const listTitle = document.getElementById('listTitle');
-        const listItems = document.getElementById('listItems');
-        const imageModal = document.getElementById('imageModal');
-        const modalImage = document.getElementById('modalImage');
-        const closeModal = document.getElementById('closeModal');
-        const closeButton = document.getElementById('closeButton');
-        
-        // Kapatma düğmesi
-        closeButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            window.close();
-        });
-        
-        // Modal kapatma
-        closeModal.addEventListener('click', function() {
-            imageModal.style.display = 'none';
-        });
-        
-        // Modal dışına tıklama
-        window.addEventListener('click', function(event) {
-            if (event.target === imageModal) {
-                imageModal.style.display = 'none';
-            }
-        });
-        
-        // Liste verilerini göster
-        if (listData) {
-            displayList(listData);
-        } else {
-            listTitle.textContent = 'HATA: Liste verisi bulunamadı';
-        }
-        
-        // Liste gösterme fonksiyonu
-        function displayList(data) {
-            // Liste başlığını ayarla
-            listTitle.textContent = data.title || 'İsimsiz Liste';
+            console.log('JSON veri boyutu:', jsonData.length, 'karakter');
+            console.log('Base64 veri boyutu:', base64Data.length, 'karakter');
             
-            // Liste öğelerini temizle
-            listItems.innerHTML = '';
+            // Liste verisini basit bir URL'de taşı 
+            // viewer.html sayfası bunu alıp işleyecek
+            const finalUrl = `${window.location.origin}${window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'))}/viewer.html?data=${base64Data}`;
             
-            if (!data.items || data.items.length === 0) {
-                listItems.innerHTML = '<li class="list-item">Listede öğe bulunamadı</li>';
-                return;
-            }
-            
-            // Liste öğelerini oluştur
-            data.items.forEach((item, index) => {
-                const listItem = document.createElement('li');
-                listItem.className = 'list-item';
-                
-                // Öğe adı ve değeri yan yana
-                const itemRow = document.createElement('div');
-                itemRow.className = 'item-row';
-                
-                // İçerik
-                if (item.content) {
-                    const contentDiv = document.createElement('div');
-                    contentDiv.className = 'item-content';
-                    contentDiv.textContent = \`\${index + 1}. \${item.content}\`;
-                    itemRow.appendChild(contentDiv);
-                }
-                
-                // Değer
-                if (item.value) {
-                    const valueDiv = document.createElement('div');
-                    valueDiv.className = 'item-value';
-                    valueDiv.textContent = item.value;
-                    itemRow.appendChild(valueDiv);
-                }
-                
-                listItem.appendChild(itemRow);
-                
-                // Resim
-                if (item.image) {
-                    const imageContainer = document.createElement('div');
-                    imageContainer.className = 'item-image-container';
-                    
-                    try {
-                        const img = document.createElement('img');
-                        img.src = item.image;
-                        img.alt = item.content || 'Liste öğesi';
-                        img.className = 'image-thumbnail';
-                        img.style.maxWidth = '100px';
-                        img.style.maxHeight = '100px';
-                        img.style.objectFit = 'cover';
-                        
-                        // Resme tıklama
-                        img.addEventListener('click', function() {
-                            modalImage.src = item.image;
-                            modalImage.alt = item.content || 'Görüntü';
-                            imageModal.style.display = 'flex';
-                        });
-                        
-                        // Resim yükleme hatası
-                        img.onerror = function() {
-                            createImagePlaceholder(imageContainer, item.content);
-                        };
-                        
-                        imageContainer.appendChild(img);
-                    } catch (e) {
-                        createImagePlaceholder(imageContainer, item.content);
-                    }
-                    
-                    listItem.appendChild(imageContainer);
-                } else if (item.imagePlaceholder) {
-                    const imageContainer = document.createElement('div');
-                    imageContainer.className = 'item-image-container';
-                    createImagePlaceholder(imageContainer, item.content);
-                    listItem.appendChild(imageContainer);
-                }
-                
-                listItems.appendChild(listItem);
-            });
-        }
-        
-        // Resim yer tutucu oluşturma
-        function createImagePlaceholder(container, altText) {
-            const placeholder = document.createElement('div');
-            placeholder.className = 'image-placeholder';
-            placeholder.textContent = 'Resim';
-            placeholder.setAttribute('data-alt', altText || 'Görüntü');
-            
-            placeholder.addEventListener('click', function() {
-                alert('Bu resim görüntülenemiyor.');
-            });
-            
-            container.appendChild(placeholder);
-            return placeholder;
-        }
-    });
-    </script>
-</body>
-</html>`;
-
-            // Liste verisini HTML içine yerleştir
-            const htmlWithData = minimalViewerHtml.replace('_DATA_PLACEHOLDER_', JSON.stringify(minimalData));
-            
-            // Data URL oluştur (HTML içeriğini direkt barındıran URL)
-            const finalUrl = `data:text/html;charset=utf-8,${encodeURIComponent(htmlWithData)}`;
-            
-            console.log('Oluşturulan data URL uzunluğu:', finalUrl.length);
+            console.log('Oluşturulan URL uzunluğu:', finalUrl.length);
             
             // QR kod için container'ı temizle
             qrContainer.innerHTML = '';
             
             try {
-                // Google Chart API kullanarak QR kod oluştur (en güvenilir yöntem)
+                // Kısa URL için Google Chart API kullanarak QR kod oluştur (en güvenilir yöntem)
                 const encodedUrl = encodeURIComponent(finalUrl);
                 const qrUrl = `https://chart.googleapis.com/chart?cht=qr&chl=${encodedUrl}&chs=200x200&chld=H|0`;
                 
@@ -554,6 +238,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 qrImg.style.maxWidth = '100%';
                 qrImg.style.display = 'block';
                 qrImg.style.margin = '0 auto';
+                qrImg.crossOrigin = "anonymous"; // CORS hatalarının önüne geçmek için
                 
                 // QR kod resmine referansı kaydet (indirme için)
                 qrDiv.dataset.qrUrl = finalUrl;
