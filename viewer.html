@@ -5,35 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Liste Görüntüleyici</title>
     <style>
+        /* Ana sayfaya benzer bilim kurgu teması */
+        :root {
+            --primary-color: #00f5ff;
+            --secondary-color: #6e36df;
+            --accent-color: #2be8d9;
+            --dark-bg: #0f1026;
+            --light-bg: #1a2035;
+            --text-color: #e0f7fa;
+            --card-bg: rgba(15, 20, 45, 0.8);
+            --card-shadow: 0 10px 30px rgba(0, 245, 255, 0.2);
+            --glow-neon: 0 0 10px rgba(0, 245, 255, 0.5);
+            --hologram-bg: linear-gradient(135deg, rgba(15, 20, 45, 0.9) 0%, rgba(26, 32, 53, 0.9) 100%);
+            --button-glow: 0 0 15px rgba(0, 245, 255, 0.6);
+        }
+        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
         }
         
         body {
-            background-color: #0f1636;
-            color: #fff;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: var(--dark-bg);
             min-height: 100vh;
         }
         
         .container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
             padding: 20px;
         }
         
         header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--hologram-bg);
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--primary-color);
         }
         
         h1 {
-            font-size: 24px;
-            margin-bottom: 15px;
-            color: #4f8fef;
-            text-shadow: 0 0 10px rgba(79, 143, 239, 0.5);
+            font-size: 28px;
+            color: var(--primary-color);
+            text-shadow: var(--glow-neon);
+            margin-bottom: 10px;
         }
         
         .list-items {
@@ -42,51 +62,88 @@
         }
         
         .list-item {
-            background-color: rgba(30, 41, 82, 0.8);
+            background: var(--card-bg);
             border-radius: 8px;
             margin-bottom: 15px;
             padding: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(0, 245, 255, 0.2);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .list-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 245, 255, 0.2);
+        }
+        
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
         }
         
         .item-content {
             font-size: 18px;
-            margin-bottom: 8px;
+            color: var(--text-color);
+            flex: 1;
         }
         
         .item-value {
-            background-color: #223169;
+            background-color: rgba(0, 245, 255, 0.1);
+            color: var(--primary-color);
             padding: 5px 10px;
             border-radius: 4px;
             font-size: 16px;
-            display: inline-block;
-            margin-top: 5px;
+            min-width: 80px;
+            text-align: center;
+            margin-left: 15px;
         }
         
-        .item-image {
+        .item-image-container {
             margin-top: 10px;
             text-align: center;
+            cursor: pointer;
         }
         
-        .item-image img {
-            max-width: 100%;
+        .image-thumbnail {
+            max-width: 100px;
+            max-height: 100px;
             border-radius: 6px;
-            border: 1px solid #4f8fef;
+            border: 1px solid var(--primary-color);
+            object-fit: cover;
+            transition: all 0.3s ease;
+        }
+        
+        .image-placeholder {
+            width: 100px;
+            height: 100px;
+            background-color: rgba(0, 245, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            border-radius: 6px;
+            border: 1px solid var(--primary-color);
+            font-size: 12px;
+            margin: 0 auto;
         }
         
         .button-container {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 15px;
             margin-top: 20px;
         }
         
         .button {
-            background-color: #4f8fef;
-            color: white;
+            background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+            color: var(--text-color);
             border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
+            padding: 12px 20px;
+            border-radius: 50px;
             cursor: pointer;
             font-size: 16px;
             transition: all 0.3s ease;
@@ -94,26 +151,27 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            box-shadow: var(--button-glow);
+            min-width: 160px;
         }
         
         .back-button {
-            background-color: #374785;
-        }
-        
-        .edit-button {
-            background-color: #5a4a9c;
+            background: linear-gradient(45deg, #374785, #5a4a9c);
         }
         
         .button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(0, 245, 255, 0.4);
         }
         
-        .loading-item, .error-message {
+        .loading-item {
             text-align: center;
-            padding: 20px;
-            color: #ccc;
+            padding: 30px;
+            color: var(--text-color);
             font-style: italic;
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
         }
         
         .error-container {
@@ -127,13 +185,56 @@
         }
         
         .error-icon {
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            font-size: 40px;
+            color: #FF5252;
         }
         
         .error-message {
             font-size: 18px;
             color: #FF5252;
             margin-bottom: 10px;
+        }
+        
+        /* Modal Stili */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--primary-color);
+            box-shadow: var(--card-shadow);
+            position: relative;
+        }
+        
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            color: var(--primary-color);
+            cursor: pointer;
+            z-index: 1001;
+        }
+        
+        .modal-image {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 4px;
         }
         
         /* Particles arka plan */
@@ -144,6 +245,36 @@
             width: 100%;
             height: 100%;
             z-index: -1;
+        }
+        
+        /* Mobil için uyumlu tasarım */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            header {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .item-content {
+                font-size: 16px;
+            }
+            
+            .item-value {
+                font-size: 14px;
+                min-width: 60px;
+            }
+            
+            .button {
+                padding: 10px 15px;
+                font-size: 14px;
+                min-width: 130px;
+            }
         }
     </style>
 </head>
@@ -161,7 +292,15 @@
         
         <div class="button-container">
             <a href="#" id="backButton" class="button back-button">Ana Sayfaya Dön</a>
-            <a href="#" id="editButton" class="button edit-button">Listeyi Düzenle</a>
+            <a href="#" id="editButton" class="button">Listeyi Düzenle</a>
+        </div>
+    </div>
+    
+    <!-- Resim görüntüleme Modal -->
+    <div id="imageModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" id="closeModal">&times;</span>
+            <img id="modalImage" class="modal-image" src="" alt="Büyük Görüntü">
         </div>
     </div>
     
@@ -176,12 +315,16 @@
             const backButton = document.getElementById('backButton');
             const editButton = document.getElementById('editButton');
             
-            // URL parametrelerini al
-            let listData = null;
+            // Modal elemanları
+            const imageModal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            const closeModal = document.getElementById('closeModal');
             
             // URL'den veri parametresini al
             const urlParams = new URLSearchParams(window.location.search);
             const dataParam = urlParams.get('data');
+            
+            let listData = null;
             
             if (dataParam) {
                 try {
@@ -198,6 +341,18 @@
             } else {
                 showError("Liste verisi bulunamadı. Lütfen geçerli bir QR kod okutun.");
             }
+            
+            // Modal kapatma
+            closeModal.addEventListener('click', function() {
+                imageModal.style.display = 'none';
+            });
+            
+            // Modal dışına tıklayınca kapat
+            window.addEventListener('click', function(event) {
+                if (event.target === imageModal) {
+                    imageModal.style.display = 'none';
+                }
+            });
             
             // Butonların event listener'larını ayarla
             backButton.addEventListener('click', function(e) {
@@ -231,57 +386,96 @@
                 }
                 
                 // Liste öğelerini oluştur
-                data.items.forEach(item => {
+                data.items.forEach((item, index) => {
                     const listItem = document.createElement('li');
                     listItem.className = 'list-item';
                     
-                    // İçerik
+                    // Öğe adı ve değeri yan yana olacak şekilde row oluştur
+                    const itemRow = document.createElement('div');
+                    itemRow.className = 'item-row';
+                    
+                    // İçerik (öğe adı)
                     if (item.content) {
                         const contentDiv = document.createElement('div');
                         contentDiv.className = 'item-content';
-                        contentDiv.textContent = item.content;
-                        listItem.appendChild(contentDiv);
+                        contentDiv.textContent = `${index + 1}. ${item.content}`;
+                        itemRow.appendChild(contentDiv);
                     }
                     
-                    // Değer
+                    // Değer (miktar)
                     if (item.value) {
                         const valueDiv = document.createElement('div');
                         valueDiv.className = 'item-value';
                         valueDiv.textContent = item.value;
-                        listItem.appendChild(valueDiv);
+                        itemRow.appendChild(valueDiv);
                     }
+                    
+                    // Row'u list item'a ekle
+                    listItem.appendChild(itemRow);
                     
                     // Resim (varsa)
                     if (item.image) {
-                        const imageDiv = document.createElement('div');
-                        imageDiv.className = 'item-image';
-                        const img = document.createElement('img');
-                        img.src = item.image;
-                        img.alt = item.content || 'Liste öğesi';
-                        img.loading = 'lazy';
+                        const imageContainer = document.createElement('div');
+                        imageContainer.className = 'item-image-container';
                         
-                        // Görüntü yükleme hatası durumunda
-                        img.onerror = function() {
-                            console.log("Resim yüklenemedi");
-                            this.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAFcUlEQVR4nO2dW4hVVRjHf3PODKY5djHHmryQI5YmZEUkGRU9FEEvgtJDRBCUdH2JpIcouujl8qCUD1EGUQTR7QEzqCCTJKGHvMyoUKk5M3mrufXxsM7MODqes89e55y91trn/8Ben7P2+vb/u9bea62111oghBBCCCGEEEIIIYQQQgghhBCChpqA9zsSeABoaynNwLXAcKAB6AK+A74CfgS+d+RDKQQxhEmnAfOAfqATaAU6gE7gc+Bz4D/HfpUGW6aseqAF2Aj8DfQn1HbgJaARGFKUDyHQ1zmkGXgGeATDyXYgsAt4B3gH+NWyfaFiw5ARwArgYaChgHa6gHeB14GfCmhPJIPXkLHAG8BiYFgB7fQCO4C1wA8FtBM1g33KugHYBvxBcWYA9AIbgK3ATwW1GS2DaUNqgFeB5S79iYHBmDIHWAXc69CP0PCdQzqAVcAUT/aFP7xMyRnApJzfOQRcAJqAkcB0oCbndzuAJcBR4EyO74nC6QQ257Qp64ENwAyM0zcBs4GXgUM5298HZEm3IvFpyDxgJ/n/iW3A/BTtDwPWAL057PQDuzAfCiFwPcpqBB4DluL+GPA2YAFwLO0X+oEfgFHAWEx+ydLWY5jEMp6mw1DnaogRkK/hfm9xAtgCLMJ+AhiNucKZtf1+YFUBvkeNy7HnQ7gX4wCmg91WgK2RmLyrLH6cBpYV4H+UuDLkCE4FOZCxzSGYXeG1GdvYhbmBKWpwZchIwwpgNjAceAhoyNhGM3BeRn/AjLIey+hHVLgcZZ0B5gK3AIeB5THbvxa4HJMc0nAzcGGGdmPB5TXkPLAiRb06zNOkd2VsuxHoKcKhWAjhSt1EzPZImi2OTRkdCIIQDKnHrCUm0eniuVQQgiEAy4BTCY9PBJ504Fvl8b0echlme+N54AXMvqwrW9/DbA/b4CTwy6XbSuLTkBbMVsl+4BXcmgFmM+4rzM1QG3RjprjK4tOQ7fjddF6CyRttGdrcVpwrceFjDYnlT2QssAa4jHRrCZjRlZWTwsOQEGgGnsMcoGUx5VeK3FQMmlANGYK5hbIAM5taISVXS9mGQDGG1GM21+7CnJaaDowlO4eAVy37FinWmqGYO6kG+jCbZYdaykngHeBd4GtLf47V9qZnP3AT5kjnQkubUVCUIdX0Yc61uDo9NWCOgz7APDaUhMYMX5qVwBw1GjJYmjP89iHgC8zZ99WYKa3M6d3HQ/QtUFxW5fkQEyzmkYGTv6c9+hMsRb+mew/wLOaIfpDDoCXAsx59CZqiDTkHbMJUkzHXQXsfY5aDHqYiTbCN7U+HNgLrgdMZ642lQr87RRoyx3Fbm4EtGetWAd9X6mD/Y1eN8OfAHcArpB+BVWLqcBuuL/jYbUgf9r+N24p5WvStjPVC5JRPQw77MuQEcB/p1pR6zOOlWYLInNhlP7A4aQDh+0rdV5iBRdLrMAfUEPEPrYaYMwW7eWgNZoQSyIjEpiFNlg1fUICdWwuwtRtL53W7CWspagXmxJVNQ5ot2+3HnGMpgibgSsu294LdUZcrtmMmD7bSaMMQW/Rk9KUaW2/JfoJlQ2olZR+mjtVTlg3Jtgv8d4Z6NQ5tW6HZliH3UNJ9Rxt0YqqItjI4A0JliGUbEsON0iiGbGJwJ7FjxxZTFJBLKtmQNq9ehM9hTGX41K/eqzDC1pB+XxUNqeG8Vy9CZx/m5eYDnv040MMo7DZZEzDFACrPKsyDFdtv/wRDI/kL26uX5QjwMuWu0X4t+X6EYD7wJJZfnwv1OgEcBa7BZP0uTCXPJkxGj4FYzKrH/D7l9QnrVDXtmClrM3YbCpnRGtIKO4QQQgghhBBCCCGEEEIIIUSQ/A931XpALJRO6wAAAABJRU5ErkJggg==';
-                            this.alt = 'Resim yüklenemedi';
-                        };
+                        // Thumbnail resim veya yer tutucu
+                        const thumbnail = document.createElement('div');
+                        thumbnail.className = 'image-thumbnail';
                         
-                        imageDiv.appendChild(img);
-                        listItem.appendChild(imageDiv);
+                        // Resmin kısa bir versiyonu veya yer tutucu oluştur
+                        try {
+                            const img = document.createElement('img');
+                            img.src = item.image;
+                            img.alt = item.content || 'Liste öğesi';
+                            img.className = 'image-thumbnail';
+                            img.loading = 'lazy';
+                            
+                            // Tıklanınca büyük resmi göster
+                            img.addEventListener('click', function() {
+                                modalImage.src = item.image;
+                                modalImage.alt = item.content || 'Büyük Görüntü';
+                                imageModal.style.display = 'flex';
+                            });
+                            
+                            // Görüntü yükleme hatası durumunda
+                            img.onerror = function() {
+                                console.log("Resim yüklenemedi, yer tutucu gösteriliyor");
+                                createImagePlaceholder(imageContainer, item.content);
+                            };
+                            
+                            imageContainer.appendChild(img);
+                        } catch (e) {
+                            console.error("Resim oluşturma hatası:", e);
+                            createImagePlaceholder(imageContainer, item.content);
+                        }
+                        
+                        listItem.appendChild(imageContainer);
                     } else if (item.imagePlaceholder) {
-                        // Yer tutucu resim göster
-                        const imageDiv = document.createElement('div');
-                        imageDiv.className = 'item-image';
-                        const placeholderImg = document.createElement('img');
-                        placeholderImg.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAFcUlEQVR4nO2dW4hVVRjHf3PODKY5djHHmryQI5YmZEUkGRU9FEEvgtJDRBCUdH2JpIcouujl8qCUD1EGUQTR7QEzqCCTJKGHvMyoUKk5M3mrufXxsM7MODqes89e55y91vrn/8Den7P2+vb/u9bea62911oghBBCCCGEEEIIIYQQQgghhBCChpqA9zsSeABoaynNwLXAcKAB6AK+A74CfgS+d+RDKQQxhEmnAfOAfqATaAU6gE7gc+Bz4D/HfpUGW6aseqAF2Aj8DfQn1HbgJaARGFKUDyHQ1zmkGXgGeATDyXYgsAt4B3gH+NWyfaFiw5ARwArgYaChgHa6gHeB14GfCmhPJIPXkLHAG8BiYFgB7fQCO4C1wA8FtBM1g33KugHYBvxBcWYA9AIbgK3ATwW1GS2DaUNqgFeB5S79iYHBmDIHWAXc69CP0PCdQzqAVcAUT/aFP7xMyRnApJzfOQRcAJqAkcB0oCbndzuAJcBR4EyO74nC6QQ257Qp64ENwAyM0zcBs4GXgUM5298HZEm3IvFpyDxgJ/n/iW3A/BTtDwPWAL057PQDuzAfCiFwPcpqBB4DluL+GPA2YAFwLO0X+oEfgFHAWEx+ydLWY5jEMp6mw1DnaogRkK/hfm9xAtgCLMJ+AhiNucKZtf1+YFUBvkeNy7HnQ7gX4wCmg91WgK2RmLyrLH6cBpYV4H+UuDLkCE4FOZCxzSGYXeG1GdvYhbmBKWpwZchIwwpgNjAceAhoyNhGM3BeRn/AjLIey+hHVLgcZZ0B5gK3AIeB5THbvxa4HJMc0nAzcGGGdmPB5TXkPLAiRb06zNOkd2VsuxHoKcKhWAjhSt1EzPZImi2OTRkdCIIQDKnHrCUm0eniuVQQgiEAy4BTCY9PBJ504Fvl8b0echlme+N54AXMvqwrW9/DbA/b4CTwy6XbSuLTkBbMVsl+4BXcmgFmM+4rzM1QG3RjprjK4tOQ7fjddF6CyRttGdrcVpwrceFjDYnlT2QssAa4jHRrCZjRlZWTwsOQEGgGnsMcoGUx5VeK3FQMmlANGYK5hbIAM5taISVXS9mGQDGG1GM21+7CnJaaDowlO4eAVy37FinWmqGYO6kG+jCbZYdaykngHeBd4GtLf47V9qZnP3AT5kjnQkubUVCUIdX0Yc61uDo9NWCOgz7APDaUhMYMX5qVwBw1GjJYmjP89iHgC8zZ99WYKa3M6d3HQ/QtUFxW5fkQEyzmkYGTv6c9+hMsRb+mew/wLOaIfpDDoCXAsx59CZqiDTkHbMJUkzHXQXsfY5aDHqYiTbCN7U+HNgLrgdMZ642lQr87RRoyx3Fbm4EtGetWAd9X6mD/Y1eN8OfAHcArpB+BVWLqcBuuL/jYbUgf9r+N24p5WvStjPVC5JRPQw77MuQEcB/p1pR6zOOlWYLInNhlP7A4aQDh+0rdV5iBRdLrMAfUEPEPrYaYMwW7eWgNZoQSyIjEpiFNlg1fUICdWwuwtRtL53W7CWspagXmxJVNQ5ot2+3HnGMpgibgSsu294LdUZcrtmMmD7bSaMMQW/Rk9KUaW2/JfoJlQ2olZR+mjtVTlg3Jtgv8d4Z6NQ5tW6HZliH3UNJ9Rxt0YqqItjI4A0JliGUbEsON0iiGbGJwJ7FjxxZTFJBLKtmQNq9ehM9hTGX41K/eqzDC1pB+XxUNqeG8Vy9CZx/m5eYDnv040MMo7DZZEzDFACrPKsyDFdtv/wRDI/kL26uX5QjwMuWu0X4t+X6EYD7wJJZfnwv1OgEcBa7BZP0uTCXPJkxGj4FYzKrH/D7l9QnrVDXtmClrM3YbCpnRGtIKO4QQQgghhBBCCCGEEEIIIUSQ/A931XpALJRO6wAAAABJRU5ErkJggg==';
-                        placeholderImg.alt = 'Resim Yüklenemedi';
-                        imageDiv.appendChild(placeholderImg);
-                        listItem.appendChild(imageDiv);
+                        // Resim yer tutucu göster
+                        const imageContainer = document.createElement('div');
+                        imageContainer.className = 'item-image-container';
+                        createImagePlaceholder(imageContainer, item.content);
+                        listItem.appendChild(imageContainer);
                     }
                     
                     listItems.appendChild(listItem);
                 });
+            }
+            
+            // Resim yer tutucu oluşturma yardımcı fonksiyonu
+            function createImagePlaceholder(container, altText) {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'image-placeholder';
+                placeholder.textContent = 'Resim';
+                placeholder.setAttribute('data-alt', altText || 'Görüntü');
+                
+                // Yer tutucuya tıklama
+                placeholder.addEventListener('click', function() {
+                    alert('Bu resim taşınamadı veya yüklenemedi.');
+                });
+                
+                container.appendChild(placeholder);
+                return placeholder;
             }
             
             // Hata gösterme fonksiyonu
@@ -308,14 +502,14 @@
                     particlesJS('particles-js', {
                         "particles": {
                             "number": { "value": 50, "density": { "enable": true, "value_area": 800 } },
-                            "color": { "value": "#4f8fef" },
+                            "color": { "value": "#00f5ff" },
                             "shape": { "type": "circle" },
                             "opacity": { "value": 0.3, "random": true },
                             "size": { "value": 3, "random": true },
                             "line_linked": {
                                 "enable": true,
                                 "distance": 150,
-                                "color": "#4f8fef",
+                                "color": "#00f5ff",
                                 "opacity": 0.2,
                                 "width": 1
                             },
