@@ -1,42 +1,65 @@
 class DataStorage {
     constructor() {
-        this.storagePath = 'data/lists.json';
+        this.dbName = 'qr-lists-db';
+        this.dbVersion = 1;
+        this.storeName = 'lists';
         this.maxLists = 100; // Maksimum liste sayısı
         this.maxItemLength = 1000; // Her öğe için maksimum karakter sayısı
-        this.initializeStorage();
+        this.db = null;
+        this.initializeDB();
     }
 
-    // Depolamayı başlat
-    async initializeStorage() {
+    async initializeDB() {
         try {
-            const file = await fetch(this.storagePath);
-            if (!file.ok) {
-                // Dosya yoksa yeni bir dosya oluştur
-                await this.saveLists([]);
-            }
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(this.dbName, this.dbVersion);
+
+                request.onerror = (event) => {
+                    console.error('Database initialization error:', event.target.error);
+                    reject(event.target.error);
+                };
+
+                request.onsuccess = (event) => {
+                    this.db = event.target.result;
+                    resolve();
+                };
+
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains(this.storeName)) {
+                        db.createObjectStore(this.storeName, { keyPath: 'id' });
+                    }
+                };
+            });
         } catch (error) {
-            console.error('Depolama başlatma hatası:', error);
-            await this.saveLists([]);
+            console.error('Database initialization error:', error);
+            throw error;
         }
     }
 
-    // Tüm listeleri al
     async getAllLists() {
         try {
-            const response = await fetch(this.storagePath);
-            if (!response.ok) {
-                throw new Error('Dosya okuma hatası');
-            }
-            const lists = await response.json();
-            return Array.isArray(lists) ? lists : [];
+            await this.initializeDB();
+            return new Promise((resolve, reject) => {
+                const transaction = this.db.transaction([this.storeName], 'readonly');
+                const store = transaction.objectStore(this.storeName);
+                const request = store.getAll();
+
+                request.onsuccess = (event) => {
+                    resolve(event.target.result || []);
+                };
+
+                request.onerror = (event) => {
+                    console.error('Error getting lists:', event.target.error);
+                    reject(event.target.error);
+                };
+            });
         } catch (error) {
-            console.error('Veri okuma hatası:', error);
-            await this.initializeStorage();
-            return [];
+            console.error('Error getting lists:', error);
+            throw error;
         }
     }
 
-    // Liste ekle veya güncelle
     async saveList(listData) {
         try {
             // Liste verisini doğrula
@@ -76,16 +99,7 @@ class DataStorage {
             }
 
             // Liste güncelleme veya ekleme
-            const existingIndex = lists.findIndex(list => list.id === listData.id);
-            
-            if (existingIndex !== -1) {
-                lists[existingIndex] = listData;
-            } else {
-                lists.push(listData);
-            }
-
-            // Veriyi sakla
-            await this.saveLists(lists);
+            await this.saveLists(listData);
             
             // Kaydedilen veriyi doğrula
             const savedLists = await this.getAllLists();
@@ -102,27 +116,36 @@ class DataStorage {
         }
     }
 
-    // Tüm listeleri kaydet
-    async saveLists(lists) {
+    async saveLists(listData) {
         try {
-            const response = await fetch(this.storagePath, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(lists)
-            });
+            await this.initializeDB();
+            return new Promise((resolve, reject) => {
+                const transaction = this.db.transaction([this.storeName], 'readwrite');
+                const store = transaction.objectStore(this.storeName);
+                
+                // Önce mevcut listeyi sil
+                if (listData.id) {
+                    store.delete(listData.id);
+                }
+                
+                // Yeni listeyi ekle
+                const request = store.add(listData);
 
-            if (!response.ok) {
-                throw new Error('Dosya kaydetme hatası');
-            }
+                request.onsuccess = (event) => {
+                    resolve(event.target.result);
+                };
+
+                request.onerror = (event) => {
+                    console.error('Error saving list:', event.target.error);
+                    reject(event.target.error);
+                };
+            });
         } catch (error) {
-            console.error('Dosya kaydetme hatası:', error);
+            console.error('Error saving list:', error);
             throw error;
         }
     }
 
-    // Benzersiz ID oluştur
     generateUniqueID() {
         return 'list_' + Math.random().toString(36).substr(2, 9);
     }
