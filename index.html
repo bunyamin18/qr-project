@@ -3,121 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yeni Liste Oluştur</title>
+    <title>Liste Oluştur</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode-generator.min.js"></script>
-    <script type="module">
-        import dataStorage from './services/dataStorage.js';
-        import './script.js';
-    </script>
-    <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #f5f5f5;
-        }
-
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        .center-card {
-            padding: 20px;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-
-        h1 {
-            text-align: center;
-            color: #006064;
-            margin-bottom: 30px;
-            font-size: 28px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #00838f;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-
-        .button-container {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-
-        .add-row-button {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .add-row-button:hover {
-            background-color: #218838;
-            transform: translateY(-2px);
-        }
-
-        .save-button {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-
-        .save-button:hover {
-            background-color: #218838;
-            transform: translateY(-2px);
-        }
-    </style>
+    <!-- QR kod kütüphanesi -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+    <!-- Particles.js için gerekli script -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <!-- Font Awesome ikon kütüphanesi -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <!-- DataStorage servisi -->
+    <script src="services/dataStorage.js"></script>
 </head>
 <body>
-    <div class="create-tech-background"></div>
+    <div id="particles-js" class="tech-background"></div>
     <div class="container">
         <div class="center-card">
-            <h1>Yeni Liste Oluştur</h1>
+            <h1>Liste Oluştur</h1>
             <form id="listForm">
                 <div class="form-group">
                     <label>Liste Başlığı</label>
-                    <input type="text" id="listTitle" class="form-control" required>
+                    <input type="text" id="title" class="form-control" required>
                 </div>
-                <div id="items"></div>
+                <div id="itemsContainer"></div>
                 <div class="button-container">
-                    <button type="button" class="add-row-button">Yeni Öğe Ekle</button>
+                    <button type="button" id="addItemButton" class="add-row-button">Yeni Öğe Ekle</button>
                     <button type="submit" class="save-button">Kaydet</button>
                 </div>
             </form>
         </div>
     </div>
+    
+    <!-- Gerekli script dosyaları -->
+    <script src="script.js"></script>
 </body>
-</html>
 </html>
