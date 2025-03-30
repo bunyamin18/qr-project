@@ -19,24 +19,34 @@ function generateQRCode(listId) {
         const qrContent = `https://okulprojesibunyamin.netlify.app/list.html?listId=${listId}`;
 
         // QR kodu oluştur
-        const qr = new QRCode(qrContainer, {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Canvas boyutunu ayarla
+        const size = 256;
+        canvas.width = size;
+        canvas.height = size;
+
+        // QR kodu oluştur
+        const qr = new QRCode(canvas, {
             text: qrContent,
-            width: 256,
-            height: 256,
+            width: size,
+            height: size,
             colorDark: '#000000',
             colorLight: '#ffffff',
             correctLevel: QRCode.CorrectLevel.H
         });
 
+        // Canvas'ı container'a ekle
+        qrContainer.innerHTML = '';
+        qrContainer.appendChild(canvas);
+
         // İndirme butonuna tıklama event listener'ı
         downloadButton.addEventListener('click', () => {
-            const canvas = qrContainer.querySelector('img');
-            if (canvas) {
-                const link = document.createElement('a');
-                link.download = `liste_${listId}.png`;
-                link.href = canvas.src;
-                link.click();
-            }
+            const link = document.createElement('a');
+            link.download = `liste_${listId}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
         });
 
     } catch (error) {
