@@ -1,31 +1,33 @@
 // Main Script for QR Code Project
 document.addEventListener('DOMContentLoaded', function() {
+    console.log("Script başlatıldı");
+    
     // Form element references
     const listForm = document.getElementById('listForm');
     const listTitleInput = document.getElementById('title');
     const itemsContainer = document.getElementById('itemsContainer');
     const addItemButton = document.getElementById('addItemButton');
     
-    // Veri depolama servisi - doğrudan script.js içinde tanımlıyoruz
+    // Veri depolama fonksiyonları - direkt script.js içinde
     const dataStorage = {
-        // Liste verilerini sakla
-        async saveList(listData) {
-            try {
-                // Liste ID'si oluştur
-                const listId = Date.now().toString();
-                
-                // Liste verisini hazırla
-                const list = {
-                    id: listId,
-                    title: listData.title,
-                    items: listData.items
-                };
+        saveList: async function(listData) {
+            console.log("saveList çağrıldı:", listData);
+            // Liste ID'si oluştur
+            const listId = Date.now().toString();
+            
+            // Liste verisini hazırla
+            const list = {
+                id: listId,
+                title: listData.title,
+                items: listData.items
+            };
 
-                // Veriyi localStorage'a kaydet
+            // Veriyi localStorage'a kaydet
+            try {
                 const lists = JSON.parse(localStorage.getItem('lists') || '[]');
                 lists.push(list);
                 localStorage.setItem('lists', JSON.stringify(lists));
-
+                console.log("Liste kaydedildi:", list);
                 return list;
             } catch (error) {
                 console.error('Liste kaydetme hatası:', error);
@@ -33,8 +35,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         },
 
-        // Liste verisini güncelle
-        updateList(listData) {
+        updateList: function(listData) {
+            console.log("updateList çağrıldı:", listData);
             try {
                 const lists = JSON.parse(localStorage.getItem('lists') || '[]');
                 const index = lists.findIndex(list => list.id === listData.id);
@@ -42,6 +44,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (index !== -1) {
                     lists[index] = listData;
                     localStorage.setItem('lists', JSON.stringify(lists));
+                    console.log("Liste güncellendi:", listData);
                     return listData;
                 } else {
                     throw new Error('Liste bulunamadı');
@@ -52,19 +55,20 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         },
 
-        // Liste verisini al
-        getList(listId) {
+        getList: function(listId) {
+            console.log("getList çağrıldı:", listId);
             try {
                 const lists = JSON.parse(localStorage.getItem('lists') || '[]');
-                return lists.find(list => list.id === listId);
+                const list = lists.find(list => list.id === listId);
+                console.log("Liste bulundu:", list);
+                return list;
             } catch (error) {
                 console.error('Liste alma hatası:', error);
                 throw error;
             }
         },
 
-        // Tüm listeleri al
-        getAllLists() {
+        getAllLists: function() {
             try {
                 return JSON.parse(localStorage.getItem('lists') || '[]');
             } catch (error) {
@@ -73,104 +77,47 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     };
-    
-    // Veri depolama servisini global olarak da erişilebilir yap
+
+    // Global olarak da erişilebilir yap
     window.dataStorage = dataStorage;
     
-    // Initialize particles.js for background animation - düz çizgiler ve hareket eden ışık
+    // Bilim kurgu tarzında enerji akışı animasyonu
     if (window.particlesJS) {
-        // Sabit çizgileri oluştur
-        const width = window.innerWidth;
-        const height = window.innerHeight;
-        
-        const canvasEl = document.createElement('canvas');
-        canvasEl.width = width;
-        canvasEl.height = height;
-        canvasEl.style.position = 'absolute';
-        canvasEl.style.top = '0';
-        canvasEl.style.left = '0';
-        canvasEl.style.pointerEvents = 'none';
-        document.getElementById('particles-js').appendChild(canvasEl);
-        
-        const ctx = canvasEl.getContext('2d');
-        
-        // Sabit düz çizgileri çiz
-        function drawLines() {
-            ctx.clearRect(0, 0, width, height);
-            ctx.strokeStyle = '#2a2a5a';
-            ctx.lineWidth = 1;
-            
-            // Yatay çizgiler
-            for (let i = 0; i < 15; i++) {
-                const y = height * (i / 15);
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(width, y);
-                ctx.stroke();
-            }
-            
-            // Dikey çizgiler
-            for (let i = 0; i < 20; i++) {
-                const x = width * (i / 20);
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, height);
-                ctx.stroke();
-            }
-            
-            // Çapraz çizgiler
-            for (let i = 0; i < 10; i++) {
-                // Sağ üstten sol alta
-                ctx.beginPath();
-                ctx.moveTo(width, i * (height / 10));
-                ctx.lineTo(0, (i + 5) * (height / 10));
-                if ((i + 5) <= 10) {
-                    ctx.stroke();
-                }
-                
-                // Sol üstten sağ alta
-                ctx.beginPath();
-                ctx.moveTo(0, i * (height / 10));
-                ctx.lineTo(width, (i + 5) * (height / 10));
-                if ((i + 5) <= 10) {
-                    ctx.stroke();
-                }
-            }
-        }
-        
-        drawLines();
-        
-        // Hareket eden ışıklar
         particlesJS('particles-js', {
             particles: {
-                number: { value: 50, density: { enable: true, value_area: 800 } },
-                color: { value: "#00f5ff" },
+                number: { value: 120, density: { enable: true, value_area: 800 } },
+                color: { value: ["#00f5ff", "#0055ff", "#00bbff", "#88ff00", "#5500ff"] },
                 shape: { type: "circle" },
-                opacity: { value: 0.8, random: false },
-                size: { value: 3, random: false },
+                opacity: { value: 0.7, random: true, anim: { enable: true, speed: 1 } },
+                size: { value: 3, random: true, anim: { enable: true, speed: 2 } },
                 line_linked: {
-                    enable: false
+                    enable: true,
+                    distance: 150,
+                    color: "#00f5ff",
+                    opacity: 0.5,
+                    width: 1
                 },
                 move: {
                     enable: true,
-                    speed: 3,
-                    direction: "none",
+                    speed: 4,
+                    direction: "right",
                     random: true,
-                    straight: true,
+                    straight: false,
                     out_mode: "out",
                     bounce: false,
-                    attract: { enable: false }
+                    attract: { enable: true, rotateX: 600, rotateY: 1200 }
                 }
             },
             interactivity: {
                 detect_on: "canvas",
                 events: {
-                    onhover: { enable: true, mode: "bubble" },
-                    onclick: { enable: true, mode: "push" },
+                    onhover: { enable: true, mode: "grab" },
+                    onclick: { enable: true, mode: "repulse" },
                     resize: true
                 },
                 modes: {
-                    bubble: { distance: 100, size: 5, duration: 2 }
+                    grab: { distance: 200, line_linked: { opacity: 0.8 } },
+                    repulse: { distance: 200, duration: 0.4 }
                 }
             },
             retina_detect: true
@@ -186,10 +133,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const listId = urlParams.get('listId');
         
         if (listId) {
+            console.log("Liste ID bulundu, liste verisi alınıyor:", listId);
             // We're in edit mode - get list data
             currentListData = dataStorage.getList(listId);
             
             if (currentListData) {
+                console.log("Liste verisi yüklendi, formu dolduruyorum");
                 // Fill form with existing data
                 listTitleInput.value = currentListData.title;
                 
@@ -200,8 +149,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentListData.items.forEach(item => {
                     addNewItemRow(item.content, item.value, item.image);
                 });
+            } else {
+                console.log("Liste bulunamadı, boş öğe ekleniyor");
+                addNewItemRow();
             }
         } else {
+            console.log("Yeni liste oluşturuluyor, boş öğe ekleniyor");
             // We're in create mode - add a blank item
             addNewItemRow();
         }
@@ -282,12 +235,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Add event listeners
     addItemButton.addEventListener('click', () => {
+        console.log("Yeni öğe ekleniyor");
         addNewItemRow();
     });
     
     // Form submission handler
     listForm.addEventListener('submit', async function(e) {
         e.preventDefault();
+        console.log("Form gönderildi");
         
         try {
             // Validate title
@@ -341,22 +296,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 items: items
             };
             
+            console.log("Liste verisi hazırlandı:", listData);
+            
             let savedList;
             
             // Save/update the list
             if (currentListData && currentListData.id) {
                 // Update existing list
+                console.log("Mevcut liste güncelleniyor");
                 listData.id = currentListData.id;
-                savedList = dataStorage.updateList(listData);
+                savedList = await dataStorage.updateList(listData);
                 alert('Liste başarıyla güncellendi!');
             } else {
                 // Create new list
-                savedList = dataStorage.saveList(listData);
+                console.log("Yeni liste oluşturuluyor");
+                savedList = await dataStorage.saveList(listData);
                 alert('Liste başarıyla oluşturuldu!');
             }
             
+            console.log("İşlem tamamlandı, kaydedilen liste:", savedList);
+            
             if (savedList && savedList.id) {
                 // Redirect to QR code generator page
+                console.log("QR kod sayfasına yönlendiriliyor");
                 window.location.href = `qr-generator.html?listId=${savedList.id}`;
             } else {
                 throw new Error('Liste kaydedilirken bir hata oluştu');
