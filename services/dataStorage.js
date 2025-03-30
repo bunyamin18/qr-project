@@ -1,43 +1,43 @@
 class DataStorage {
     constructor() {
-        this.storageKey = 'lists';
+        this.storagePath = 'data/lists.json';
         this.maxLists = 100; // Maksimum liste sayısı
         this.maxItemLength = 1000; // Her öğe için maksimum karakter sayısı
         this.initializeStorage();
     }
 
     // Depolamayı başlat
-    initializeStorage() {
+    async initializeStorage() {
         try {
-            const lists = localStorage.getItem(this.storageKey);
-            if (!lists) {
-                localStorage.setItem(this.storageKey, JSON.stringify([]));
+            const file = await fetch(this.storagePath);
+            if (!file.ok) {
+                // Dosya yoksa yeni bir dosya oluştur
+                await this.saveLists([]);
             }
         } catch (error) {
             console.error('Depolama başlatma hatası:', error);
-            localStorage.setItem(this.storageKey, JSON.stringify([]));
+            await this.saveLists([]);
         }
     }
 
     // Tüm listeleri al
-    getAllLists() {
+    async getAllLists() {
         try {
-            const lists = localStorage.getItem(this.storageKey);
-            if (!lists) {
-                this.initializeStorage();
-                return [];
+            const response = await fetch(this.storagePath);
+            if (!response.ok) {
+                throw new Error('Dosya okuma hatası');
             }
-            const parsedLists = JSON.parse(lists);
-            return Array.isArray(parsedLists) ? parsedLists : [];
+            const lists = await response.json();
+            return Array.isArray(lists) ? lists : [];
         } catch (error) {
             console.error('Veri okuma hatası:', error);
-            this.initializeStorage();
+            await this.initializeStorage();
             return [];
         }
     }
 
     // Liste ekle veya güncelle
-    saveList(listData) {
+    async saveList(listData) {
         try {
             // Liste verisini doğrula
             if (!listData || typeof listData !== 'object') {
@@ -63,7 +63,7 @@ class DataStorage {
             }
 
             // Mevcut listeleri al
-            const lists = this.getAllLists();
+            const lists = await this.getAllLists();
             
             // Liste sayısını kontrol et
             if (lists.length >= this.maxLists && !lists.some(list => list.id === listData.id)) {
@@ -85,10 +85,10 @@ class DataStorage {
             }
 
             // Veriyi sakla
-            localStorage.setItem(this.storageKey, JSON.stringify(lists));
+            await this.saveLists(lists);
             
             // Kaydedilen veriyi doğrula
-            const savedLists = this.getAllLists();
+            const savedLists = await this.getAllLists();
             const savedList = savedLists.find(list => list.id === listData.id);
             
             if (!savedList) {
@@ -102,57 +102,29 @@ class DataStorage {
         }
     }
 
-    // Liste al
-    getList(listId) {
+    // Tüm listeleri kaydet
+    async saveLists(lists) {
         try {
-            const lists = this.getAllLists();
-            return lists.find(list => list.id === listId);
-        } catch (error) {
-            console.error('Veri okuma hatası:', error);
-            return null;
-        }
-    }
+            const response = await fetch(this.storagePath, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(lists)
+            });
 
-    // Liste sil
-    deleteList(listId) {
-        try {
-            const lists = this.getAllLists();
-            const updatedLists = lists.filter(list => list.id !== listId);
-            localStorage.setItem(this.storageKey, JSON.stringify(updatedLists));
-        } catch (error) {
-            console.error('Veri silme hatası:', error);
-        }
-    }
-
-    // Benzersiz ID oluşturma
-    generateUniqueID() {
-        return Date.now().toString(36) + Math.random().toString(36).substr(2);
-    }
-
-    // Depolama kullanımını kontrol et
-    checkStorageUsage() {
-        try {
-            const lists = this.getAllLists();
-            const storageSize = JSON.stringify(lists).length;
-            const quota = 5 * 1024 * 1024; // 5MB
-            
-            if (storageSize > quota) {
-                throw new Error('Depolama limiti aşıldı');
+            if (!response.ok) {
+                throw new Error('Dosya kaydetme hatası');
             }
-            
-            return {
-                used: storageSize,
-                quota: quota,
-                percentage: (storageSize / quota) * 100
-            };
         } catch (error) {
-            console.error('Depolama kullanımını kontrol etme hatası:', error);
-            return {
-                used: 0,
-                quota: 5 * 1024 * 1024,
-                percentage: 0
-            };
+            console.error('Dosya kaydetme hatası:', error);
+            throw error;
         }
+    }
+
+    // Benzersiz ID oluştur
+    generateUniqueID() {
+        return 'list_' + Math.random().toString(36).substr(2, 9);
     }
 }
 
@@ -160,6 +132,4 @@ class DataStorage {
 const dataStorage = new DataStorage();
 
 // Exporting the instance
-window.dataStorage = dataStorage;
-
 export default dataStorage;
