@@ -73,8 +73,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Liste önizlemesini göster
         renderListPreview(listData);
 
-        // Uygulama URL'sini oluştur
-        const baseUrl = window.location.origin + window.location.pathname.replace("qr-generator.html", "");
+        // Uygulama URL'sini oluştur - Doğru URL oluşturmak önemli
+        const baseUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
         const appUrl = baseUrl + "list.html?listId=" + listId;
         
         // QR kodu oluştur 
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Öğeleri temizle
             previewItems.innerHTML = '';
             
-            // Öğeleri göster
+            // Öğeleri göster - Miktar/Değer solda, Öğe Adı sağda
             list.items.forEach(item => {
                 const itemElement = document.createElement('div');
                 itemElement.className = 'preview-item';
@@ -98,6 +98,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="preview-item-content">${escapeHtml(item.content)}</div>
                 `;
                 
+                // Resim varsa göster
+                if (item.image) {
+                    const imagePreview = document.createElement('div');
+                    imagePreview.className = 'preview-item-image';
+                    imagePreview.innerHTML = `<img src="${item.image}" alt="Öğe resmi" class="thumbnail">`;
+                    itemElement.appendChild(imagePreview);
+                }
+                
                 previewItems.appendChild(itemElement);
             });
         }
@@ -105,6 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // QR kodu oluştur
         function generateQRCode(content) {
             try {
+                console.log("QR Kod URL'si:", content);
                 // QR Type set to 0 means automatic detection of QR version
                 // Error correction level 'H' is highest (30%) - helps in case QR code is distorted
                 const qr = window.qrcode(0, 'H');
@@ -112,14 +121,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 qr.make();
                 
                 // SVG QR code generation for better quality
-                const qrImageSvg = qr.createSvgTag(4);
+                const qrImageSvg = qr.createSvgTag(5); // SVG QR kodu daha büyük yap
                 qrContainer.innerHTML = qrImageSvg;
                 
                 // Style the SVG
                 const svgElement = qrContainer.querySelector('svg');
                 if (svgElement) {
                     svgElement.style.width = '100%';
-                    svgElement.style.maxWidth = '200px';
+                    svgElement.style.maxWidth = '220px'; // QR kodu daha büyük yap
                     svgElement.style.height = 'auto';
                 }
 
@@ -183,6 +192,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // HTML escape fonksiyonu
 function escapeHtml(unsafe) {
+    if (!unsafe) return '';
     return String(unsafe)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")

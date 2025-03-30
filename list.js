@@ -18,10 +18,10 @@ function displayListData(data) {
             const itemElement = document.createElement('div');
             itemElement.className = 'list-item';
             
-            // İçeriği ve değeri göster
+            // İçeriği ve değeri göster - Miktar/Değer solda, Öğe Adı sağda
             itemElement.innerHTML = `
-                <div class="item-content">${escapeHtml(item.content)}</div>
                 <div class="item-value">${escapeHtml(item.value)}</div>
+                <div class="item-content">${escapeHtml(item.content)}</div>
             `;
 
             // Resim varsa görüntüleme butonunu ekle
@@ -99,7 +99,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // HTML escape fonksiyonu
 function escapeHtml(unsafe) {
-    return unsafe
+    if (!unsafe) return '';
+    return String(unsafe)
         .replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")

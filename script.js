@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Add existing items
                 currentListData.items.forEach(item => {
-                    addNewItemRow(item.content, item.value);
+                    addNewItemRow(item.content, item.value, item.image);
                 });
             }
         } catch (error) {
@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Add new item row
-    function addNewItemRow(content = '', value = '') {
+    function addNewItemRow(content = '', value = '', image = '') {
         itemCount++;
         
         const itemRow = document.createElement('div');
@@ -88,6 +88,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     <input type="text" class="form-control item-value" placeholder="Miktar/Değer" value="${value}" required>
                     <input type="text" class="form-control item-content" placeholder="Öğe Adı" value="${content}" required>
                 </div>
+                <div class="image-container">
+                    <label class="image-upload-label">
+                        <i class="fas fa-image"></i>
+                        <input type="file" class="image-input" accept="image/*" style="display: none;">
+                    </label>
+                    <div class="image-preview">
+                        ${image ? `<div class="thumbnail-container"><img src="${image}" class="thumbnail" /><button type="button" class="remove-image-button">×</button></div>` : ''}
+                    </div>
+                </div>
                 <button type="button" class="delete-button remove-item">Sil</button>
             </div>
         `;
@@ -97,6 +106,43 @@ document.addEventListener('DOMContentLoaded', function() {
         removeButton.addEventListener('click', function() {
             itemRow.remove();
         });
+        
+        // Add image upload functionality
+        const imageInput = itemRow.querySelector('.image-input');
+        const imagePreview = itemRow.querySelector('.image-preview');
+        const removeImageButton = itemRow.querySelector('.remove-image-button');
+        
+        imageInput.addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                
+                reader.onload = function(event) {
+                    // Önizleme resmi oluştur
+                    imagePreview.innerHTML = `
+                        <div class="thumbnail-container">
+                            <img src="${event.target.result}" class="thumbnail" />
+                            <button type="button" class="remove-image-button">×</button>
+                        </div>
+                    `;
+                    
+                    // Resim kaldırma butonu olayı
+                    const newRemoveButton = imagePreview.querySelector('.remove-image-button');
+                    newRemoveButton.addEventListener('click', function() {
+                        imagePreview.innerHTML = '';
+                        imageInput.value = '';
+                    });
+                };
+                
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+        
+        if (removeImageButton) {
+            removeImageButton.addEventListener('click', function() {
+                imagePreview.innerHTML = '';
+                imageInput.value = '';
+            });
+        }
         
         itemsContainer.appendChild(itemRow);
     }
@@ -140,15 +186,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 itemRows.forEach(row => {
                     const contentInput = row.querySelector('.item-content');
                     const valueInput = row.querySelector('.item-value');
+                    const imagePreview = row.querySelector('.image-preview');
                     
                     if (contentInput && valueInput) {
                         const content = contentInput.value.trim();
                         const value = valueInput.value.trim();
+                        const image = imagePreview.querySelector('img') ? imagePreview.querySelector('img').src : '';
                         
                         if (content && value) {
                             items.push({
                                 content: content,
-                                value: value
+                                value: value,
+                                image: image
                             });
                             hasValidItems = true;
                         }
