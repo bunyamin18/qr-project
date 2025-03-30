@@ -1,17 +1,17 @@
 import dataStorage from './services/dataStorage.js';
+import qrcode from 'qrcodejs2';
 
 // Gerekli elementleri sakla
 let qrContainer;
 let downloadButton;
 let backButton;
-let currentListData;
 
 // QR kodu oluştur
 function generateQRCode(listId) {
     try {
         // Liste verisini al
-        currentListData = dataStorage.getList(listId);
-        if (!currentListData) {
+        const listData = dataStorage.getList(listId);
+        if (!listData) {
             throw new Error('Liste bulunamadı');
         }
 
@@ -19,33 +19,30 @@ function generateQRCode(listId) {
         const qrContent = `https://okulprojesibunyamin.netlify.app/list.html?listId=${listId}`;
 
         // QR kodu oluştur
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+        const qr = qrcode(0, 'L');
+        qr.addData(qrContent);
+        qr.make();
+
+        // QR kodu göster
+        const qrImage = qr.createDataURL(4);
         
-        // Canvas boyutunu ayarla
-        const size = 256;
-        canvas.width = size;
-        canvas.height = size;
-
-        // QR kodu oluştur
-        const qr = new QRCode(canvas, {
-            text: qrContent,
-            width: size,
-            height: size,
-            colorDark: '#000000',
-            colorLight: '#ffffff',
-            correctLevel: QRCode.CorrectLevel.H
-        });
-
-        // Canvas'ı container'a ekle
+        // Container'ı temizle
         qrContainer.innerHTML = '';
-        qrContainer.appendChild(canvas);
+        
+        // QR kodunu göster
+        const img = document.createElement('img');
+        img.src = qrImage;
+        img.style.maxWidth = '100%';
+        img.style.maxHeight = '300px';
+        img.style.objectFit = 'contain';
+        
+        qrContainer.appendChild(img);
 
         // İndirme butonuna tıklama event listener'ı
         downloadButton.addEventListener('click', () => {
             const link = document.createElement('a');
             link.download = `liste_${listId}.png`;
-            link.href = canvas.toDataURL('image/png');
+            link.href = qrImage;
             link.click();
         });
 
@@ -80,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Geri butonu event listener'ı
         backButton.addEventListener('click', () => {
-            window.location.href = 'list.html?listId=' + listId;
+            window.location.href = 'index.html';
         });
 
     } catch (error) {

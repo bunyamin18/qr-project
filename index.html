@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Kod Oluştur</title>
+    <title>Yeni Liste Oluştur</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode-generator.min.js"></script>
     <script type="module">
+        import dataStorage from './services/dataStorage.js';
         import './script.js';
     </script>
     <style>
@@ -66,7 +67,7 @@
             margin-top: 20px;
         }
 
-        .generate-button {
+        .add-row-button {
             background-color: #28a745;
             color: white;
             border: none;
@@ -77,36 +78,44 @@
             transition: background-color 0.3s;
         }
 
-        .generate-button:hover {
+        .add-row-button:hover {
             background-color: #218838;
             transform: translateY(-2px);
         }
 
-        .qr-container {
-            margin-top: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        .save-button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
         }
 
-        .qr-container img {
-            max-width: 256px;
-            max-height: 256px;
+        .save-button:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
         }
     </style>
 </head>
 <body>
+    <div class="create-tech-background"></div>
     <div class="container">
         <div class="center-card">
-            <h1>QR Kod Oluştur</h1>
-            <div class="form-group">
-                <label>İçerik</label>
-                <input type="text" id="qrContent" class="form-control" placeholder="QR kodu için içerik girin">
-            </div>
-            <div class="button-container">
-                <button id="generateButton" class="generate-button">QR Kodu Oluştur</button>
-            </div>
-            <div id="qrContainer" class="qr-container"></div>
+            <h1>Yeni Liste Oluştur</h1>
+            <form id="listForm">
+                <div class="form-group">
+                    <label>Liste Başlığı</label>
+                    <input type="text" id="listTitle" class="form-control" required>
+                </div>
+                <div id="items"></div>
+                <div class="button-container">
+                    <button type="button" class="add-row-button">Yeni Öğe Ekle</button>
+                    <button type="submit" class="save-button">Kaydet</button>
+                </div>
+            </form>
         </div>
     </div>
 </body>
