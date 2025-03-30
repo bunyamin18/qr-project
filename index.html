@@ -3,55 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Liste Oluşturucu</title>
+    <title>Liste Oluştur</title>
     <link rel="stylesheet" href="styles.css">
     
     <!-- Basit QR kod kütüphanesi -->
     <script src="qrcode-simple.js"></script>
-    
-    <!-- Particles.js için gerekli script -->
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-    
-    <!-- Font Awesome ikon kütüphanesi -->
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body>
     <div id="particles-js" class="tech-background"></div>
     <div class="container">
-        <header>
-            <h1>QR Kod Liste Oluşturucu</h1>
-            <p class="header-description">Listelerinizi oluşturun, kaydedin ve QR kod ile paylaşın</p>
-        </header>
-        
-        <div class="form-container">
+        <div class="center-card">
+            <h1>Liste Oluştur</h1>
             <form id="listForm">
                 <div class="form-group">
-                    <label for="listTitle">Liste Başlığı</label>
-                    <input type="text" id="listTitle" placeholder="Liste başlığını girin" required>
+                    <label>Liste Başlığı</label>
+                    <input type="text" id="title" class="form-control" required>
                 </div>
-                
-                <div id="itemsContainer">
-                    <!-- Buraya dinamik olarak öğeler eklenecek -->
-                </div>
-                
-                <div class="form-actions">
-                    <button type="button" id="addItemButton" class="add-item-button">Yeni Öğe Ekle</button>
-                    <button type="submit" id="saveButton" class="save-button">Kaydet</button>
+
+                <div id="itemsContainer"></div>
+                <div class="button-container">
+                    <button type="button" id="addItemButton" class="add-row-button">Yeni Öğe Ekle</button>
+                    <button type="submit" class="save-button">Kaydet</button>
                 </div>
             </form>
         </div>
-        
-        <div class="saved-lists">
-            <h2>Kayıtlı Listelerim</h2>
-            <div id="savedLists" class="lists-container">
-                <!-- Buraya kaydedilmiş listeler eklenecek -->
-            </div>
-        </div>
     </div>
     
-    <!-- Javascript dosyaları -->
+    <!-- Gerekli script dosyaları -->
     <script src="dataStorage.js"></script>
     <script src="script.js"></script>
-    <script src="qr-generator.js"></script>
 </body>
 </html>

@@ -7,115 +7,198 @@ document.addEventListener('DOMContentLoaded', function() {
     const listPreview = document.getElementById('list-preview');
     const previewItems = document.getElementById('preview-items');
     const qrContainer = document.getElementById('qrContainer');
+    const downloadButton = document.getElementById('downloadButton');
     const backButton = document.getElementById('backButton');
     const editButton = document.getElementById('editButton');
-    const downloadButton = document.getElementById('downloadButton');
     
-    // URL'den listId'yi al
-    const urlParams = new URLSearchParams(window.location.search);
-    const listId = urlParams.get('listId');
-    
-    if (!listId) {
-        showError('Liste ID bilgisi eksik');
+    // window.dataStorage kontrolü
+    if (!window.dataStorage) {
+        console.error("window.dataStorage bulunamadı - script.js önce yüklenmeli");
+        showError("Veri yönetim sistemi bulunamadı. Lütfen sayfayı yenileyin.");
         return;
     }
     
-    // localStorage'dan liste verilerini al
+    // Önce URL'den liste ID'sini almayı dene
+    const urlParams = new URLSearchParams(window.location.search);
+    let listId = urlParams.get('listId');
+    
+    console.log("URL'den alınan liste ID:", listId);
+    
+    // URL'den alınamazsa localStorage'dan almayı dene
+    if (!listId) {
+        listId = localStorage.getItem('currentQRListId');
+        console.log("localStorage'dan alınan liste ID:", listId);
+    }
+    
+    // Liste ID'si kontrolü
+    if (!listId) {
+        showError('Liste ID bulunamadı. Lütfen ana sayfaya dönün ve tekrar deneyin.');
+        return;
+    }
+    
     try {
-        // localStorage'dan listeyi al
-        const lists = JSON.parse(localStorage.getItem('lists') || '[]');
-        const listData = lists.find(list => list.id === listId);
+        console.log("Liste ID kullanılarak veri alınıyor:", listId);
         
+        // Liste verisini al
+        const listData = window.dataStorage.getList(listId);
+        console.log("Alınan liste verisi:", listData);
+        
+        // Liste verisinin varlığını kontrol et
         if (!listData) {
-            showError('Liste bulunamadı');
+            console.error("Liste verisi bulunamadı, ID:", listId);
+            showError('Liste bulunamadı veya geçersiz. Lütfen ana sayfaya dönün ve tekrar deneyin.');
             return;
         }
         
-        // Liste başlığını güncelle
-        listTitle.textContent = listData.title || 'Liste';
+        console.log("Liste verisi başarıyla alındı:", JSON.stringify(listData));
         
-        // Liste önizleme görüntüsünü güncelle
-        if (listData.items && listData.items.length > 0) {
-            displayPreviewItems(listData.items);
-        }
+        // Liste başlığını göster
+        listTitle.textContent = listData.title || 'İsimsiz Liste';
+        
+        // Liste öğelerini göster
+        displayPreviewItems(listData.items || []);
         
         // QR kodu oluştur
         generateQRCode(listData);
         
-        // Buton dinleyicilerini ayarla
+        // Buton işlevlerini ayarla
         setupButtonListeners(listData);
         
     } catch (error) {
-        console.error('Liste yüklenirken hata:', error);
-        showError('Liste verilerine erişilemedi: ' + error.message);
+        console.error('QR generator hatası:', error);
+        showError('QR kod oluşturulurken bir hata oluştu: ' + error.message);
     }
     
     // Liste öğelerini gösterme fonksiyonu
     function displayPreviewItems(items) {
-        // Önizleme alanını temizle
-        previewItems.innerHTML = '';
-        
-        // Maks. 5 öğe göster
-        const maxItemsToShow = Math.min(items.length, 5);
-        
-        // Öğeleri ekle
-        for (let i = 0; i < maxItemsToShow; i++) {
-            const item = items[i];
+        if (items && items.length > 0) {
+            previewItems.innerHTML = '';
             
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'preview-item';
-            
-            const contentSpan = document.createElement('span');
-            contentSpan.className = 'item-name';
-            contentSpan.textContent = item.name || '';
-            
-            const valueSpan = document.createElement('span');
-            valueSpan.className = 'item-value';
-            valueSpan.textContent = item.quantity || '';
-            
-            itemDiv.appendChild(contentSpan);
-            itemDiv.appendChild(valueSpan);
-            
-            previewItems.appendChild(itemDiv);
+            items.forEach(item => {
+                const previewItem = document.createElement('div');
+                previewItem.className = 'preview-item';
+                
+                // Öğe Adı solda, Miktar/Değer sağda gösterilecek
+                let itemContent = `
+                    <div class="preview-item-content">${escapeHtml(item.content || '')}</div>
+                    <div class="preview-item-value">${escapeHtml(item.value || '')}</div>
+                `;
+                
+                // If there's an image, add view button
+                if (item.image) {
+                    itemContent += `
+                        <div class="preview-item-image">
+                            <button type="button" class="view-image-button">Resim</button>
+                        </div>
+                    `;
+                }
+                
+                previewItem.innerHTML = itemContent;
+                
+                // Add click handler for image preview
+                if (item.image) {
+                    const imageButton = previewItem.querySelector('.view-image-button');
+                    if (imageButton) {
+                        imageButton.addEventListener('click', function() {
+                            showImageModal(item.image);
+                        });
+                    }
+                }
+                
+                previewItems.appendChild(previewItem);
+            });
+        } else {
+            previewItems.innerHTML = '<p>Bu listede hiç öğe yok.</p>';
         }
+    }
+    
+    // Resim modalını gösterme fonksiyonu
+    function showImageModal(imageUrl) {
+        if (!imageUrl) return;
         
-        // Eğer gösterilmeyen öğeler varsa, bir bilgi mesajı ekle
-        if (items.length > maxItemsToShow) {
-            const moreItemsMsg = document.createElement('p');
-            moreItemsMsg.textContent = `... ve ${items.length - maxItemsToShow} öğe daha`;
-            moreItemsMsg.style.fontSize = '12px';
-            moreItemsMsg.style.fontStyle = 'italic';
-            moreItemsMsg.style.textAlign = 'center';
-            moreItemsMsg.style.marginTop = '10px';
-            previewItems.appendChild(moreItemsMsg);
-        }
+        // Create modal for image
+        const modal = document.createElement('div');
+        modal.style.position = 'fixed';
+        modal.style.top = '0';
+        modal.style.left = '0';
+        modal.style.width = '100%';
+        modal.style.height = '100%';
+        modal.style.backgroundColor = 'rgba(0,0,0,0.8)';
+        modal.style.display = 'flex';
+        modal.style.justifyContent = 'center';
+        modal.style.alignItems = 'center';
+        modal.style.zIndex = '1000';
+        
+        // Create image element
+        const imgElement = document.createElement('img');
+        imgElement.src = imageUrl;
+        imgElement.style.maxWidth = '90%';
+        imgElement.style.maxHeight = '90%';
+        imgElement.style.objectFit = 'contain';
+        imgElement.style.borderRadius = '10px';
+        
+        // Create close button
+        const closeButton = document.createElement('div');
+        closeButton.style.position = 'absolute';
+        closeButton.style.top = '20px';
+        closeButton.style.right = '20px';
+        closeButton.style.color = 'white';
+        closeButton.style.fontSize = '30px';
+        closeButton.style.cursor = 'pointer';
+        closeButton.innerHTML = '&times;';
+        closeButton.addEventListener('click', function() {
+            document.body.removeChild(modal);
+        });
+        
+        // Add image and close button to modal
+        modal.appendChild(imgElement);
+        modal.appendChild(closeButton);
+        
+        // Add click handler to close modal when clicking outside image
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                document.body.removeChild(modal);
+            }
+        });
+        
+        // Add modal to body
+        document.body.appendChild(modal);
     }
     
     // QR kodu oluşturma fonksiyonu
     function generateQRCode(listData) {
+        console.log("generateQRCode fonksiyonu çağrıldı", listData);
+        
         try {
-            // Liste verilerini JSON formatında hazırla
-            const jsonData = JSON.stringify({
+            // Liste verilerini JSON formatında hazırla - daha basit bir yapıda
+            const minimalData = {
                 id: listData.id,
                 title: listData.title,
-                items: listData.items.map(item => ({
-                    name: item.name || '',
-                    quantity: item.quantity || ''
-                }))
-            });
+                items: listData.items.map(item => {
+                    // Liste verilerini en temel haliyle aktaralım
+                    return {
+                        content: item.content,
+                        value: item.value,
+                        image: item.image // Resim URL'sini de ekleyelim
+                    };
+                })
+            };
             
-            // Veriyi base64 formatına dönüştür (UTF-8 uyumlu)
+            // Liste verisini JSON'a dönüştür ve Base64 ile kodla
+            const jsonData = JSON.stringify(minimalData);
             const base64Data = btoa(unescape(encodeURIComponent(jsonData)));
             
-            // Göreli yol için URL oluştur
-            const finalUrl = 'viewer.html?data=' + encodeURIComponent(base64Data);
+            console.log('Base64 veri boyutu:', base64Data.length, 'karakter');
             
-            console.log("Oluşturulan URL:", finalUrl);
+            // Doğrudan HTML dosyasına giden URL oluştur
+            const finalUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/')) + '/viewer.html?data=' + encodeURIComponent(base64Data);
             
-            // QR kod container'ı temizle
+            console.log('Oluşturulan URL:', finalUrl);
+            
+            // QR kod için container'ı temizle
             qrContainer.innerHTML = '';
             
-            // QR kodu içerecek div oluştur
+            // QR kod div'ini oluştur
             const qrDiv = document.createElement('div');
             qrDiv.id = 'qrcode';
             qrDiv.style.backgroundColor = 'white';
@@ -124,29 +207,47 @@ document.addEventListener('DOMContentLoaded', function() {
             qrDiv.style.margin = '0 auto';
             qrDiv.style.width = '200px';
             qrDiv.style.height = '200px';
-            qrDiv.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
-            qrDiv.style.textAlign = 'center';
+            qrDiv.style.display = 'flex';
+            qrDiv.style.alignItems = 'center';
+            qrDiv.style.justifyContent = 'center';
             
+            // QR kodu container'a ekle
             qrContainer.appendChild(qrDiv);
             
-            // QR kod oluştur (qrcodejs olmadan kendi HTML canvas çözümümüzü yapıyoruz)
-            createBasicQRCode(finalUrl, qrDiv);
+            // QR kodu oluştur - QRCode kütüphanesini kullanarak
+            const qrcode = new QRCode(qrDiv, {
+                text: finalUrl,
+                width: 200,
+                height: 200,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
             
             // Liste bilgisi ekle
             const infoText = document.createElement('p');
-            infoText.textContent = `Bu QR kod "${listData.title}" listesine bağlantı içerir.`;
+            infoText.className = 'qr-description';
             infoText.style.textAlign = 'center';
-            infoText.style.marginTop = '10px';
-            infoText.style.color = '#00f5ff';
+            infoText.style.margin = '10px 0';
+            infoText.style.fontSize = '14px';
+            infoText.innerHTML = `Bu QR kod <strong>${escapeHtml(listData.title || 'Liste')}</strong> listesine bağlantı içerir.`;
             qrContainer.appendChild(infoText);
+            
+            // Uyarı mesajı
+            const noticeText = document.createElement('p');
+            noticeText.style.fontSize = '12px';
+            noticeText.style.color = 'rgba(255,255,255,0.7)';
+            noticeText.style.textAlign = 'center';
+            noticeText.innerHTML = 'QR kodu telefonunuzla tarayıp açın';
+            qrContainer.appendChild(noticeText);
             
             // URL Kopyala butonu ekle
             const copyButton = document.createElement('button');
-            copyButton.textContent = 'URL Kopyala';
             copyButton.className = 'copy-url-button';
+            copyButton.textContent = 'URL Kopyala';
+            copyButton.style.marginTop = '10px';
             copyButton.addEventListener('click', function() {
-                const fullUrl = window.location.origin + window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + finalUrl;
-                navigator.clipboard.writeText(fullUrl)
+                navigator.clipboard.writeText(finalUrl)
                     .then(() => {
                         alert('URL kopyalandı!');
                     })
@@ -160,153 +261,16 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('QR kod oluşturma hatası:', error);
             qrContainer.innerHTML = `<p class="error-message">QR kod oluşturulamadı: ${error.message}</p>`;
+            
+            // Hata mesajı sonrası tekrar deneme butonu ekle
+            const retryButton = document.createElement('button');
+            retryButton.textContent = 'Tekrar Dene';
+            retryButton.className = 'retry-button';
+            retryButton.addEventListener('click', function() {
+                generateQRCode(listData);
+            });
+            qrContainer.appendChild(retryButton);
         }
-    }
-    
-    // Temel bir QR kod oluşturmak için fonksiyon (fallback)
-    function createBasicQRCode(data, container) {
-        // QR kod için SVG oluşturalım (basit bir çözüm)
-        const qrSize = 200;
-        const qrHTML = `
-        <svg width="${qrSize}" height="${qrSize}" viewBox="0 0 37 37" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- QR kod template - statik bir QR kod gösteriyoruz, sadece görsel amaçlı -->
-          <rect width="37" height="37" fill="white"/>
-          <rect x="4" y="4" width="1" height="1" fill="black"/>
-          <rect x="5" y="4" width="1" height="1" fill="black"/>
-          <rect x="6" y="4" width="1" height="1" fill="black"/>
-          <rect x="7" y="4" width="1" height="1" fill="black"/>
-          <rect x="8" y="4" width="1" height="1" fill="black"/>
-          <rect x="9" y="4" width="1" height="1" fill="black"/>
-          <rect x="10" y="4" width="1" height="1" fill="black"/>
-          <rect x="12" y="4" width="1" height="1" fill="black"/>
-          <rect x="14" y="4" width="1" height="1" fill="black"/>
-          <rect x="15" y="4" width="1" height="1" fill="black"/>
-          <rect x="16" y="4" width="1" height="1" fill="black"/>
-          <rect x="18" y="4" width="1" height="1" fill="black"/>
-          <rect x="20" y="4" width="1" height="1" fill="black"/>
-          <rect x="21" y="4" width="1" height="1" fill="black"/>
-          <rect x="22" y="4" width="1" height="1" fill="black"/>
-          <rect x="23" y="4" width="1" height="1" fill="black"/>
-          <rect x="26" y="4" width="1" height="1" fill="black"/>
-          <rect x="27" y="4" width="1" height="1" fill="black"/>
-          <rect x="28" y="4" width="1" height="1" fill="black"/>
-          <rect x="29" y="4" width="1" height="1" fill="black"/>
-          <rect x="30" y="4" width="1" height="1" fill="black"/>
-          <rect x="31" y="4" width="1" height="1" fill="black"/>
-          <rect x="32" y="4" width="1" height="1" fill="black"/>
-          <rect x="4" y="5" width="1" height="1" fill="black"/>
-          <rect x="10" y="5" width="1" height="1" fill="black"/>
-          <rect x="12" y="5" width="1" height="1" fill="black"/>
-          <rect x="13" y="5" width="1" height="1" fill="black"/>
-          <rect x="14" y="5" width="1" height="1" fill="black"/>
-          <rect x="15" y="5" width="1" height="1" fill="black"/>
-          <rect x="19" y="5" width="1" height="1" fill="black"/>
-          <rect x="20" y="5" width="1" height="1" fill="black"/>
-          <rect x="21" y="5" width="1" height="1" fill="black"/>
-          <rect x="26" y="5" width="1" height="1" fill="black"/>
-          <rect x="32" y="5" width="1" height="1" fill="black"/>
-          <rect x="4" y="6" width="1" height="1" fill="black"/>
-          <rect x="6" y="6" width="1" height="1" fill="black"/>
-          <rect x="7" y="6" width="1" height="1" fill="black"/>
-          <rect x="8" y="6" width="1" height="1" fill="black"/>
-          <rect x="10" y="6" width="1" height="1" fill="black"/>
-          <rect x="15" y="6" width="1" height="1" fill="black"/>
-          <rect x="17" y="6" width="1" height="1" fill="black"/>
-          <rect x="18" y="6" width="1" height="1" fill="black"/>
-          <rect x="21" y="6" width="1" height="1" fill="black"/>
-          <rect x="23" y="6" width="1" height="1" fill="black"/>
-          <rect x="26" y="6" width="1" height="1" fill="black"/>
-          <rect x="28" y="6" width="1" height="1" fill="black"/>
-          <rect x="29" y="6" width="1" height="1" fill="black"/>
-          <rect x="30" y="6" width="1" height="1" fill="black"/>
-          <rect x="32" y="6" width="1" height="1" fill="black"/>
-          <rect x="4" y="7" width="1" height="1" fill="black"/>
-          <rect x="6" y="7" width="1" height="1" fill="black"/>
-          <rect x="7" y="7" width="1" height="1" fill="black"/>
-          <rect x="8" y="7" width="1" height="1" fill="black"/>
-          <rect x="10" y="7" width="1" height="1" fill="black"/>
-          <rect x="12" y="7" width="1" height="1" fill="black"/>
-          <rect x="13" y="7" width="1" height="1" fill="black"/>
-          <rect x="14" y="7" width="1" height="1" fill="black"/>
-          <rect x="15" y="7" width="1" height="1" fill="black"/>
-          <rect x="16" y="7" width="1" height="1" fill="black"/>
-          <rect x="17" y="7" width="1" height="1" fill="black"/>
-          <rect x="18" y="7" width="1" height="1" fill="black"/>
-          <rect x="19" y="7" width="1" height="1" fill="black"/>
-          <rect x="20" y="7" width="1" height="1" fill="black"/>
-          <rect x="21" y="7" width="1" height="1" fill="black"/>
-          <rect x="22" y="7" width="1" height="1" fill="black"/>
-          <rect x="24" y="7" width="1" height="1" fill="black"/>
-          <rect x="26" y="7" width="1" height="1" fill="black"/>
-          <rect x="28" y="7" width="1" height="1" fill="black"/>
-          <rect x="29" y="7" width="1" height="1" fill="black"/>
-          <rect x="30" y="7" width="1" height="1" fill="black"/>
-          <rect x="32" y="7" width="1" height="1" fill="black"/>
-          <rect x="4" y="8" width="1" height="1" fill="black"/>
-          <rect x="6" y="8" width="1" height="1" fill="black"/>
-          <rect x="7" y="8" width="1" height="1" fill="black"/>
-          <rect x="8" y="8" width="1" height="1" fill="black"/>
-          <rect x="10" y="8" width="1" height="1" fill="black"/>
-          <rect x="12" y="8" width="1" height="1" fill="black"/>
-          <rect x="13" y="8" width="1" height="1" fill="black"/>
-          <rect x="15" y="8" width="1" height="1" fill="black"/>
-          <rect x="17" y="8" width="1" height="1" fill="black"/>
-          <rect x="18" y="8" width="1" height="1" fill="black"/>
-          <rect x="20" y="8" width="1" height="1" fill="black"/>
-          <rect x="21" y="8" width="1" height="1" fill="black"/>
-          <rect x="26" y="8" width="1" height="1" fill="black"/>
-          <rect x="28" y="8" width="1" height="1" fill="black"/>
-          <rect x="29" y="8" width="1" height="1" fill="black"/>
-          <rect x="30" y="8" width="1" height="1" fill="black"/>
-          <rect x="32" y="8" width="1" height="1" fill="black"/>
-          <rect x="4" y="9" width="1" height="1" fill="black"/>
-          <rect x="10" y="9" width="1" height="1" fill="black"/>
-          <rect x="13" y="9" width="1" height="1" fill="black"/>
-          <rect x="15" y="9" width="1" height="1" fill="black"/>
-          <rect x="17" y="9" width="1" height="1" fill="black"/>
-          <rect x="21" y="9" width="1" height="1" fill="black"/>
-          <rect x="22" y="9" width="1" height="1" fill="black"/>
-          <rect x="23" y="9" width="1" height="1" fill="black"/>
-          <rect x="26" y="9" width="1" height="1" fill="black"/>
-          <rect x="32" y="9" width="1" height="1" fill="black"/>
-          <rect x="4" y="10" width="1" height="1" fill="black"/>
-          <rect x="5" y="10" width="1" height="1" fill="black"/>
-          <rect x="6" y="10" width="1" height="1" fill="black"/>
-          <rect x="7" y="10" width="1" height="1" fill="black"/>
-          <rect x="8" y="10" width="1" height="1" fill="black"/>
-          <rect x="9" y="10" width="1" height="1" fill="black"/>
-          <rect x="10" y="10" width="1" height="1" fill="black"/>
-          <rect x="12" y="10" width="1" height="1" fill="black"/>
-          <rect x="14" y="10" width="1" height="1" fill="black"/>
-          <rect x="16" y="10" width="1" height="1" fill="black"/>
-          <rect x="18" y="10" width="1" height="1" fill="black"/>
-          <rect x="20" y="10" width="1" height="1" fill="black"/>
-          <rect x="22" y="10" width="1" height="1" fill="black"/>
-          <rect x="24" y="10" width="1" height="1" fill="black"/>
-          <rect x="26" y="10" width="1" height="1" fill="black"/>
-          <rect x="27" y="10" width="1" height="1" fill="black"/>
-          <rect x="28" y="10" width="1" height="1" fill="black"/>
-          <rect x="29" y="10" width="1" height="1" fill="black"/>
-          <rect x="30" y="10" width="1" height="1" fill="black"/>
-          <rect x="31" y="10" width="1" height="1" fill="black"/>
-          <rect x="32" y="10" width="1" height="1" fill="black"/>
-        </svg>
-        
-        <div style="margin-top:10px;">
-            <small style="color:#333;">QR Kodu Mobil Cihazınızla Tarayın</small>
-        </div>
-        `;
-        
-        container.innerHTML = qrHTML;
-        
-        // Yönlendirme URL'sini metin olarak da gösterelim
-        const pElement = document.createElement('p');
-        pElement.style.fontSize = '12px';
-        pElement.style.marginTop = '10px';
-        pElement.style.wordBreak = 'break-word'; 
-        pElement.style.color = '#333';
-        pElement.textContent = 'Bu sayfayı tarayın veya URL\'yi kopyalayın';
-        container.appendChild(pElement);
     }
     
     // Buton işlevlerini ayarlama fonksiyonu
@@ -330,23 +294,33 @@ document.addEventListener('DOMContentLoaded', function() {
         // QR kodun indirilmesi
         if (downloadButton) {
             downloadButton.addEventListener('click', function() {
-                // QR kodu div'ini al
-                const qrDiv = document.getElementById('qrcode');
-                if (!qrDiv) {
-                    alert('QR kod bulunamadı');
-                    return;
+                try {
+                    // QR kod div'ini bul
+                    const qrCodeElement = document.getElementById('qrcode');
+                    if (!qrCodeElement) {
+                        alert('QR kodu bulunamadı');
+                        return;
+                    }
+                    
+                    // QR kod elementindeki img öğesini bul
+                    const qrImg = qrCodeElement.querySelector('img');
+                    if (!qrImg) {
+                        alert('QR kod görüntüsü bulunamadı');
+                        return;
+                    }
+                    
+                    // Yeni sekme aç ve resmi göster (indirme için)
+                    const newTab = window.open();
+                    newTab.document.write(`<html><head><title>QR Kod - ${listData.title}</title></head>
+                    <body style="text-align:center; padding:20px;">
+                    <h2>QR Kod: ${listData.title}</h2>
+                    <img src="${qrImg.src}" style="max-width:300px; border:1px solid #ccc; padding:10px;">
+                    <p>Resmi kaydetmek için üzerine sağ tıklayıp "Resmi Farklı Kaydet" seçeneğini kullanabilirsiniz.</p>
+                    </body></html>`);
+                } catch (error) {
+                    console.error('QR kod indirme hatası:', error);
+                    alert('QR kod indirirken bir hata oluştu: ' + error.message);
                 }
-                
-                // Yeni sekme aç ve resmi göster (indirme için)
-                const newTab = window.open();
-                newTab.document.write(`<html><head><title>QR Kod - ${listData.title}</title></head>
-                <body style="text-align:center; padding:20px;">
-                <h2>QR Kod: ${listData.title}</h2>
-                <div style="max-width:300px; border:1px solid #ccc; padding:10px; margin:0 auto;">
-                    ${qrDiv.innerHTML}
-                </div>
-                <p>QR kodu kaydetmek için ekran görüntüsü alabilirsiniz.</p>
-                </body></html>`);
             });
         }
     }
@@ -366,12 +340,28 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (qrContainer) {
             qrContainer.innerHTML = `
-            <div class="error-box">
-                <p class="error-message">${message}</p>
-                <button onclick="window.location.href='index.html'" class="retry-button">
-                    Ana Sayfaya Dön
-                </button>
-            </div>`;
+                <div class="error-container">
+                    <div class="error-icon">⚠️</div>
+                    <p class="error-message">${message}</p>
+                    <p>Lütfen ana sayfaya dönün ve tekrar deneyin.</p>
+                    <p class="debug-info">Hata zamanı: ${new Date().toLocaleString()}</p>
+                </div>
+            `;
         }
+        
+        // Sadece geri butonu göster
+        if (downloadButton) downloadButton.style.display = 'none';
+        if (editButton) editButton.style.display = 'none';
+    }
+    
+    // HTML karakterlerini temizleme fonksiyonu
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
     }
 });
