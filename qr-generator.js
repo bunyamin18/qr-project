@@ -545,27 +545,15 @@ document.addEventListener('DOMContentLoaded', function() {
             qrContainer.appendChild(qrDiv);
             
             try {
-                // Hangi QR kütüphanesinin yüklü olduğunu kontrol et ve o şekilde kullan
-                if (typeof qrcode === 'function') {
-                    // qrcode-generator kütüphanesi
-                    console.log("qrcode-generator kütüphanesi kullanılıyor");
-                    const qr = qrcode(4, 'L');
-                    qr.addData(finalUrl);
-                    qr.make();
-                    qrDiv.innerHTML = qr.createImgTag(5);
-                } else if (typeof QRCode === 'function') {
-                    // qrcodejs kütüphanesi
-                    console.log("qrcodejs kütüphanesi kullanılıyor");
-                    new QRCode(qrDiv, {
-                        text: finalUrl,
-                        width: 200,
-                        height: 200,
-                        colorDark: "#000000",
-                        colorLight: "#ffffff",
-                        correctLevel: QRCode.CorrectLevel ? QRCode.CorrectLevel.H : 2
-                    });
+                // SimpleQR kütüphanesini kullanarak QR kod oluştur - bu yöntem her zaman çalışır
+                if (typeof SimpleQR !== 'undefined') {
+                    console.log("SimpleQR kütüphanesi kullanılıyor");
+                    // QR kodu oluştur
+                    const qrImage = SimpleQR.displayQR(qrDiv, finalUrl, 200);
+                    
+                    // QR kod indirme butonu için gereken referansı kaydet
+                    qrDiv.dataset.qrUrl = finalUrl;
                 } else {
-                    // Her iki kütüphane de yüklenemedi
                     throw new Error("QR kod kütüphanesi bulunamadı");
                 }
                 
@@ -586,7 +574,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 noticeText.style.fontSize = '12px';
                 noticeText.style.color = 'rgba(255,255,255,0.7)';
                 noticeText.style.textAlign = 'center';
-                noticeText.innerHTML = 'QR kodu telefonunuzla taradıktan sonra gerekli iznleri verin';
+                noticeText.innerHTML = 'QR kodu telefonunuzla tarayıp açın';
                 qrContainer.appendChild(noticeText);
                 
                 // Kopyalama butonu

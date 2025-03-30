@@ -6,15 +6,8 @@
     <title>QR Kod Oluşturucu</title>
     <link rel="stylesheet" href="styles.css">
     
-    <!-- Güncel QR kod kütüphanesi -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
-    
-    <!-- Alternatif QR kod kütüphanesi - birincisi çalışmazsa bu devreye girecek -->
-    <script>
-        if (typeof QRCode !== 'function') {
-            document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"><\/script>');
-        }
-    </script>
+    <!-- Basit QR kod kütüphanesi -->
+    <script src="qrcode-simple.js"></script>
     
     <!-- Particles.js için gerekli script -->
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
