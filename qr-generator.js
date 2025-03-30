@@ -18,32 +18,43 @@ function generateQRCode(listId) {
         // QR kod içeriğini hazırla
         const qrContent = `https://okulprojesibunyamin.netlify.app/list.html?listId=${listId}`;
 
-        // QR kodu oluştur
-        const qr = qrcode(0, 'L');
+        // QR kodu oluştur - farklı bir metot kullanıyoruz
+        const qr = qrcode(4, 'M'); // Daha yüksek hata düzeltme seviyesi
         qr.addData(qrContent);
         qr.make();
 
-        // QR kodu göster
-        const qrImage = qr.createDataURL(4);
+        // QR kodu göster - createDataURL yerine createImgTag
+        const qrImageTag = qr.createImgTag(5, 0);
         
         // Container'ı temizle
         qrContainer.innerHTML = '';
         
-        // QR kodunu göster
-        const img = document.createElement('img');
-        img.src = qrImage;
-        img.style.maxWidth = '100%';
-        img.style.maxHeight = '300px';
-        img.style.objectFit = 'contain';
+        // QR kodunu HTML olarak ekle
+        qrContainer.innerHTML = qrImageTag;
         
-        qrContainer.appendChild(img);
+        // QR kod resmi
+        const img = qrContainer.querySelector('img');
+        if (img) {
+            img.style.maxWidth = '100%';
+            img.style.maxHeight = '300px';
+            img.style.objectFit = 'contain';
+        }
 
         // İndirme butonuna tıklama event listener'ı
         downloadButton.addEventListener('click', () => {
-            const link = document.createElement('a');
-            link.download = `liste_${listId}.png`;
-            link.href = qrImage;
-            link.click();
+            if (img) {
+                // Canvas kullanarak daha iyi resim kalitesi
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                
+                const link = document.createElement('a');
+                link.download = `liste_${listId}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }
         });
 
     } catch (error) {
