@@ -231,8 +231,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     width: 200,
                     height: 200,
                     colorDark: "#000000",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H
+                    colorLight: "#ffffff"
                 });
                 
                 // QR kod başarıyla oluşturulduğunu logla
