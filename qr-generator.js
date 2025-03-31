@@ -200,34 +200,46 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log('Oluşturulan URL:', finalUrl);
             
-            // QR kod için container'ı temizle
-            qrContainer.innerHTML = '';
-            
-            // QR kod div'ini oluştur
-            const qrDiv = document.createElement('div');
-            qrDiv.id = 'qrcode';
-            qrDiv.style.backgroundColor = 'white';
-            qrDiv.style.padding = '15px';
-            qrDiv.style.borderRadius = '8px';
-            qrDiv.style.margin = '0 auto';
-            qrDiv.style.width = '200px';
-            qrDiv.style.height = '200px';
-            qrDiv.style.display = 'flex';
-            qrDiv.style.alignItems = 'center';
-            qrDiv.style.justifyContent = 'center';
-            
-            // QR kodu container'a ekle
-            qrContainer.appendChild(qrDiv);
-            
-            // SimpleQR kütüphanesinin doğru yüklenip yüklenmediğini kontrol et
-            if (typeof SimpleQR === 'undefined') {
-                throw new Error("SimpleQR kütüphanesi bulunamadı. Lütfen sayfayı yenileyin.");
-            }
-            
-            // QR kodu oluştur - SimpleQR kütüphanesini kullanarak
+            // QR kodu oluştur - doğrudan Google Charts API kullanarak
             try {
-                // SimpleQR sınıfının displayQR metodunu kullan
-                const qrImage = SimpleQR.displayQR(qrDiv, finalUrl, 200);
+                // URL'yi encode et
+                const encodedUrl = encodeURIComponent(finalUrl);
+                
+                // Google Charts API ile QR kod URL'si oluştur
+                const qrCodeUrl = `https://chart.googleapis.com/chart?cht=qr&chl=${encodedUrl}&chs=200x200&chld=H|0`;
+                
+                // QR kod için container'ı temizle
+                qrContainer.innerHTML = '';
+                
+                // QR kod div'ini oluştur
+                const qrDiv = document.createElement('div');
+                qrDiv.id = 'qrcode';
+                qrDiv.style.backgroundColor = 'white';
+                qrDiv.style.padding = '15px';
+                qrDiv.style.borderRadius = '8px';
+                qrDiv.style.margin = '0 auto';
+                qrDiv.style.width = '200px';
+                qrDiv.style.height = '200px';
+                qrDiv.style.display = 'flex';
+                qrDiv.style.alignItems = 'center';
+                qrDiv.style.justifyContent = 'center';
+                
+                // QR kod resmi oluştur
+                const qrImg = document.createElement('img');
+                qrImg.src = qrCodeUrl;
+                qrImg.alt = 'QR Kod';
+                qrImg.style.maxWidth = '100%';
+                qrImg.style.display = 'block';
+                qrImg.style.margin = '0 auto';
+                qrImg.style.background = '#ffffff';
+                qrImg.style.padding = '10px';
+                qrImg.style.borderRadius = '8px';
+                
+                // Resmi container'a ekle
+                qrDiv.appendChild(qrImg);
+                
+                // QR kod container'a ekle
+                qrContainer.appendChild(qrDiv);
                 
                 // QR kod başarıyla oluşturulduğunu logla
                 console.log('QR kod başarıyla oluşturuldu');
@@ -239,8 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // İndirme butonu işlevi
                     downloadButton.addEventListener('click', function() {
                         // QR kod URL'sini al ve yeni sekmede aç
-                        const qrUrl = qrImage.src;
-                        const newTab = window.open(qrUrl, '_blank');
+                        const newTab = window.open(qrCodeUrl, '_blank');
                         if (!newTab) {
                             alert('Yeni pencere açılamadı. Lütfen pop-up engelleyicinizi kontrol edin.');
                         }
