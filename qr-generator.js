@@ -226,16 +226,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // QR kodu oluştur - SimpleQR kütüphanesini kullanarak
             try {
-                // SimpleQR kullanarak QR kod URL'si oluştur
-                const qrCodeUrl = SimpleQR.generateQRUrl(finalUrl, 200);
-                
-                // QR kod resmini ekleyelim
-                const qrImg = document.createElement('img');
-                qrImg.src = qrCodeUrl;
-                qrImg.alt = 'QR Kod';
-                qrImg.style.maxWidth = '100%';
-                qrImg.style.height = 'auto';
-                qrDiv.appendChild(qrImg);
+                // SimpleQR sınıfının displayQR metodunu kullan
+                const qrImage = SimpleQR.displayQR(qrDiv, finalUrl, 200);
                 
                 // QR kod başarıyla oluşturulduğunu logla
                 console.log('QR kod başarıyla oluşturuldu');
@@ -246,8 +238,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // İndirme butonu işlevi
                     downloadButton.addEventListener('click', function() {
-                        // Yeni sekme aç ve QR kodu göster (indirmek için)
-                        const newTab = window.open(qrCodeUrl, '_blank');
+                        // QR kod URL'sini al ve yeni sekmede aç
+                        const qrUrl = qrImage.src;
+                        const newTab = window.open(qrUrl, '_blank');
                         if (!newTab) {
                             alert('Yeni pencere açılamadı. Lütfen pop-up engelleyicinizi kontrol edin.');
                         }
