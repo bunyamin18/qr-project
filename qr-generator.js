@@ -219,20 +219,23 @@ document.addEventListener('DOMContentLoaded', function() {
             // QR kodu container'a ekle
             qrContainer.appendChild(qrDiv);
             
-            // QRCode kütüphanesinin doğru yüklenip yüklenmediğini kontrol et
-            if (typeof QRCode === 'undefined') {
-                throw new Error("QRCode kütüphanesi bulunamadı. Lütfen sayfayı yenileyin.");
+            // SimpleQR kütüphanesinin doğru yüklenip yüklenmediğini kontrol et
+            if (typeof SimpleQR === 'undefined') {
+                throw new Error("SimpleQR kütüphanesi bulunamadı. Lütfen sayfayı yenileyin.");
             }
             
-            // QR kodu oluştur - QRCode kütüphanesini kullanarak
+            // QR kodu oluştur - SimpleQR kütüphanesini kullanarak
             try {
-                const qrcode = new QRCode(qrDiv, {
-                    text: finalUrl,
-                    width: 200,
-                    height: 200,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff"
-                });
+                // SimpleQR kullanarak QR kod URL'si oluştur
+                const qrCodeUrl = SimpleQR.generateQRUrl(finalUrl, 200);
+                
+                // QR kod resmini ekleyelim
+                const qrImg = document.createElement('img');
+                qrImg.src = qrCodeUrl;
+                qrImg.alt = 'QR Kod';
+                qrImg.style.maxWidth = '100%';
+                qrImg.style.height = 'auto';
+                qrDiv.appendChild(qrImg);
                 
                 // QR kod başarıyla oluşturulduğunu logla
                 console.log('QR kod başarıyla oluşturuldu');
@@ -240,6 +243,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 // İndirme butonunu etkinleştir
                 if (downloadButton) {
                     downloadButton.disabled = false;
+                    
+                    // İndirme butonu işlevi
+                    downloadButton.addEventListener('click', function() {
+                        // Yeni sekme aç ve QR kodu göster (indirmek için)
+                        const newTab = window.open(qrCodeUrl, '_blank');
+                        if (!newTab) {
+                            alert('Yeni pencere açılamadı. Lütfen pop-up engelleyicinizi kontrol edin.');
+                        }
+                    });
                 }
             } catch (qrError) {
                 console.error('QRCode oluşturma hatası:', qrError);
