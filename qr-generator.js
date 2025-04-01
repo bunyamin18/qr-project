@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log('Oluşturulan URL:', finalUrl);
             
-            // QR kodu oluştur - SimpleQR kütüphanesini kullan
+            // QR kodu oluştur - qrcode.min.js kütüphanesini kullan
             try {
                 // QR kod için container'ı temizle
                 qrContainer.innerHTML = '';
@@ -212,23 +212,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 qrDiv.style.padding = '15px';
                 qrDiv.style.borderRadius = '8px';
                 qrDiv.style.margin = '0 auto';
-                qrDiv.style.width = '230px'; // Biraz daha geniş
-                qrDiv.style.height = '230px'; // Biraz daha yüksek
+                qrDiv.style.width = '230px'; 
+                qrDiv.style.height = '230px';
                 qrDiv.style.display = 'flex';
                 qrDiv.style.alignItems = 'center';
                 qrDiv.style.justifyContent = 'center';
-                qrDiv.style.position = 'relative'; // Relative position ekle
-                qrDiv.style.zIndex = '10'; // Z-index ekle
+                qrDiv.style.position = 'relative';
+                qrDiv.style.zIndex = '10';
                 
                 // QR container'a ekle
                 qrContainer.appendChild(qrDiv);
                 
-                // SimpleQR kütüphanesini kullanarak QR kodu oluştur
-                if (window.SimpleQR && typeof window.SimpleQR.displayQR === 'function') {
-                    const qrImg = window.SimpleQR.displayQR(qrDiv, finalUrl, 200);
+                // qrcode.min.js kütüphanesini kullanarak QR kod oluştur
+                if (typeof QRCode !== 'undefined') {
+                    // QR kodu doğrudan oluştur
+                    const qrcode = new QRCode(qrDiv, {
+                        text: finalUrl,
+                        width: 200,
+                        height: 200,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
                     
-                    // QR kod başarıyla oluşturulduğunu logla
                     console.log('QR kod başarıyla oluşturuldu');
+                    
+                    // QR kod görüntüsünü al
+                    const qrImg = qrDiv.querySelector('img');
                     
                     // İndirme butonunu etkinleştir
                     if (downloadButton) {
@@ -241,15 +251,104 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Yeni event listener ekle
                         newDownloadButton.addEventListener('click', function() {
                             try {
-                                // QR kod görüntüsünü al
-                                const qrImgSrc = qrImg.src;
-                                
-                                // Yeni sekme aç ve resmi göster (indirme için)
+                                if (qrImg) {
+                                    // QR kod görüntüsünü al
+                                    const qrImgSrc = qrImg.src;
+                                    
+                                    // Yeni sekme aç ve resmi göster (indirme için)
+                                    const newTab = window.open();
+                                    newTab.document.write(`<html><head><title>QR Kod - ${listData.title}</title></head>
+                                    <body style="text-align:center; padding:20px;">
+                                    <h2>QR Kod: ${listData.title}</h2>
+                                    <img src="${qrImgSrc}" style="max-width:300px; border:1px solid #ccc; padding:10px;">
+                                    <p>Resmi kaydetmek için üzerine sağ tıklayıp "Resmi Farklı Kaydet" seçeneğini kullanabilirsiniz.</p>
+                                    </body></html>`);
+                                } else {
+                                    alert('QR kodu bulunamadı');
+                                }
+                            } catch (error) {
+                                console.error('QR kod indirme hatası:', error);
+                                alert('QR kod indirirken bir hata oluştu: ' + error.message);
+                            }
+                        });
+                    }
+                } else {
+                    throw new Error("QRCode kütüphanesi bulunamadı");
+                }
+            } catch (qrError) {
+                console.error('QRCode oluşturma hatası:', qrError);
+                
+                // QRCode kütüphanesi bulunamazsa, alternatif yöntem olarak doğrudan Google Charts API kullan
+                try {
+                    console.log('Alternatif QR kod oluşturma yöntemi deneniyor...');
+                    
+                    // URL'yi encode et
+                    const encodedUrl = encodeURIComponent(finalUrl);
+                    
+                    // Google Charts API ile QR kod URL'si oluştur
+                    const qrCodeUrl = `https://chart.googleapis.com/chart?cht=qr&chl=${encodedUrl}&chs=200x200&chld=H|0`;
+                    
+                    // QR kod için container'ı temizle - görsel olarak güncelle
+                    qrDiv.innerHTML = "<p>QR kod yükleniyor...</p>";
+                    
+                    // QR kod resmi oluştur
+                    const qrImg = document.createElement('img');
+                    qrImg.src = qrCodeUrl;
+                    qrImg.alt = 'QR Kod';
+                    qrImg.style.maxWidth = '100%';
+                    qrImg.style.display = 'block';
+                    qrImg.style.margin = '0 auto';
+                    qrImg.style.background = '#ffffff';
+                    qrImg.style.padding = '10px';
+                    qrImg.style.borderRadius = '8px';
+                    
+                    // Resim yüklenmesi için bir olay dinleyicisi
+                    qrImg.onload = function() {
+                        console.log('QR kod resmi başarıyla yüklendi');
+                        // Yükleme mesajını temizle
+                        qrDiv.innerHTML = '';
+                        // Resmi container'a ekle
+                        qrDiv.appendChild(qrImg);
+                    };
+                    
+                    // Resim yüklenemezse hata göster
+                    qrImg.onerror = function() {
+                        console.error('QR kod resmi yüklenemedi');
+                        qrDiv.innerHTML = "<p style='color: red; text-align: center;'>QR kod yüklenemedi. Lütfen tekrar deneyin.</p>";
+                        
+                        // Tekrar deneme butonu ekle
+                        const retryBtn = document.createElement('button');
+                        retryBtn.textContent = 'Tekrar Dene';
+                        retryBtn.style.margin = '10px auto';
+                        retryBtn.style.display = 'block';
+                        retryBtn.addEventListener('click', function() {
+                            generateQRCode(listData);
+                        });
+                        qrDiv.appendChild(retryBtn);
+                    };
+                    
+                    // Resmin src'sini ayarla (bu onload/onerror olaylarını tetikler)
+                    qrImg.src = qrCodeUrl;
+                    
+                    console.log('QR kod başarıyla oluşturuldu (alternatif yöntem)');
+                    
+                    // İndirme butonunu etkinleştir
+                    if (downloadButton) {
+                        downloadButton.disabled = false;
+                        
+                        // İndirme butonu işlevi - önceki event listener'ları temizle
+                        const newDownloadButton = downloadButton.cloneNode(true);
+                        downloadButton.parentNode.replaceChild(newDownloadButton, downloadButton);
+                        
+                        // Yeni event listener ekle
+                        newDownloadButton.addEventListener('click', function() {
+                            try {
+                                // Yeni sekme aç ve resmi göster
                                 const newTab = window.open();
                                 newTab.document.write(`<html><head><title>QR Kod - ${listData.title}</title></head>
                                 <body style="text-align:center; padding:20px;">
                                 <h2>QR Kod: ${listData.title}</h2>
-                                <img src="${qrImgSrc}" style="max-width:300px; border:1px solid #ccc; padding:10px;">
+                                <img src="${qrCodeUrl}" style="max-width:300px; border:1px solid #ccc; padding:10px;">
                                 <p>Resmi kaydetmek için üzerine sağ tıklayıp "Resmi Farklı Kaydet" seçeneğini kullanabilirsiniz.</p>
                                 </body></html>`);
                             } catch (error) {
@@ -258,12 +357,26 @@ document.addEventListener('DOMContentLoaded', function() {
                             }
                         });
                     }
-                } else {
-                    throw new Error("SimpleQR kütüphanesi bulunamadı");
+                } catch (fallbackError) {
+                    console.error('Alternatif QRCode oluşturma hatası:', fallbackError);
+                    
+                    // Her iki yöntem de başarısız olursa net bir hata mesajı göster
+                    qrContainer.innerHTML = `
+                        <div style="padding: 20px; background-color: rgba(255, 0, 0, 0.2); border-radius: 8px; text-align: center; margin: 20px 0;">
+                            <h3 style="color: #ff6b6b; margin-top: 0;">QR Kod Oluşturulamadı</h3>
+                            <p>QR kod oluşturulurken bir hata meydana geldi. Lütfen tekrar deneyin.</p>
+                            <button id="retryQrButton" style="padding: 10px 20px; background-color: #00f5ff; color: #000; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">Tekrar Dene</button>
+                        </div>
+                    `;
+                    
+                    // Tekrar deneme butonu için olay dinleyicisi ekle
+                    const retryQrButton = document.getElementById('retryQrButton');
+                    if (retryQrButton) {
+                        retryQrButton.addEventListener('click', function() {
+                            generateQRCode(listData);
+                        });
+                    }
                 }
-            } catch (qrError) {
-                console.error('QRCode oluşturma hatası:', qrError);
-                throw new Error("QR kod oluşturulamadı: " + qrError.message);
             }
             
             // Liste bilgisi ekle
@@ -272,8 +385,8 @@ document.addEventListener('DOMContentLoaded', function() {
             infoText.style.textAlign = 'center';
             infoText.style.margin = '10px 0';
             infoText.style.fontSize = '14px';
-            infoText.style.position = 'relative'; // Relative position ekle
-            infoText.style.zIndex = '10'; // Z-index ekle
+            infoText.style.position = 'relative';
+            infoText.style.zIndex = '10';
             infoText.innerHTML = `Bu QR kod <strong>${escapeHtml(listData.title || 'Liste')}</strong> listesine bağlantı içerir.`;
             qrContainer.appendChild(infoText);
             
@@ -282,8 +395,8 @@ document.addEventListener('DOMContentLoaded', function() {
             noticeText.style.fontSize = '12px';
             noticeText.style.color = 'rgba(255,255,255,0.7)';
             noticeText.style.textAlign = 'center';
-            noticeText.style.position = 'relative'; // Relative position ekle
-            noticeText.style.zIndex = '10'; // Z-index ekle
+            noticeText.style.position = 'relative';
+            noticeText.style.zIndex = '10';
             noticeText.innerHTML = 'QR kodu telefonunuzla tarayıp açın';
             qrContainer.appendChild(noticeText);
             
@@ -292,8 +405,8 @@ document.addEventListener('DOMContentLoaded', function() {
             copyButton.className = 'copy-url-button';
             copyButton.textContent = 'URL Kopyala';
             copyButton.style.marginTop = '10px';
-            copyButton.style.position = 'relative'; // Relative position ekle
-            copyButton.style.zIndex = '10'; // Z-index ekle
+            copyButton.style.position = 'relative';
+            copyButton.style.zIndex = '10';
             copyButton.addEventListener('click', function() {
                 navigator.clipboard.writeText(finalUrl)
                     .then(() => {
