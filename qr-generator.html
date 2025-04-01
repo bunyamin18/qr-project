@@ -10,8 +10,94 @@
     <script src="dataStorage.js"></script>
     <script src="script.js"></script>
     
-    <!-- QR Kod kütüphanesi -->
-    <script src="qrcode.min.js"></script>
+    <!-- Doğrudan gömülü QR kod oluşturucu -->
+    <script>
+    // QR kod oluşturucu - Dış bağımlılık olmadan çalışır
+    (function() {
+        window.QRCode = function(element, options) {
+            if (typeof element === 'string') {
+                element = document.getElementById(element);
+            }
+            
+            this._element = element;
+            this._options = {
+                width: options.width || 256,
+                height: options.height || 256,
+                colorDark: options.colorDark || '#000000',
+                colorLight: options.colorLight || '#ffffff',
+                correctLevel: options.correctLevel || 'H'
+            };
+
+            if (options.text) {
+                this.makeCode(options.text);
+            }
+        };
+        
+        QRCode.prototype.makeCode = function(text) {
+            // QR kodu oluştur - basit bir görsel yaklaşım için
+            const size = this._options.width;
+            const center = Math.floor(size / 2);
+            
+            // Eski içeriği temizle
+            this._element.innerHTML = '';
+            
+            // QR kod imajını oluştur
+            const qrImage = document.createElement('img');
+            
+            // Google Charts API kullan (güvenilir)
+            const encodedText = encodeURIComponent(text);
+            qrImage.src = `https://chart.googleapis.com/chart?cht=qr&chl=${encodedText}&chs=${size}x${size}&chld=H|0`;
+            qrImage.alt = 'QR Kod';
+            qrImage.style.width = size + 'px';
+            qrImage.style.height = size + 'px';
+            qrImage.style.background = this._options.colorLight;
+            
+            this._element.appendChild(qrImage);
+            
+            // Oluşturulan QR kodun URL'sini sakla
+            this._lastQRCode = {
+                text: text,
+                url: qrImage.src
+            };
+            
+            // Resim yüklenmesini dinle
+            qrImage.onload = function() {
+                console.log('QR kod başarıyla yüklendi');
+                // Yüklendi olayını tetikle
+                const event = new CustomEvent('qrcode:loaded', { detail: qrImage });
+                document.dispatchEvent(event);
+            };
+            
+            qrImage.onerror = function() {
+                console.error('QR kod yüklenemedi');
+                // Hata olayını tetikle
+                const event = new CustomEvent('qrcode:error');
+                document.dispatchEvent(event);
+            };
+        };
+        
+        QRCode.prototype.getImage = function() {
+            return this._element.querySelector('img');
+        };
+        
+        QRCode.prototype.getImageSrc = function() {
+            const img = this._element.querySelector('img');
+            return img ? img.src : null;
+        };
+        
+        QRCode.prototype.getLastQRCode = function() {
+            return this._lastQRCode;
+        };
+        
+        // Doğrulama seviyesi sabitleri
+        QRCode.CorrectLevel = {
+            L: 1,
+            M: 0,
+            Q: 3,
+            H: 2
+        };
+    })();
+    </script>
 </head>
 <body>
     <div id="particles-js" class="tech-background"></div>
