@@ -1,3 +1,14 @@
+<script src="qrcode.min.js"></script>
+
+window.dataStorage = {
+    lists: {
+        "1": { id: "1", title: "Örnek Liste", items: [{ content: "Öğe 1", value: "Değer 1" }] }
+    },
+    getList: function (id) {
+        return this.lists[id];
+    }
+};
+
 // QR kodu görüntüleme sayfası için JavaScript
 document.addEventListener('DOMContentLoaded', function() {
     console.log('QR Generator sayfası yüklendi');
@@ -360,3 +371,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+
+// QR kodu oluşturmak için yardımcı fonksiyon
+function generateQRImage(data, size) {
+    const qrCodeContainer = document.createElement('div');
+    const qrCode = new QRCode(qrCodeContainer, {
+        text: data,
+        width: size,
+        height: size,
+    });
+
+    const img = qrCodeContainer.querySelector('img');
+    const url = img.src;
+
+    return { img, url };
+}
