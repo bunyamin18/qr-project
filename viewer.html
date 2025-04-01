@@ -24,6 +24,8 @@
         .container {
             max-width: 800px;
             margin: 0 auto;
+            display: flex;
+            flex-direction: column;
         }
         
         header {
@@ -33,6 +35,8 @@
             padding: 20px;
             border-radius: 10px;
             border: 1px solid var(--primary-color);
+            position: relative;
+            z-index: 5;
         }
         
         h1 {
@@ -43,6 +47,9 @@
         .list-items {
             list-style: none;
             padding: 0;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 5;
         }
         
         .list-item {
@@ -53,10 +60,13 @@
             display: flex;
             justify-content: space-between;
             border: 1px solid rgba(0, 245, 255, 0.3);
+            position: relative;
+            z-index: 5;
         }
         
         .item-name {
             flex: 1;
+            word-break: break-word;
         }
         
         .item-value {
@@ -74,6 +84,8 @@
             padding: 20px;
             border-radius: 10px;
             text-align: center;
+            position: relative;
+            z-index: 5;
         }
         
         .back-button {
@@ -86,6 +98,34 @@
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
+            position: relative;
+            z-index: 5;
+        }
+        
+        /* Mobile-specific styles */
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                width: 100%;
+            }
+            
+            .list-item {
+                flex-direction: column;
+            }
+            
+            .item-value {
+                margin-left: 0;
+                margin-top: 5px;
+                align-self: flex-start;
+            }
+            
+            /* Ensure items are visible on mobile */
+            .list-items {
+                margin-top: 30px;
+            }
         }
     </style>
 </head>
@@ -126,20 +166,42 @@
                 
                 // Liste öğelerini göster
                 if (listData.items && listData.items.length > 0) {
+                    listItems.innerHTML = '';
+                    
                     listData.items.forEach(item => {
                         const listItem = document.createElement('li');
                         listItem.className = 'list-item';
                         
                         const nameSpan = document.createElement('span');
                         nameSpan.className = 'item-name';
-                        nameSpan.textContent = item.name || '';
+                        nameSpan.textContent = item.content || ''; // 'name' değil 'content' kullan
                         
                         const valueSpan = document.createElement('span');
                         valueSpan.className = 'item-value';
-                        valueSpan.textContent = item.quantity || '';
+                        valueSpan.textContent = item.value || ''; // 'quantity' değil 'value' kullan
                         
                         listItem.appendChild(nameSpan);
                         listItem.appendChild(valueSpan);
+                        
+                        // Eğer resim varsa, görüntüle butonu ekle
+                        if (item.image) {
+                            const imageButton = document.createElement('button');
+                            imageButton.className = 'view-image-button';
+                            imageButton.textContent = 'Resim';
+                            imageButton.style.marginTop = '10px';
+                            imageButton.style.padding = '5px 10px';
+                            imageButton.style.background = 'rgba(0, 245, 255, 0.2)';
+                            imageButton.style.border = 'none';
+                            imageButton.style.borderRadius = '5px';
+                            imageButton.style.color = 'white';
+                            imageButton.style.cursor = 'pointer';
+                            
+                            imageButton.addEventListener('click', function() {
+                                showImageModal(item.image);
+                            });
+                            
+                            listItem.appendChild(imageButton);
+                        }
                         
                         listItems.appendChild(listItem);
                     });
@@ -156,6 +218,59 @@
             closeButton.addEventListener('click', function() {
                 window.close();
             });
+            
+            // Resim modalını gösterme fonksiyonu
+            function showImageModal(imageUrl) {
+                if (!imageUrl) return;
+                
+                // Create modal for image
+                const modal = document.createElement('div');
+                modal.style.position = 'fixed';
+                modal.style.top = '0';
+                modal.style.left = '0';
+                modal.style.width = '100%';
+                modal.style.height = '100%';
+                modal.style.backgroundColor = 'rgba(0,0,0,0.8)';
+                modal.style.display = 'flex';
+                modal.style.justifyContent = 'center';
+                modal.style.alignItems = 'center';
+                modal.style.zIndex = '1000';
+                
+                // Create image element
+                const imgElement = document.createElement('img');
+                imgElement.src = imageUrl;
+                imgElement.style.maxWidth = '90%';
+                imgElement.style.maxHeight = '90%';
+                imgElement.style.objectFit = 'contain';
+                imgElement.style.borderRadius = '10px';
+                
+                // Create close button
+                const closeButton = document.createElement('div');
+                closeButton.style.position = 'absolute';
+                closeButton.style.top = '20px';
+                closeButton.style.right = '20px';
+                closeButton.style.color = 'white';
+                closeButton.style.fontSize = '30px';
+                closeButton.style.cursor = 'pointer';
+                closeButton.innerHTML = '&times;';
+                closeButton.addEventListener('click', function() {
+                    document.body.removeChild(modal);
+                });
+                
+                // Add image and close button to modal
+                modal.appendChild(imgElement);
+                modal.appendChild(closeButton);
+                
+                // Add click handler to close modal when clicking outside image
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        document.body.removeChild(modal);
+                    }
+                });
+                
+                // Add modal to body
+                document.body.appendChild(modal);
+            }
             
             // Hata mesajı gösterme fonksiyonu
             function showError(message) {
