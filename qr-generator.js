@@ -234,12 +234,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (downloadButton) {
                         downloadButton.disabled = false;
                         
-                        // İndirme butonu işlevi - sadece bir kez eklenmesi için mevcut event listener'ları temizle
-                        downloadButton.replaceWith(downloadButton.cloneNode(true));
-                        downloadButton = document.getElementById('downloadButton');
+                        // İndirme butonu işlevi - önceki event listener'ları temizle
+                        const newDownloadButton = downloadButton.cloneNode(true);
+                        downloadButton.parentNode.replaceChild(newDownloadButton, downloadButton);
                         
                         // Yeni event listener ekle
-                        downloadButton.addEventListener('click', function() {
+                        newDownloadButton.addEventListener('click', function() {
                             try {
                                 // QR kod görüntüsünü al
                                 const qrImgSrc = qrImg.src;
