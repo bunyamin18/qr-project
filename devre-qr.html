@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Devre QR Kod Oluşturucu</title>
+    <style>
+        /* Temel Stil */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #050c25;
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        /* Devre Arka Plan */
+        #circuit-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-color: #050c25;
+            overflow: hidden;
+        }
+        
+        /* Konteyner */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        /* Kart Stil */
+        .card {
+            background-color: rgba(13, 25, 42, 0.85);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 0 20px rgba(0, 195, 255, 0.2);
+            border: 1px solid rgba(0, 195, 255, 0.3);
+            backdrop-filter: blur(5px);
+        }
+        
+        h1, h2, h3 {
+            color: #00c3ff;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(0, 195, 255, 0.5);
+        }
+        
+        /* Form Elemanları */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #00c3ff;
+            font-weight: 500;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            background-color: rgba(7, 15, 29, 0.8);
+            border: 1px solid rgba(0, 195, 255, 0.3);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #00c3ff;
+            box-shadow: 0 0 8px rgba(0, 195, 255, 0.5);
+        }
+        
+        /* Butonlar */
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 120px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        button:before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(45deg, #00c3ff, #00ffd5, #00c3ff);
+            background-size: 200% 200%;
+            animation: gradientShift 3s ease infinite;
+            z-index: -1;
+            filter: blur(15px);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        button:hover:before {
+            opacity: 0.8;
+        }
+        
+        .primary-button {
+            background-color: #00c3ff;
+            color: #050c25;
+        }
+        
+        .secondary-button {
+            background-color: rgba(0, 195, 255, 0.2);
+            color: #00c3ff;
+            border: 1px solid #00c3ff;
+        }
+        
+        .danger-button {
+            background-color: rgba(255, 59, 48, 0.2);
+            color: #ff3b30;
+            border: 1px solid #ff3b30;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        /* Liste Öğeleri */
+        .list-items {
+            margin: 20px 0;
+        }
+        
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(7, 15, 29, 0.5);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            border-left: 3px solid #00c3ff;
+            transition: all 0.3s;
+        }
+        
+        .list-item:hover {
+            background-color: rgba(7, 15, 29, 0.8);
+            transform: translateX(5px);
+        }
+        
+        .item-content {
+            flex: 1;
+            word-break: break-word;
+        }
+        
+        .item-value {
+            background-color: rgba(0, 195, 255, 0.15);
+            padding: 5px 12px;
+            border-radius: 20px;
+            margin-left: 10px;
+            color: #00c3ff;
+            font-size: 14px;
+        }
+        
+        .remove-button {
+            background-color: rgba(255, 59, 48, 0.15);
+            color: #ff3b30;
+            width: 30px;
+            height: 30px;
+            min-width: auto;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 10px;
+            padding: 0;
+            font-size: 14px;
+        }
+        
+        /* QR Kod Bölümü */
+        #qrCodeContainer {
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .qr-wrapper {
+            background-color: white;
+            display: inline-block;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 0 auto;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Animasyonlar */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Yükleme Animasyonu */
+        .loading-animation {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(0, 195, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #00c3ff;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Görüntüleyici Modu */
+        .viewer-container {
+            display: none;
+        }
+        
+        .viewer-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(7, 15, 29, 0.5);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            animation: fadeIn 0.5s forwards;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 195, 255, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 195, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 195, 255, 0); }
+        }
+        
+        /* Mobil Uyumluluk */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .card {
+                padding: 15px;
+            }
+            
+            .button-container {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+        }
+        
+        /* Tooltip Stil */
+        .tooltip {
+            position: relative;
+        }
+        
+        .tooltip:hover:after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(7, 15, 29, 0.9);
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            white-space: nowrap;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <!-- Devre Arka Plan Canvas -->
+    <canvas id="circuit-background"></canvas>
+    
+    <!-- Ana Konteyner -->
+    <div class="container">
+        <!-- Form Kartı -->
+        <div id="main-container" class="card">
+            <h1>QR Kod Oluşturucu</h1>
+            
+            <div id="formContainer">
+                <!-- Liste Başlığı -->
+                <div class="form-group">
+                    <label for="listTitle">Liste Başlığı</label>
+                    <input type="text" id="listTitle" placeholder="Listeniz için bir başlık girin">
+                </div>
+                
+                <!-- Liste Öğeleri -->
+                <div id="listItems" class="list-items"></div>
+                
+                <!-- Yeni Öğe Ekleme -->
+                <div class="form-group">
+                    <label for="itemContent">Öğe İçeriği</label>
+                    <input type="text" id="itemContent" placeholder="Listeye eklenecek öğe içeriği">
+                </div>
+                
+                <div class="form-group">
+                    <label for="itemValue">Öğe Değeri (İsteğe Bağlı)</label>
+                    <input type="text" id="itemValue" placeholder="Öğe için değer (miktar, ağırlık, not vs.)">
+                </div>
+                
+                <!-- Butonlar -->
+                <div class="button-container">
+                    <button id="addItemButton" class="secondary-button">Öğe Ekle</button>
+                    <button id="generateQRButton" class="primary-button">QR Kod Oluştur</button>
+                </div>
+            </div>
+            
+            <!-- QR Kod Gösterimi -->
+            <div id="qrCodeContainer">
+                <h2 id="qrTitle">QR Kod</h2>
+                <div id="qrBox"></div>
+                
+                <div class="button-container">
+                    <button id="backButton" class="danger-button">Geri Dön</button>
+                    <button id="downloadButton" class="primary-button">QR Kodu İndir</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Görüntüleyici Modu -->
+        <div id="viewer-container" class="card viewer-container">
+            <h2 id="viewer-title">Liste Görüntüleniyor</h2>
+            <div id="viewer-items"></div>
+            
+            <div class="button-container">
+                <button id="viewer-close-button" class="danger-button">Kapat</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Temel değişkenler ve referanslar
+        let items = [];
+        let qrImage = null;
+        let qrUrl = null;
+        
+        // Devre Arka Planı
+        const canvas = document.getElementById('circuit-background');
+        const ctx = canvas.getContext('2d');
+        
+        // Boyut ayarlama
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        // Pencere boyutu değiştiğinde canvas boyutunu ayarla
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        // Devre çizgileri için sınıf
+        class Circuit {
+            constructor() {
+                this.init();
+            }
+            
+            init() {
+                // Rastgele başlangıç noktası
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                
+                // Rastgele hareket yönü
+                this.angle = Math.random() * Math.PI * 2;
+                
+                // Rastgele özellikler
+                this.speed = 0.2 + Math.random() * 0.5;
+                this.size = 0.5 + Math.random() * 2;
+                this.length = 50 + Math.random() * 100;
+                this.segments = 1 + Math.floor(Math.random() * 3);
+                this.color = `rgba(0, ${150 + Math.random() * 100}, ${200 + Math.random() * 55}, ${0.3 + Math.random() * 0.7})`;
+                this.glowIntensity = 0.5 + Math.random() * 0.5;
+                this.pulseSpeed = 0.01 + Math.random() * 0.03;
+                this.pulsePhase = Math.random() * Math.PI * 2;
+                
+                // Rastgele dönüş türü
+                this.turnStyle = Math.floor(Math.random() * 3); // 0: 90 derece, 1: daha yumuşak dönüş, 2: dalga
+                
+                // Yeni segment oluşturma zamanı
+                this.nextSegmentTime = this.length / this.speed;
+                this.timeCounter = 0;
+                
+                // Segment listesi
+                this.segments = [];
+                this.addSegment(this.x, this.y, this.angle);
+            }
+            
+            addSegment(startX, startY, angle) {
+                this.segments.push({
+                    startX: startX,
+                    startY: startY,
+                    angle: angle,
+                    currentLength: 0,
+                    maxLength: this.length,
+                    width: this.size,
+                    junctions: []
+                });
+                
+                // Bazen kavşaklar ekle
+                if (Math.random() < 0.3) {
+                    const segment = this.segments[this.segments.length - 1];
+                    const junctionPoint = 0.3 + Math.random() * 0.4; // Segment boyunun %30-70 arasında
+                    const junctionAngle = segment.angle + (Math.random() < 0.5 ? Math.PI/2 : -Math.PI/2);
+                    const junctionLength = 10 + Math.random() * 50;
+                    
+                    segment.junctions.push({
+                        position: junctionPoint,
+                        angle: junctionAngle,
+                        length: junctionLength,
+                        currentLength: 0,
+                        width: this.size * 0.7
+                    });
+                }
+            }
+            
+            update() {
+                // Mevcut segmenti güncelle
+                const currentSegment = this.segments[this.segments.length - 1];
+                
+                if (currentSegment.currentLength < currentSegment.maxLength) {
+                    // Segmenti büyüt
+                    currentSegment.currentLength += this.speed;
+                    
+                    // Kavşakları güncelle
+                    currentSegment.junctions.forEach(junction => {
+                        const junctionTriggerLength = junction.position * currentSegment.maxLength;
+                        
+                        if (currentSegment.currentLength >= junctionTriggerLength && 
+                            junction.currentLength < junction.length) {
+                            junction.currentLength += this.speed * 0.8;
+                        }
+                    });
+                } else {
+                    this.timeCounter++;
+                    
+                    // Yeni segment oluşturma zamanı
+                    if (this.timeCounter >= this.nextSegmentTime) {
+                        this.timeCounter = 0;
+                        
+                        // Son segmentin bitiş noktasını hesapla
+                        const endX = currentSegment.startX + Math.cos(currentSegment.angle) * currentSegment.maxLength;
+                        const endY = currentSegment.startY + Math.sin(currentSegment.angle) * currentSegment.maxLength;
+                        
+                        // Yeni açı belirle (dönüş türüne göre)
+                        let newAngle = currentSegment.angle;
+                        
+                        if (this.turnStyle === 0) {
+                            // 90 derece dönüş
+                            newAngle += (Math.random() < 0.5 ? Math.PI/2 : -Math.PI/2);
+                        } else if (this.turnStyle === 1) {
+                            // Hafif açı değişimi
+                            newAngle += (Math.random() * 0.8 - 0.4);
+                        } else {
+                            // Dalga benzeri hareket
+                            newAngle = currentSegment.angle + Math.sin(this.timeCounter * 0.05) * 0.3;
+                        }
+                        
+                        // Sınırların dışına çıkmasını önle
+                        const potentialX = endX + Math.cos(newAngle) * this.length;
+                        const potentialY = endY + Math.sin(newAngle) * this.length;
+                        
+                        if (potentialX < 0 || potentialX > canvas.width || 
+                            potentialY < 0 || potentialY > canvas.height) {
+                            // Sınırların dışına çıkacak, yön değiştir
+                            newAngle = Math.atan2(canvas.height/2 - endY, canvas.width/2 - endX);
+                            newAngle += (Math.random() * 0.5 - 0.25); // Tam merkeze gitmemesi için biraz rastgelelik
+                        }
+                        
+                        // Yeni segment ekle
+                        this.addSegment(endX, endY, newAngle);
+                        
+                        // Çok fazla segment olmaması için eski segmentleri temizle
+                        if (this.segments.length > 5) {
+                            this.segments.shift();
+                        }
+                    }
+                }
+                
+                // Nabız efektini güncelle
+                this.pulsePhase += this.pulseSpeed;
+                if (this.pulsePhase > Math.PI * 2) {
+                    this.pulsePhase -= Math.PI * 2;
+                }
+            }
+            
+            draw() {
+                // Nabız parlaklığı
+                const pulseGlow = 0.5 + Math.sin(this.pulsePhase) * 0.5;
+                
+                // Tüm segmentleri çiz
+                this.segments.forEach(segment => {
+                    // Ana segment için başlangıç ve bitiş noktalarını hesapla
+                    const endX = segment.startX + Math.cos(segment.angle) * segment.currentLength;
+                    const endY = segment.startY + Math.sin(segment.angle) * segment.currentLength;
+                    
+                    // Glow efekti
+                    ctx.shadowBlur = 10 * this.glowIntensity * pulseGlow;
+                    ctx.shadowColor = this.color;
+                    
+                    // Ana segment çizgisi
+                    ctx.beginPath();
+                    ctx.moveTo(segment.startX, segment.startY);
+                    ctx.lineTo(endX, endY);
+                    ctx.strokeStyle = this.color;
+                    ctx.lineWidth = segment.width;
+                    ctx.stroke();
+                    
+                    // Kavşakları çiz
+                    segment.junctions.forEach(junction => {
+                        if (segment.currentLength >= junction.position * segment.maxLength) {
+                            const junctionStartX = segment.startX + Math.cos(segment.angle) * (junction.position * segment.maxLength);
+                            const junctionStartY = segment.startY + Math.sin(segment.angle) * (junction.position * segment.maxLength);
+                            const junctionEndX = junctionStartX + Math.cos(junction.angle) * junction.currentLength;
+                            const junctionEndY = junctionStartY + Math.sin(junction.angle) * junction.currentLength;
+                            
+                            ctx.beginPath();
+                            ctx.moveTo(junctionStartX, junctionStartY);
+                            ctx.lineTo(junctionEndX, junctionEndY);
+                            ctx.strokeStyle = this.color;
+                            ctx.lineWidth = junction.width;
+                            ctx.stroke();
+                        }
+                    });
+                    
+                    // Işık noktaları ekle
+                    if (Math.random() < 0.1) {
+                        const pointX = segment.startX + Math.cos(segment.angle) * (Math.random() * segment.currentLength);
+                        const pointY = segment.startY + Math.sin(segment.angle) * (Math.random() * segment.currentLength);
+                        
+                        ctx.beginPath();
+                        ctx.arc(pointX, pointY, segment.width + Math.random() * 2, 0, Math.PI * 2);
+                        ctx.fillStyle = this.color;
+                        ctx.fill();
+                    }
+                });
+                
+                // Glow efektini sıfırla
+                ctx.shadowBlur = 0;
+            }
+        }
+        
+        // Devre çizgilerini oluştur
+        const circuits = [];
+        for (let i = 0; i < 20; i++) {
+            circuits.push(new Circuit());
+        }
+        
+        // Animasyon döngüsü
+        function animate() {
+            // Canvas'ı temizle (hafif silme ile önceki kareleri solduracak)
+            ctx.fillStyle = 'rgba(5, 12, 37, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Tüm devreleri güncelle ve çiz
+            circuits.forEach(circuit => {
+                circuit.update();
+                circuit.draw();
+            });
+            
+            // Animasyonu devam ettir
+            requestAnimationFrame(animate);
+        }
+        
+        // Animasyonu başlat
+        animate();
+    </script>
+</body>
+</html>
