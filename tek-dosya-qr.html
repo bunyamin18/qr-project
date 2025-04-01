@@ -155,10 +155,44 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+        
+        /* Viewer stil tanımları */
+        .viewer-container {
+            width: 90%;
+            max-width: 600px;
+            padding: 20px;
+            background-color: rgba(30, 41, 59, 0.7);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            margin: 20px auto;
+            display: none;
+        }
+        
+        .viewer-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(15, 23, 42, 0.6);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        
+        .viewer-item-content {
+            flex: 1;
+        }
+        
+        .viewer-item-value {
+            color: #00f5ff;
+            margin-left: 15px;
+            background-color: rgba(0, 245, 255, 0.1);
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="main-container">
         <h1>QR Kod Oluşturucu</h1>
         
         <div id="formContainer">
@@ -199,72 +233,192 @@
         </div>
     </div>
     
+    <!-- Görüntüleyici containeri -->
+    <div class="viewer-container" id="viewer-container">
+        <h1 id="viewer-title">Liste Yükleniyor...</h1>
+        <div id="viewer-items"></div>
+        <div class="button-container">
+            <button id="viewer-close-button" class="danger-button">Kapat</button>
+        </div>
+    </div>
+    
     <script>
-        // Sayfa yüklendiğinde
+        // Sayfa yüklendiğinde çalışacak fonksiyonlar
         document.addEventListener('DOMContentLoaded', function() {
-            // DOM öğelerini seç
+            // Ana konteynerler
+            const mainContainer = document.getElementById('main-container');
+            const viewerContainer = document.getElementById('viewer-container');
+            
+            // Form containeri
             const formContainer = document.getElementById('formContainer');
+            const qrCodeContainer = document.getElementById('qrCodeContainer');
+            
+            // Form elemanları
             const listTitleInput = document.getElementById('listTitle');
             const itemContentInput = document.getElementById('itemContent');
             const itemValueInput = document.getElementById('itemValue');
             const listItemsContainer = document.getElementById('listItems');
+            
+            // Butonlar
             const addItemButton = document.getElementById('addItemButton');
             const generateQRButton = document.getElementById('generateQRButton');
-            const qrCodeContainer = document.getElementById('qrCodeContainer');
-            const qrTitleElement = document.getElementById('qrTitle');
-            const qrBox = document.getElementById('qrBox');
             const backButton = document.getElementById('backButton');
             const downloadButton = document.getElementById('downloadButton');
+            const viewerCloseButton = document.getElementById('viewer-close-button');
             
-            // Liste verilerini tutacak nesne
-            let listData = {
-                id: generateUUID(),
-                title: '',
-                items: []
-            };
+            // QR kod elemanları
+            const qrBox = document.getElementById('qrBox');
+            const qrTitle = document.getElementById('qrTitle');
             
-            // Öğe sayacı
-            let itemCounter = 0;
-            let currentQRUrl = '';
+            // Viewer elemanları
+            const viewerTitle = document.getElementById('viewer-title');
+            const viewerItems = document.getElementById('viewer-items');
             
-            // Öğe ekle butonuna tıklama olayı
-            addItemButton.addEventListener('click', function() {
-                addNewItem();
-            });
+            // Liste öğelerini saklayacak dizi
+            let items = [];
+            // QR Kod için veri
+            let qrImage = null;
+            let qrUrl = null;
             
-            // Enter tuşu ile öğe ekleme
+            // URL'den 'data' parametresini kontrol et
+            const urlParams = new URLSearchParams(window.location.search);
+            const base64Data = urlParams.get('data');
+            
+            // Eğer data parametresi varsa, görüntüleyici modunu aç
+            if (base64Data) {
+                mainContainer.style.display = 'none';
+                viewerContainer.style.display = 'block';
+                
+                try {
+                    // Base64'ten JSON verisini çıkar
+                    const jsonData = decodeURIComponent(escape(atob(base64Data)));
+                    const listData = JSON.parse(jsonData);
+                    
+                    console.log('Liste verileri çözüldü:', listData);
+                    
+                    // Listeyi görüntüle
+                    displayViewerList(listData);
+                } catch (error) {
+                    console.error('Base64 verisini çözme hatası:', error);
+                    viewerTitle.textContent = 'Hata';
+                    viewerItems.innerHTML = '<div class="viewer-item" style="color: #ff6b6b;">QR kod verisini çözümlerken bir hata oluştu. Geçersiz veya bozuk QR kod.</div>';
+                }
+            }
+            
+            // Görüntüleyiciden çıkma butonu
+            if (viewerCloseButton) {
+                viewerCloseButton.addEventListener('click', function() {
+                    if (window.opener) {
+                        window.close(); // Açılan pencereyi kapat
+                    } else {
+                        window.location.href = window.location.pathname; // Parametreleri temizle
+                    }
+                });
+            }
+            
+            // Liste görüntüleme fonksiyonu
+            function displayViewerList(listData) {
+                viewerTitle.textContent = listData.title || 'İsimsiz Liste';
+                viewerItems.innerHTML = '';
+                
+                if (listData.items && listData.items.length > 0) {
+                    listData.items.forEach(item => {
+                        const itemElement = document.createElement('div');
+                        itemElement.className = 'viewer-item';
+                        
+                        const contentElement = document.createElement('div');
+                        contentElement.className = 'viewer-item-content';
+                        contentElement.textContent = item.content || '';
+                        
+                        const valueElement = document.createElement('div');
+                        valueElement.className = 'viewer-item-value';
+                        valueElement.textContent = item.value || '';
+                        
+                        itemElement.appendChild(contentElement);
+                        if (item.value) {
+                            itemElement.appendChild(valueElement);
+                        }
+                        
+                        viewerItems.appendChild(itemElement);
+                    });
+                } else {
+                    viewerItems.innerHTML = '<div class="viewer-item">Bu listede öğe bulunmuyor.</div>';
+                }
+            }
+            
+            // Yeni öğe ekleme butonu
+            addItemButton.addEventListener('click', addNewItem);
+            
+            // Enter tuşuna basınca da öğe ekle
             itemContentInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     addNewItem();
                 }
             });
             
-            // QR Kod oluştur butonuna tıklama olayı
-            generateQRButton.addEventListener('click', function() {
-                const title = listTitleInput.value.trim();
-                if (!title) {
-                    alert('Lütfen bir liste başlığı girin.');
-                    listTitleInput.focus();
-                    return;
-                }
-                
-                if (listData.items.length === 0) {
-                    alert('Lütfen listeye en az bir öğe ekleyin.');
-                    itemContentInput.focus();
-                    return;
-                }
-                
-                // Liste başlığını güncelle
-                listData.title = title;
-                
-                // QR kodu oluştur
-                generateQRCode();
-            });
+            // QR kod oluşturma butonu
+            generateQRButton.addEventListener('click', generateQRCode);
             
-            // Geri dön butonuna tıklama olayı
+            // Geri dönme butonu
             backButton.addEventListener('click', function() {
                 qrCodeContainer.style.display = 'none';
                 formContainer.style.display = 'block';
+            });
+            
+            // İndirme butonu
+            downloadButton.addEventListener('click', function() {
+                if (qrImage && qrUrl) {
+                    // Yeni sayfa aç ve indirme linkini göster
+                    const newTab = window.open();
+                    newTab.document.write(`
+                        <html>
+                        <head>
+                            <title>QR Kod İndir - ${escapeHtml(listTitleInput.value || "Liste")}</title>
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <style>
+                                body {
+                                    font-family: Arial, sans-serif;
+                                    text-align: center;
+                                    padding: 20px;
+                                    background-color: #f5f5f5;
+                                }
+                                h2 {
+                                    color: #333;
+                                }
+                                .qr-image {
+                                    max-width: 300px;
+                                    border: 1px solid #ccc;
+                                    padding: 10px;
+                                    background: white;
+                                    border-radius: 5px;
+                                    margin: 20px auto;
+                                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                                }
+                                p {
+                                    color: #666;
+                                    margin-top: 20px;
+                                }
+                                .download-link {
+                                    display: inline-block;
+                                    margin-top: 15px;
+                                    background-color: #00f5ff;
+                                    color: #333;
+                                    padding: 10px 20px;
+                                    text-decoration: none;
+                                    border-radius: 5px;
+                                    font-weight: bold;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <h2>QR Kod: ${escapeHtml(listTitleInput.value || "Liste")}</h2>
+                            <img src="${qrUrl}" class="qr-image" alt="QR Kod">
+                            <p>Resmi kaydetmek için aşağıdaki indirme bağlantısını kullanabilirsiniz veya resme sağ tıklayıp "Resmi Farklı Kaydet" seçeneğini kullanabilirsiniz.</p>
+                            <a class="download-link" href="${qrUrl}" download="qrcode-${escapeHtml((listTitleInput.value || "Liste").replace(/\s+/g, '-'))}.png">QR Kodu İndir</a>
+                        </body>
+                        </html>
+                    `);
+                }
             });
             
             // Yeni öğe ekleme fonksiyonu
@@ -272,203 +426,164 @@
                 const content = itemContentInput.value.trim();
                 const value = itemValueInput.value.trim();
                 
-                if (!content) {
-                    alert('Lütfen öğe içeriği girin.');
-                    itemContentInput.focus();
+                if (content === '') {
+                    alert('Lütfen öğe içeriği girin!');
                     return;
                 }
                 
-                // Yeni öğe ID'si
-                const itemId = 'item-' + itemCounter++;
+                // Yeni öğe için benzersiz ID oluştur
+                const itemId = generateUUID();
                 
-                // Yeni öğe nesnesi
-                const newItem = {
+                // Öğeyi diziye ekle
+                items.push({
                     id: itemId,
                     content: content,
                     value: value
-                };
-                
-                // Veri nesnesine ekle
-                listData.items.push(newItem);
-                
-                // Görsel öğe oluştur
-                const itemElement = document.createElement('div');
-                itemElement.className = 'list-item';
-                itemElement.id = itemId;
-                itemElement.innerHTML = `
-                    <div class="item-content">${escapeHtml(content)}</div>
-                    ${value ? `<div class="item-value">${escapeHtml(value)}</div>` : ''}
-                    <button class="remove-button" data-id="${itemId}">Sil</button>
-                `;
-                
-                // Listede göster
-                listItemsContainer.appendChild(itemElement);
-                
-                // Silme butonuna olay ekle
-                const removeButton = itemElement.querySelector('.remove-button');
-                removeButton.addEventListener('click', function() {
-                    const id = this.getAttribute('data-id');
-                    removeItem(id);
                 });
                 
-                // Form alanlarını temizle
+                // Öğeyi ara yüzde göster
+                renderItem(itemId, content, value);
+                
+                // Giriş alanlarını temizle
                 itemContentInput.value = '';
                 itemValueInput.value = '';
                 itemContentInput.focus();
             }
             
-            // Öğe silme fonksiyonu
-            function removeItem(itemId) {
-                // DOM'dan kaldır
-                const itemElement = document.getElementById(itemId);
-                if (itemElement) {
-                    itemElement.parentNode.removeChild(itemElement);
+            // Öğeyi görüntüleme fonksiyonu
+            function renderItem(id, content, value) {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'list-item';
+                itemElement.dataset.id = id;
+                
+                const contentElement = document.createElement('div');
+                contentElement.className = 'item-content';
+                contentElement.textContent = content;
+                
+                const rightSide = document.createElement('div');
+                rightSide.style.display = 'flex';
+                rightSide.style.alignItems = 'center';
+                
+                if (value) {
+                    const valueElement = document.createElement('div');
+                    valueElement.className = 'item-value';
+                    valueElement.textContent = value;
+                    rightSide.appendChild(valueElement);
                 }
                 
-                // Veri nesnesinden kaldır
-                listData.items = listData.items.filter(item => item.id !== itemId);
+                const removeButton = document.createElement('button');
+                removeButton.className = 'remove-button';
+                removeButton.textContent = 'X';
+                removeButton.onclick = function() {
+                    removeItem(id);
+                };
+                
+                rightSide.appendChild(removeButton);
+                
+                itemElement.appendChild(contentElement);
+                itemElement.appendChild(rightSide);
+                
+                listItemsContainer.appendChild(itemElement);
+            }
+            
+            // Öğe silme fonksiyonu
+            function removeItem(itemId) {
+                // Öğeyi diziden kaldır
+                items = items.filter(item => item.id !== itemId);
+                
+                // Öğeyi ara yüzden kaldır
+                const itemElement = listItemsContainer.querySelector(`.list-item[data-id="${itemId}"]`);
+                if (itemElement) {
+                    itemElement.remove();
+                }
             }
             
             // QR Kod oluşturma fonksiyonu
             function generateQRCode() {
-                // QR kod alanını temizle ve yükleme animasyonu göster
-                qrBox.innerHTML = `
-                    <div class="loading-spinner"></div>
-                    <p>QR Kod oluşturuluyor...</p>
-                `;
+                const title = listTitleInput.value.trim();
                 
-                // Form alanını gizle, QR alanını göster
+                if (title === '') {
+                    alert('Lütfen liste başlığı girin!');
+                    return;
+                }
+                
+                if (items.length === 0) {
+                    alert('Lütfen en az bir öğe ekleyin!');
+                    return;
+                }
+                
+                // QR kodunu görüntüle
                 formContainer.style.display = 'none';
                 qrCodeContainer.style.display = 'block';
                 
-                // QR kod başlığını güncelle
-                qrTitleElement.textContent = `"${listData.title}" Listesi için QR Kod`;
+                // QR başlığını ayarla
+                qrTitle.textContent = 'QR Kod: ' + title;
+                
+                // Yükleme spinnerini göster
+                qrBox.innerHTML = '<div class="loading-spinner"></div><p>QR Kod oluşturuluyor...</p>';
                 
                 try {
-                    // Liste verisini JSON formatına dönüştür ve Base64 ile kodla
+                    // Liste verisini hazırla
+                    const listData = {
+                        id: generateUUID(),
+                        title: title,
+                        items: items.map(item => ({
+                            content: item.content,
+                            value: item.value
+                        }))
+                    };
+                    
+                    // Veriyi JSON'a dönüştür ve Base64 ile kodla
                     const jsonData = JSON.stringify(listData);
                     const base64Data = btoa(unescape(encodeURIComponent(jsonData)));
                     
-                    // Google Charts API kullanarak QR kod oluştur
-                    const qrSize = 250;
-                    const qrUrl = `https://chart.googleapis.com/chart?cht=qr&chl=${encodeURIComponent(base64Data)}&chs=${qrSize}x${qrSize}&chld=H|0`;
-                    currentQRUrl = qrUrl;
+                    // QR koduna göndermek için URL oluştur
+                    const currentUrl = window.location.href.split('?')[0]; // Parametre olmadan url
+                    const qrDataUrl = currentUrl + '?data=' + encodeURIComponent(base64Data);
                     
-                    // QR kod resmi oluştur
-                    const img = new Image();
-                    img.src = qrUrl;
-                    img.alt = `${listData.title} QR Kodu`;
+                    // Google Charts API URL'sini oluştur
+                    const encodedUrl = encodeURIComponent(qrDataUrl);
+                    const qrSize = 200; // Boyut
+                    qrUrl = `https://chart.googleapis.com/chart?cht=qr&chl=${encodedUrl}&chs=${qrSize}x${qrSize}&chld=H|0`;
                     
-                    // Resim yüklendiğinde
-                    img.onload = function() {
-                        // QR kod kutusu hazırla
+                    // QR kod görselini oluştur
+                    qrImage = new Image();
+                    qrImage.onload = function() {
+                        // QR kodu göster
                         qrBox.innerHTML = '';
                         
-                        // QR kod beyaz kutusu
-                        const whiteBox = document.createElement('div');
-                        whiteBox.className = 'qr-box';
+                        const qrWrapper = document.createElement('div');
+                        qrWrapper.className = 'qr-box';
                         
-                        // Liste başlığı
-                        const titleElement = document.createElement('p');
-                        titleElement.style.margin = '0 0 10px 0';
-                        titleElement.style.fontWeight = 'bold';
-                        titleElement.style.color = '#333';
-                        titleElement.textContent = listData.title;
-                        whiteBox.appendChild(titleElement);
+                        qrWrapper.appendChild(qrImage);
+                        qrBox.appendChild(qrWrapper);
                         
-                        // QR kod resmi
-                        whiteBox.appendChild(img);
+                        // QR verisi linki
+                        const linkContainer = document.createElement('div');
+                        linkContainer.style.margin = '15px 0';
                         
-                        // Bilgi metni
-                        const infoElement = document.createElement('p');
-                        infoElement.style.margin = '10px 0 0 0';
-                        infoElement.style.fontSize = '14px';
-                        infoElement.style.color = '#555';
-                        infoElement.textContent = 'Bu QR kodu telefonunuzla tarayın';
-                        whiteBox.appendChild(infoElement);
+                        const qrLink = document.createElement('a');
+                        qrLink.href = qrDataUrl;
+                        qrLink.textContent = 'Bu Bağlantıyı Aç';
+                        qrLink.target = '_blank';
+                        qrLink.style.color = '#00f5ff';
+                        qrLink.style.textDecoration = 'none';
                         
-                        // QR kutusunu sayfaya ekle
-                        qrBox.appendChild(whiteBox);
-                        
-                        // İndirme butonunu etkinleştir
-                        downloadButton.onclick = function() {
-                            // Yeni sekme açarak indirme sayfası göster
-                            const win = window.open();
-                            win.document.write(`
-                                <html>
-                                <head>
-                                    <title>QR Kod İndir - ${escapeHtml(listData.title)}</title>
-                                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                                    <style>
-                                        body {
-                                            font-family: Arial, sans-serif;
-                                            text-align: center;
-                                            padding: 20px;
-                                            background-color: #f5f5f5;
-                                        }
-                                        h2 {
-                                            color: #333;
-                                        }
-                                        .qr-image {
-                                            max-width: 300px;
-                                            border: 1px solid #ccc;
-                                            padding: 15px;
-                                            background: white;
-                                            border-radius: 8px;
-                                            margin: 20px auto;
-                                            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
-                                        }
-                                        p {
-                                            color: #666;
-                                            margin: 20px 0;
-                                            line-height: 1.5;
-                                        }
-                                        .download-link {
-                                            display: inline-block;
-                                            background-color: #00f5ff;
-                                            color: #333;
-                                            text-decoration: none;
-                                            padding: 12px 25px;
-                                            border-radius: 5px;
-                                            font-weight: bold;
-                                            margin: 15px 0;
-                                        }
-                                        .download-link:hover {
-                                            background-color: #00d0d9;
-                                        }
-                                    </style>
-                                </head>
-                                <body>
-                                    <h2>"${escapeHtml(listData.title)}" Listesi İçin QR Kod</h2>
-                                    <img src="${qrUrl}" alt="QR Kod" class="qr-image">
-                                    <p>Resmi kaydetmek için aşağıdaki indirme bağlantısını kullanabilirsiniz.<br>Veya resme sağ tıklayıp "Resmi Farklı Kaydet" seçeneğini kullanabilirsiniz.</p>
-                                    <a href="${qrUrl}" download="qr-kod-${encodeURIComponent(listData.title.replace(/\s+/g, '-'))}.png" class="download-link">QR Kodu İndir</a>
-                                    <p>Bu listeyi bir başkasıyla paylaşmak için, bu QR kodu gönderin veya birlikte olduğunuzda telefonları ile taratın.</p>
-                                </body>
-                                </html>
-                            `);
-                        };
+                        linkContainer.appendChild(qrLink);
+                        qrBox.appendChild(linkContainer);
                     };
                     
-                    // Resim yüklenmezse
-                    img.onerror = function() {
-                        qrBox.innerHTML = `
-                            <div style="padding: 20px; background-color: rgba(239, 68, 68, 0.2); border-radius: 8px; text-align: center;">
-                                <h3 style="color: #ef4444; margin-top: 0;">QR Kod Oluşturulamadı</h3>
-                                <p>QR kod resmi yüklenirken bir hata oluştu. Lütfen tekrar deneyin.</p>
-                                <button onclick="generateQRCode()" class="primary-button" style="margin-top: 10px;">Tekrar Dene</button>
-                            </div>
-                        `;
+                    qrImage.onerror = function() {
+                        qrBox.innerHTML = '<p style="color: #ff6b6b;">QR kod oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.</p>';
                     };
+                    
+                    qrImage.src = qrUrl;
+                    qrImage.alt = 'QR Kod';
+                    qrImage.style.maxWidth = '100%';
+                    
                 } catch (error) {
                     console.error('QR kod oluşturma hatası:', error);
-                    qrBox.innerHTML = `
-                        <div style="padding: 20px; background-color: rgba(239, 68, 68, 0.2); border-radius: 8px; text-align: center;">
-                            <h3 style="color: #ef4444; margin-top: 0;">QR Kod Oluşturulamadı</h3>
-                            <p>Hata: ${error.message}</p>
-                            <button onclick="generateQRCode()" class="primary-button" style="margin-top: 10px;">Tekrar Dene</button>
-                        </div>
-                    `;
+                    qrBox.innerHTML = `<p style="color: #ff6b6b;">QR kod oluşturulurken bir hata oluştu: ${error.message}</p>`;
                 }
             }
             
@@ -476,7 +591,7 @@
             function generateUUID() {
                 return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
                     const r = Math.random() * 16 | 0;
-                    const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                    const v = c == 'x' ? r : (r & 0x3 | 0x8);
                     return v.toString(16);
                 });
             }
@@ -484,6 +599,7 @@
             // HTML karakterlerini escape etme fonksiyonu
             function escapeHtml(text) {
                 if (!text) return '';
+                
                 const map = {
                     '&': '&amp;',
                     '<': '&lt;',
@@ -491,7 +607,7 @@
                     '"': '&quot;',
                     "'": '&#039;'
                 };
-                return String(text).replace(/[&<>"']/g, m => map[m]);
+                return text.toString().replace(/[&<>"']/g, function(m) { return map[m]; });
             }
             
             // Global fonksiyonlar

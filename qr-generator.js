@@ -15,32 +15,58 @@ document.addEventListener('DOMContentLoaded', function() {
         downloadButton.disabled = true;
     }
     
-    // URL'den liste id'sini al
+    // URL'den liste id'sini al - Üç farklı parametre adını deneyecek (listId, id, veya data)
     const urlParams = new URLSearchParams(window.location.search);
-    const listId = urlParams.get('id');
+    let listId = urlParams.get('listId') || urlParams.get('id');
+    const base64Data = urlParams.get('data');
+    
+    console.log('URL parametreleri:', {listId, base64Data});
+    
+    // Base64 data parametresi varsa, viewer.html için viewer.js'deki gibi çalış
+    if (base64Data) {
+        try {
+            // Base64'ten JSON verisini çıkar
+            const jsonData = decodeURIComponent(escape(atob(base64Data)));
+            const listData = JSON.parse(jsonData);
+            
+            console.log('Base64 veriden liste alındı:', listData);
+            
+            // Verileri göster
+            displayListData(listData);
+            generateQRCode(listData);
+        } catch (error) {
+            console.error('Base64 verisini çözme hatası:', error);
+            showError('QR kod verisini çözümlerken bir hata oluştu. Geçersiz veya bozuk QR kod.');
+        }
+        return;
+    }
+    
+    // Liste ID kontrolü
+    if (!listId) {
+        console.error('URL parametresinde liste ID bulunamadı');
+        showError('Liste ID parametresi eksik. Ana sayfaya geri dönün ve bir liste seçin.');
+        return;
+    }
     
     console.log('Liste ID:', listId);
     
-    if (listId) {
-        // Liste verilerini al
-        if (window.dataStorage) {
-            const listData = window.dataStorage.getList(listId);
-            
-            if (listData) {
-                console.log('Liste verileri bulundu:', listData);
-                displayListData(listData);
-                generateQRCode(listData);
-            } else {
-                console.error('Liste verisi bulunamadı. ID:', listId);
-                showError('Liste bulunamadı. Lütfen geçerli bir liste seçin.');
-            }
-        } else {
-            console.error('dataStorage objesi bulunamadı');
-            showError('Veri depolama sistemi yüklenemedi. Sayfayı yenileyin veya daha sonra tekrar deneyin.');
-        }
+    // dataStorage objesi var mı kontrol et
+    if (!window.dataStorage) {
+        console.error('dataStorage objesi bulunamadı');
+        showError('Veri depolama sistemi yüklenemedi. Sayfayı yenileyin veya daha sonra tekrar deneyin.');
+        return;
+    }
+    
+    // Liste verilerini al
+    const listData = window.dataStorage.getList(listId);
+    
+    if (listData) {
+        console.log('Liste verileri bulundu:', listData);
+        displayListData(listData);
+        generateQRCode(listData);
     } else {
-        console.error('URL parametresinde liste ID bulunamadı');
-        showError('Liste ID parametresi eksik. Ana sayfaya geri dönün ve bir liste seçin.');
+        console.error('Liste verisi bulunamadı. ID:', listId);
+        showError('Liste bulunamadı. Lütfen geçerli bir liste seçin.');
     }
     
     // Ana sayfaya dönme butonunu ayarla
