@@ -10,93 +10,88 @@
     <script src="dataStorage.js"></script>
     <script src="script.js"></script>
     
-    <!-- Doğrudan gömülü QR kod oluşturucu -->
+    <!-- QR kod oluşturucu - Direkt HTML içine gömülü, herhangi bir harici kütüphane gerektirmez -->
     <script>
-    // QR kod oluşturucu - Dış bağımlılık olmadan çalışır
-    (function() {
-        window.QRCode = function(element, options) {
-            if (typeof element === 'string') {
-                element = document.getElementById(element);
-            }
-            
-            this._element = element;
-            this._options = {
-                width: options.width || 256,
-                height: options.height || 256,
-                colorDark: options.colorDark || '#000000',
-                colorLight: options.colorLight || '#ffffff',
-                correctLevel: options.correctLevel || 'H'
-            };
-
-            if (options.text) {
-                this.makeCode(options.text);
-            }
-        };
+    // Basit QR kod oluşturucu fonksiyon
+    window.createQRCode = function(text, elementId, width, height) {
+        const element = document.getElementById(elementId);
+        if (!element) {
+            console.error('QR kod için element bulunamadı:', elementId);
+            return false;
+        }
         
-        QRCode.prototype.makeCode = function(text) {
-            // QR kodu oluştur - basit bir görsel yaklaşım için
-            const size = this._options.width;
-            const center = Math.floor(size / 2);
-            
-            // Eski içeriği temizle
-            this._element.innerHTML = '';
-            
-            // QR kod imajını oluştur
-            const qrImage = document.createElement('img');
-            
-            // Google Charts API kullan (güvenilir)
+        try {
+            // API URL'sini oluştur
             const encodedText = encodeURIComponent(text);
-            qrImage.src = `https://chart.googleapis.com/chart?cht=qr&chl=${encodedText}&chs=${size}x${size}&chld=H|0`;
-            qrImage.alt = 'QR Kod';
-            qrImage.style.width = size + 'px';
-            qrImage.style.height = size + 'px';
-            qrImage.style.background = this._options.colorLight;
+            const size = width || 200;
+            const qrCodeUrl = `https://chart.googleapis.com/chart?cht=qr&chl=${encodedText}&chs=${size}x${size}&chld=H|0`;
             
-            this._element.appendChild(qrImage);
+            // Resmi oluştur
+            const img = document.createElement('img');
+            img.src = qrCodeUrl;
+            img.alt = 'QR Kod';
+            img.style.display = 'block';
+            img.style.margin = '0 auto';
+            img.style.maxWidth = '100%';
             
-            // Oluşturulan QR kodun URL'sini sakla
-            this._lastQRCode = {
-                text: text,
-                url: qrImage.src
-            };
-            
-            // Resim yüklenmesini dinle
-            qrImage.onload = function() {
+            // Yükleme ve hata olaylarını izle
+            img.onload = function() {
                 console.log('QR kod başarıyla yüklendi');
-                // Yüklendi olayını tetikle
-                const event = new CustomEvent('qrcode:loaded', { detail: qrImage });
+                // Yükleme başarılı olayını tetikle
+                const event = new CustomEvent('qrcode:loaded', {
+                    detail: {
+                        element: element,
+                        image: img,
+                        url: qrCodeUrl
+                    }
+                });
                 document.dispatchEvent(event);
             };
             
-            qrImage.onerror = function() {
+            img.onerror = function() {
                 console.error('QR kod yüklenemedi');
                 // Hata olayını tetikle
-                const event = new CustomEvent('qrcode:error');
+                const event = new CustomEvent('qrcode:error', {
+                    detail: {
+                        element: element,
+                        text: text
+                    }
+                });
                 document.dispatchEvent(event);
             };
-        };
-        
-        QRCode.prototype.getImage = function() {
-            return this._element.querySelector('img');
-        };
-        
-        QRCode.prototype.getImageSrc = function() {
-            const img = this._element.querySelector('img');
-            return img ? img.src : null;
-        };
-        
-        QRCode.prototype.getLastQRCode = function() {
-            return this._lastQRCode;
-        };
-        
-        // Doğrulama seviyesi sabitleri
-        QRCode.CorrectLevel = {
-            L: 1,
-            M: 0,
-            Q: 3,
-            H: 2
-        };
-    })();
+            
+            // Önce yükleme göstergesi ekle
+            element.innerHTML = `
+                <div class="qr-loading">
+                    <p>QR Kod yükleniyor...</p>
+                    <div style="width: 40px; height: 40px; border: 3px solid rgba(0, 245, 255, 0.3); border-radius: 50%; border-top-color: #00f5ff; margin: 10px auto; animation: qr-spin 1s linear infinite;"></div>
+                </div>
+                <style>
+                    @keyframes qr-spin {
+                        to { transform: rotate(360deg); }
+                    }
+                </style>
+            `;
+            
+            // Resmi yüklemeye başla
+            setTimeout(function() {
+                // Zamanlayıcı ile daha güvenilir yükleme
+                element.innerHTML = '';
+                element.appendChild(img);
+            }, 100);
+            
+            return true;
+        } catch (error) {
+            console.error('QR kod oluşturma hatası:', error);
+            element.innerHTML = `
+                <div style="padding: 15px; background-color: rgba(255, 0, 0, 0.2); border-radius: 8px; text-align: center;">
+                    <p style="color: #ff6b6b; margin: 0;">QR kod oluşturulamadı.</p>
+                    <button onclick="window.createQRCode('${text.replace(/'/g, "\\'")}', '${elementId}', ${width}, ${height})" style="padding: 8px 15px; background-color: #00f5ff; color: #000; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">Tekrar Dene</button>
+                </div>
+            `;
+            return false;
+        }
+    };
     </script>
 </head>
 <body>
