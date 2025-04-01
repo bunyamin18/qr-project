@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kesin Çalışan QR Kod Oluşturucu</title>
+    
+    <!-- QRCode.js kütüphanesi (CDN'den) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1e3a8a);
+            color: #fff;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: rgba(30, 41, 59, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #00f5ff;
+            margin-bottom: 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #00f5ff;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: rgba(15, 23, 42, 0.6);
+            color: white;
+            box-sizing: border-box;
+        }
+        
+        button {
+            background-color: #00f5ff;
+            color: #0f172a;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 5px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background-color: #00d0d9;
+            transform: translateY(-2px);
+        }
+        
+        #qrcode {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: white;
+            border-radius: 10px;
+            max-width: 250px;
+            margin: 20px auto;
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        #status {
+            text-align: center;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .success {
+            background-color: rgba(0, 255, 0, 0.2);
+            color: #6ee7b7;
+        }
+        
+        .error {
+            background-color: rgba(255, 0, 0, 0.2);
+            color: #fca5a5;
+        }
+        
+        #downloadBtn {
+            display: block;
+            margin: 10px auto;
+            background-color: #3b82f6;
+        }
+        
+        .alternative {
+            margin-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>QR Kod Oluşturucu</h1>
+        
+        <div class="input-group">
+            <label for="content">QR Kod İçeriği:</label>
+            <input type="text" id="content" placeholder="Metin, URL veya başka bir içerik girin">
+        </div>
+        
+        <button id="generateBtn">QR Kod Oluştur</button>
+        
+        <div id="status"></div>
+        
+        <div id="qrcode"></div>
+        
+        <button id="downloadBtn" style="display:none;">QR Kodu İndir</button>
+        
+        <div class="alternative" id="alternativeMethod">
+            <h3>Alternatif Yöntem</h3>
+            <p>İlk yöntem çalışmadıysa, alternatif QR kod oluşturma yöntemi kullanılacak.</p>
+            <div id="alternativeQR"></div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const contentInput = document.getElementById('content');
+            const generateBtn = document.getElementById('generateBtn');
+            const qrcodeDiv = document.getElementById('qrcode');
+            const statusDiv = document.getElementById('status');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const alternativeMethodDiv = document.getElementById('alternativeMethod');
+            const alternativeQRDiv = document.getElementById('alternativeQR');
+            
+            // QR Kod oluşturma
+            generateBtn.addEventListener('click', function() {
+                const content = contentInput.value.trim();
+                
+                if (!content) {
+                    showStatus('Lütfen bir içerik girin.', 'error');
+                    return;
+                }
+                
+                createQRCode(content);
+            });
+            
+            // QR Kod oluşturma fonksiyonu
+            function createQRCode(content) {
+                try {
+                    // Önce div'i temizle
+                    qrcodeDiv.innerHTML = '';
+                    downloadBtn.style.display = 'none';
+                    alternativeMethodDiv.style.display = 'none';
+                    showStatus('QR Kod oluşturuluyor...', 'info');
+                    
+                    // QRCode.js kütüphanesi kullanarak QR kod oluştur
+                    new QRCode(qrcodeDiv, {
+                        text: content,
+                        width: 200,
+                        height: 200,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                    
+                    // QR Kod başarıyla oluşturulduysa
+                    showStatus('QR Kod başarıyla oluşturuldu!', 'success');
+                    setupDownload();
+                } catch (error) {
+                    console.error('QR kod oluşturma hatası:', error);
+                    showStatus('QR kod oluşturulamadı. Alternatif yöntem deneniyor...', 'error');
+                    
+                    // Alternatif yöntem: Google Charts API kullan
+                    useAlternativeMethod(content);
+                }
+            }
+            
+            // Alternatif QR Kod oluşturma metodu (Google Charts API)
+            function useAlternativeMethod(content) {
+                alternativeMethodDiv.style.display = 'block';
+                alternativeQRDiv.innerHTML = '';
+                
+                try {
+                    const encodedContent = encodeURIComponent(content);
+                    const qrUrl = `https://chart.googleapis.com/chart?cht=qr&chl=${encodedContent}&chs=200x200&chld=H|0`;
+                    
+                    const img = document.createElement('img');
+                    img.src = qrUrl;
+                    img.alt = 'QR Kod';
+                    img.style.maxWidth = '100%';
+                    
+                    alternativeQRDiv.appendChild(img);
+                    showStatus('Alternatif yöntem kullanılarak QR kod oluşturuldu.', 'success');
+                    
+                    // İndirme butonunu ayarla (alternatif yöntem için)
+                    downloadBtn.style.display = 'block';
+                    downloadBtn.onclick = function() {
+                        const link = document.createElement('a');
+                        link.href = qrUrl;
+                        link.download = 'qrcode.png';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    };
+                } catch (error) {
+                    console.error('Alternatif QR kod oluşturma hatası:', error);
+                    showStatus('Alternatif yöntem de başarısız oldu. Lütfen daha sonra tekrar deneyin.', 'error');
+                }
+            }
+            
+            // QR kod indirme fonksiyonu ayarla
+            function setupDownload() {
+                // Biraz bekle - QR kod oluşturmanın tamamlanması için
+                setTimeout(function() {
+                    const qrImage = qrcodeDiv.querySelector('img');
+                    
+                    if (qrImage) {
+                        downloadBtn.style.display = 'block';
+                        downloadBtn.onclick = function() {
+                            // Canvas oluştur ve QR kodu çiz
+                            const canvas = document.createElement('canvas');
+                            canvas.width = qrImage.width;
+                            canvas.height = qrImage.height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(qrImage, 0, 0);
+                            
+                            // Canvas'ı PNG olarak indir
+                            const link = document.createElement('a');
+                            link.href = canvas.toDataURL('image/png');
+                            link.download = 'qrcode.png';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        };
+                    } else {
+                        console.error('QR kod resmi bulunamadı');
+                    }
+                }, 500);
+            }
+            
+            // Durum mesajını göster
+            function showStatus(message, type) {
+                statusDiv.innerHTML = message;
+                statusDiv.className = type;
+            }
+            
+            // Örnek içerik
+            contentInput.value = "https://www.example.com";
+        });
+    </script>
+</body>
+</html>

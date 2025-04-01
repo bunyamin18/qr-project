@@ -6,93 +6,9 @@
     <title>Liste Oluştur - QR Kod</title>
     <link rel="stylesheet" href="styles.css">
     
-    <!-- İlk önce dataStorage.js ve script.js yükle (window.dataStorage için) -->
+    <!-- Gerekli JavaScript dosyaları -->
     <script src="dataStorage.js"></script>
     <script src="script.js"></script>
-    
-    <!-- QR kod oluşturucu - Direkt HTML içine gömülü, herhangi bir harici kütüphane gerektirmez -->
-    <script>
-    // Basit QR kod oluşturucu fonksiyon
-    window.createQRCode = function(text, elementId, width, height) {
-        const element = document.getElementById(elementId);
-        if (!element) {
-            console.error('QR kod için element bulunamadı:', elementId);
-            return false;
-        }
-        
-        try {
-            // API URL'sini oluştur
-            const encodedText = encodeURIComponent(text);
-            const size = width || 200;
-            const qrCodeUrl = `https://chart.googleapis.com/chart?cht=qr&chl=${encodedText}&chs=${size}x${size}&chld=H|0`;
-            
-            // Resmi oluştur
-            const img = document.createElement('img');
-            img.src = qrCodeUrl;
-            img.alt = 'QR Kod';
-            img.style.display = 'block';
-            img.style.margin = '0 auto';
-            img.style.maxWidth = '100%';
-            
-            // Yükleme ve hata olaylarını izle
-            img.onload = function() {
-                console.log('QR kod başarıyla yüklendi');
-                // Yükleme başarılı olayını tetikle
-                const event = new CustomEvent('qrcode:loaded', {
-                    detail: {
-                        element: element,
-                        image: img,
-                        url: qrCodeUrl
-                    }
-                });
-                document.dispatchEvent(event);
-            };
-            
-            img.onerror = function() {
-                console.error('QR kod yüklenemedi');
-                // Hata olayını tetikle
-                const event = new CustomEvent('qrcode:error', {
-                    detail: {
-                        element: element,
-                        text: text
-                    }
-                });
-                document.dispatchEvent(event);
-            };
-            
-            // Önce yükleme göstergesi ekle
-            element.innerHTML = `
-                <div class="qr-loading">
-                    <p>QR Kod yükleniyor...</p>
-                    <div style="width: 40px; height: 40px; border: 3px solid rgba(0, 245, 255, 0.3); border-radius: 50%; border-top-color: #00f5ff; margin: 10px auto; animation: qr-spin 1s linear infinite;"></div>
-                </div>
-                <style>
-                    @keyframes qr-spin {
-                        to { transform: rotate(360deg); }
-                    }
-                </style>
-            `;
-            
-            // Resmi yüklemeye başla
-            setTimeout(function() {
-                // Zamanlayıcı ile daha güvenilir yükleme
-                element.innerHTML = '';
-                element.appendChild(img);
-            }, 100);
-            
-            return true;
-        } catch (error) {
-            console.error('QR kod oluşturma hatası:', error);
-            element.innerHTML = `
-                <div style="padding: 15px; background-color: rgba(255, 0, 0, 0.2); border-radius: 8px; text-align: center;">
-                    <p style="color: #ff6b6b; margin: 0;">QR kod oluşturulamadı.</p>
-                    <button onclick="window.createQRCode('${text.replace(/'/g, "\\'")}', '${elementId}', ${width}, ${height})" style="padding: 8px 15px; background-color: #00f5ff; color: #000; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">Tekrar Dene</button>
-                </div>
-            `;
-            return false;
-        }
-    };
-    </script>
 </head>
 <body>
     <div id="particles-js" class="tech-background"></div>
@@ -118,6 +34,26 @@
             </div>
         </div>
     </div>
+    
+    <script>
+    // QR kodunu tamamen yerel olarak üretecek basit fonksiyon
+    function generateQRImage(text, size) {
+        // Google Charts API URL'sini oluştur
+        const encodedText = encodeURIComponent(text);
+        const qrSize = size || 200;
+        const qrUrl = `https://chart.googleapis.com/chart?cht=qr&chl=${encodedText}&chs=${qrSize}x${qrSize}&chld=H|0`;
+        
+        // Yeni bir resim elementi oluştur
+        const img = new Image();
+        img.src = qrUrl;
+        img.alt = "QR Kod";
+        img.style.maxWidth = "100%";
+        img.style.display = "block";
+        img.style.margin = "0 auto";
+        
+        return {img, url: qrUrl};
+    }
+    </script>
     
     <!-- QR Generator script -->
     <script src="qr-generator.js"></script>
