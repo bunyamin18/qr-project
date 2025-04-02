@@ -1,125 +1,73 @@
-// QR kodu oluşturmak için gerekli kütüphaneyi dahil edin
-// Bu dosyanın HTML'de doğru şekilde yüklendiğinden emin olun
-// <script src="qrcode.min.js"></script>
-
 // QR kod oluşturma ve görüntüleme işlemleri
 document.addEventListener('DOMContentLoaded', function () {
-    // DOM elementlerini seç
-    const listTitle = document.getElementById('listTitle');
-    const previewItems = document.getElementById('preview-items');
+    console.log('QR Generator sayfası yüklendi');
+
+    // DOM öğelerini seç
     const qrContainer = document.getElementById('qrContainer');
-    const backButton = document.getElementById('backButton');
-    const editButton = document.getElementById('editButton');
-    const downloadButton = document.getElementById('downloadButton');
+    const listForm = document.getElementById('listForm');
+    const addItemButton = document.getElementById('addItemButton');
+    const itemsContainer = document.getElementById('itemsContainer');
 
-    // URL'den liste ID'sini al
-    const urlParams = new URLSearchParams(window.location.search);
-    const listId = urlParams.get('listId');
+    // Liste öğelerini tutacak bir dizi
+    let items = [];
 
-    if (!listId) {
-        showError('Liste ID bulunamadı');
-        return;
-    }
+    // Yeni öğe ekleme
+    addItemButton.addEventListener('click', function () {
+        const newItem = document.createElement('div');
+        newItem.className = 'form-group';
+        newItem.innerHTML = `
+            <input type="text" class="form-control item-content" placeholder="Öğe İçeriği" required>
+            <input type="text" class="form-control item-value" placeholder="Öğe Değeri">
+        `;
+        itemsContainer.appendChild(newItem);
+    });
 
-    // Liste verilerini al
-    const list = localStorage.getItem('lists');
-    const lists = list ? JSON.parse(list) : {};
-    const listData = lists[listId];
+    // Form gönderildiğinde QR kod oluştur
+    listForm.addEventListener('submit', function (e) {
+        e.preventDefault();
 
-    if (!listData) {
-        showError('Liste bulunamadı');
-        return;
-    }
+        // Liste başlığını al
+        const title = document.getElementById('title').value;
 
-    // Liste başlığını ve öğeleri göster
-    displayListData(listData);
-    
-    // QR kodu oluştur
-    createQRCode(listData);
+        // Liste öğelerini al
+        items = [];
+        const itemElements = itemsContainer.querySelectorAll('.form-group');
+        itemElements.forEach(itemElement => {
+            const content = itemElement.querySelector('.item-content').value;
+            const value = itemElement.querySelector('.item-value').value;
+            items.push({ content, value });
+        });
 
-    // Buton işlevlerini ayarla
-    setupButtons(listId);
+        // Liste verilerini oluştur
+        const listData = {
+            title,
+            items
+        };
 
-    function showError(message) {
-        qrContainer.innerHTML = `<p class="error">${message}</p>`;
-        if (downloadButton) downloadButton.disabled = true;
-    }
+        // QR kodu oluştur
+        generateQRCode(listData);
+    });
 
-    function displayListData(data) {
-        // Başlığı göster
-        if (listTitle) {
-            listTitle.textContent = data.title || 'Liste';
-        }
-
-        // Liste öğelerini göster
-        if (previewItems) {
-            previewItems.innerHTML = '';
-            if (data.items && data.items.length > 0) {
-                data.items.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'preview-item';
-                    div.innerHTML = `
-                        <div class="item-content">${escapeHtml(item.content)}</div>
-                        ${item.value ? `<div class="item-value">${escapeHtml(item.value)}</div>` : ''}
-                    `;
-                    previewItems.appendChild(div);
-                });
-            } else {
-                previewItems.innerHTML = '<p>Bu listede öğe bulunmuyor</p>';
-            }
-        }
-    }
-
-    function createQRCode(data) {
+    // QR kod oluşturma fonksiyonu
+    function generateQRCode(listData) {
         try {
             // Liste verilerini JSON'a çevir
-            const jsonData = JSON.stringify(data);
-            
-            // Viewer URL'ini oluştur
-            const viewerUrl = `${window.location.origin}/viewer.html?data=${encodeURIComponent(btoa(jsonData))}`;
-            
-            // QR kod resmini oluştur
-            const {img, url} = generateQRImage(viewerUrl, 300);
-            
-            // QR kodu göster
-            qrContainer.innerHTML = '';
-            qrContainer.appendChild(img);
-            
-            // İndirme butonunu aktifleştir
-            if (downloadButton) {
-                downloadButton.disabled = false;
-                downloadButton.onclick = () => downloadQRCode(url, `liste-${data.title || 'qr'}.png`);
-            }
+            const jsonData = JSON.stringify(listData);
+            const base64Data = btoa(unescape(encodeURIComponent(jsonData)));
+            const finalUrl = `${window.location.origin}/viewer.html?data=${encodeURIComponent(base64Data)}`;
+
+            console.log('Oluşturulan URL:', finalUrl);
+
+            // QR kodu oluştur
+            qrContainer.innerHTML = ''; // Önceki QR kodu temizle
+            const qrCode = new QRCode(qrContainer, {
+                text: finalUrl,
+                width: 200,
+                height: 200
+            });
         } catch (error) {
-            showError('QR kod oluşturulurken hata oluştu');
-            console.error('QR kod hatası:', error);
+            console.error('QR kod oluşturulamadı:', error);
+            qrContainer.innerHTML = `<p style="color: red;">QR kod oluşturulamadı. Lütfen tekrar deneyin.</p>`;
         }
-    }
-
-    function setupButtons(listId) {
-        // Ana sayfaya dönüş butonu
-        if (backButton) {
-            backButton.onclick = () => window.location.href = 'index.html';
-        }
-
-        // Düzenleme butonu
-        if (editButton) {
-            editButton.onclick = () => window.location.href = `index.html?edit=${listId}`;
-        }
-    }
-
-    function downloadQRCode(url, filename) {
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
     }
 });
