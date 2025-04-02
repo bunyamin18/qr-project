@@ -8,7 +8,6 @@
     
     <!-- Gerekli JavaScript dosyaları -->
     <script src="dataStorage.js"></script>
-    <script src="script.js"></script>
     <script src="qr-generator.js"></script>
 </head>
 <body>
@@ -31,7 +30,7 @@
             <div class="button-container">
                 <button id="backButton" class="back-button">Ana Sayfaya Dön</button>
                 <button id="editButton" class="edit-button">Listeyi Düzenle</button>
-                <button id="downloadButton" class="download-button">QR Kodu İndir</button>
+                <button id="downloadButton" class="download-button" disabled>QR Kodu İndir</button>
             </div>
         </div>
     </div>
@@ -55,8 +54,5 @@
         return {img, url: qrUrl};
     }
     </script>
-    
-    <!-- QR Generator script -->
-    <script src="qr-generator.js"></script>
 </body>
 </html>
