@@ -2,16 +2,6 @@
 // Bu dosyanın HTML'de doğru şekilde yüklendiğinden emin olun
 // <script src="qrcode.min.js"></script>
 
-// Veri depolama nesnesi
-window.dataStorage = {
-    lists: {
-        "1": { id: "1", title: "Örnek Liste", items: [{ content: "Öğe 1", value: "Değer 1" }] }
-    },
-    getList: function (id) {
-        return this.lists[id];
-    }
-};
-
 // QR kod oluşturma ve görüntüleme işlemleri
 document.addEventListener('DOMContentLoaded', function () {
     // DOM elementlerini seç
@@ -31,8 +21,11 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
-    // Liste verilerini al ve göster
-    const listData = window.dataStorage.getList(listId);
+    // Liste verilerini al
+    const list = localStorage.getItem('lists');
+    const lists = list ? JSON.parse(list) : {};
+    const listData = lists[listId];
+
     if (!listData) {
         showError('Liste bulunamadı');
         return;
